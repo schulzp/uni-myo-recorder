@@ -1,0 +1,5 @@
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    compile 'com.github.nicholasastuart:myo-java:0.9.1'
+    compile 'org.springframework:spring-core:4.2.3.RELEASE'
+}
