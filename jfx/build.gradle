@@ -84,6 +84,17 @@ if (!project.plugins.findPlugin(org.bitbucket.shemnon.javafxplugin.JavaFXPlugin)
     project.apply(plugin: org.bitbucket.shemnon.javafxplugin.JavaFXPlugin)
 }
 
+sourceSets {
+    main {
+        output.classesDir = '$buildDir/main/classes'
+        output.resourcesDir = '$buildDir/main/resources'
+    }
+    test {
+        output.classesDir = '$buildDir/test/classes'
+        output.resourcesDir = '$buildDir/test/resources'
+    }
+}
+
 javafx {
     appID 'CrimpBitAnalysis'
     appName 'Crimp Bit Analysis'
