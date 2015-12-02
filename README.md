@@ -10,7 +10,7 @@ I recommend JetBrains' IntelliJ IDEA. Simply import the root project in this fol
 The project consists of multiple modules:
 
 * **`core`** application core providing the required services
-* **`cli`** command line interface
+* **`jfx`** graphical user interface based on JavaFX
 
 ## Running
 

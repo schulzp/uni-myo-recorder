@@ -1,4 +1,4 @@
-include 'core', 'cli', 'jfx'
+include 'core', 'jfx'
 
 rootProject.name = 'analysis'
 
