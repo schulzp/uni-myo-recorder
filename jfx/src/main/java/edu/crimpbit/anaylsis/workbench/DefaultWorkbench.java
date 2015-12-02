@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2010 - 2012
  *
- * [JacpFXWorkbench.java]
+ * [DefaultWorkbench.java]
  * AHCP Project (http://jacp.googlecode.com)
  * All rights reserved.
  *
@@ -48,12 +48,12 @@ import edu.crimpbit.anaylsis.config.BasicConfig;
  *
  * @author Andy Moncsek
  */
-@Workbench(id = "id1", name = "workbench",
+@Workbench(id = BasicConfig.WORKBENCH_DEFAULT, name = "defaultWorkbench",
         perspectives = {
-                BasicConfig.PERSPECTIVE_TWO,
-                BasicConfig.PERSPECTIVE_ONE
+                BasicConfig.PERSPECTIVE_ANALYSIS,
+                BasicConfig.PERSPECTIVE_RECORDING
         })
-public class JacpFXWorkbench implements FXWorkbench {
+public class DefaultWorkbench implements FXWorkbench {
 
     @Resource
     private Context context;

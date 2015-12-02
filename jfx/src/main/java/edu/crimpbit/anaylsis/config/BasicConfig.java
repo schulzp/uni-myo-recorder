@@ -35,8 +35,10 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan
 public class BasicConfig {
 
-    public static final String PERSPECTIVE_ONE = "idPone";
-    public static final String PERSPECTIVE_TWO = "idPtwo";
+    public static final String WORKBENCH_DEFAULT = "wDefault";
+
+    public static final String PERSPECTIVE_RECORDING = "pRecording";
+    public static final String PERSPECTIVE_ANALYSIS = "pAnalysis";
 
     public static final String COMPONENT_LEFT = "id002";
     public static final String COMPONENT_RIGHT = "id003";

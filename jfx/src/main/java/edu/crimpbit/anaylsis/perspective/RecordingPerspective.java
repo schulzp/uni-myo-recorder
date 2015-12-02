@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2010 - 2012
  *
- * [PerspectiveOne.java]
+ * [RecordingPerspective.java]
  * AHCP Project (http://jacp.googlecode.com)
  * All rights reserved.
  *
@@ -54,15 +54,15 @@ import static javafx.scene.layout.Priority.ALWAYS;
  * @author: Andy Moncsek
  * @author: Patrick Symmangk (pete.jacp@gmail.com)
  */
-@Perspective(id = BasicConfig.PERSPECTIVE_ONE,
-        name = "contactPerspective",
+@Perspective(id = BasicConfig.PERSPECTIVE_RECORDING,
+        name = "recordingPerspective",
         components = {
                 BasicConfig.COMPONENT_LEFT,
                 BasicConfig.COMPONENT_RIGHT,
                 BasicConfig.STATEFUL_CALLBACK},
         resourceBundleLocation = "bundles.languageBundle")
-public class PerspectiveOne implements FXPerspective {
-    private Logger log = Logger.getLogger(PerspectiveOne.class.getName());
+public class RecordingPerspective implements FXPerspective {
+    private Logger log = Logger.getLogger(RecordingPerspective.class.getName());
     @Resource
     public Context context;
 
@@ -81,7 +81,7 @@ public class PerspectiveOne implements FXPerspective {
      * @param layout, the component layout contains references to the toolbar and the menu
      */
     public void onShow(final FXComponentLayout layout) {
-        log.info("on show of PerspectiveOne");
+        log.info("on show of RecordingPerspective");
     }
 
     @OnHide
@@ -90,7 +90,7 @@ public class PerspectiveOne implements FXPerspective {
      * @param layout, the component layout contains references to the toolbar and the menu
      */
     public void onHide(final FXComponentLayout layout) {
-        log.info("on hide of PerspectiveOne");
+        log.info("on hide of RecordingPerspective");
     }
 
     @PostConstruct
@@ -104,7 +104,7 @@ public class PerspectiveOne implements FXPerspective {
         // define toolbars and menu entries
         JACPToolBar toolbar = layout.getRegisteredToolBar(ToolbarPosition.NORTH);
         Button pressMe = new Button(resourceBundle.getString("p2.button"));
-        pressMe.setOnAction((event) -> context.send(BasicConfig.PERSPECTIVE_TWO, "show"));
+        pressMe.setOnAction((event) -> context.send(BasicConfig.PERSPECTIVE_ANALYSIS, "show"));
         toolbar.addAllOnEnd(pressMe);
         toolbar.add(new Label(resourceBundle.getString("p1.button")));
 
@@ -126,18 +126,16 @@ public class PerspectiveOne implements FXPerspective {
         perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_LEFT, leftMenu);
         // register main content
         perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_MAIN, mainContent);
-        log.info("on PostConstruct of PerspectiveOne");
+        log.info("on PostConstruct of RecordingPerspective");
     }
 
-
-    @PreDestroy
     /**
      * @PreDestroy annotated method will be executed when component is deactivated.
      * @param layout, the component layout contains references to the toolbar and the menu
      */
+    @PreDestroy
     public void onTearDownPerspective(final FXComponentLayout layout) {
-        log.info("on PreDestroy of PerspectiveOne");
-
+        log.info("on PreDestroy of RecordingPerspective");
     }
 
 }

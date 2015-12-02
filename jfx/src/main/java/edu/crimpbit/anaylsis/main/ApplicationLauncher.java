@@ -22,13 +22,13 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.main;
 
+import edu.crimpbit.anaylsis.workbench.DefaultWorkbench;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.jacpfx.rcp.workbench.FXWorkbench;
 import org.jacpfx.spring.launcher.AFXSpringJavaConfigLauncher;
 import edu.crimpbit.anaylsis.config.BasicConfig;
-import edu.crimpbit.anaylsis.workbench.JacpFXWorkbench;
 
 /**
  * The application launcher containing the main method, the workbench definition, the configuration class and the packages to scan
@@ -44,7 +44,7 @@ public class ApplicationLauncher extends AFXSpringJavaConfigLauncher {
 
     @Override
     protected Class<? extends FXWorkbench> getWorkbenchClass() {
-        return JacpFXWorkbench.class;
+        return DefaultWorkbench.class;
     }
 
     @Override

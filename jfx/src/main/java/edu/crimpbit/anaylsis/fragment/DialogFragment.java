@@ -55,10 +55,10 @@ public class DialogFragment {
     public void init() {
         name.setOnKeyReleased(event->{
             final String nameValue = name.getText();
-            if(context.getParentId().equals(BasicConfig.PERSPECTIVE_ONE)) {
-                context.send(BasicConfig.PERSPECTIVE_ONE.concat(".").concat(BasicConfig.STATEFUL_CALLBACK), nameValue);
+            if(context.getParentId().equals(BasicConfig.PERSPECTIVE_RECORDING)) {
+                context.send(BasicConfig.PERSPECTIVE_RECORDING.concat(".").concat(BasicConfig.STATEFUL_CALLBACK), nameValue);
             } else {
-                context.send(BasicConfig.PERSPECTIVE_TWO.concat(".").concat(BasicConfig.STATELESS_CALLBACK), nameValue);
+                context.send(BasicConfig.PERSPECTIVE_ANALYSIS.concat(".").concat(BasicConfig.STATELESS_CALLBACK), nameValue);
             }
         });
     }

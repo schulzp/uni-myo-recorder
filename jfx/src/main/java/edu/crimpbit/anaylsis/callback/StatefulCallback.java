@@ -54,7 +54,7 @@ public class StatefulCallback implements CallbackComponent {
     @Override
     public Object handle(final Message<Event, Object> message) {
         if(!message.messageBodyEquals(FXUtil.MessageUtil.INIT))     {
-           context.setReturnTarget(BasicConfig.PERSPECTIVE_ONE.concat(".").concat(BasicConfig.COMPONENT_RIGHT));
+           context.setReturnTarget(BasicConfig.PERSPECTIVE_RECORDING.concat(".").concat(BasicConfig.COMPONENT_RIGHT));
             return "Hello: " + message.getTypedMessageBody(String.class)+" from StatefulCallback";
         }
         return null;
