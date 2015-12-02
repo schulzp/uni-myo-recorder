@@ -90,7 +90,7 @@ public class ComponentRight implements FXComponent {
      */
     public void onPostConstructComponent(final FXComponentLayout arg0,
                                          final ResourceBundle resourceBundle) {
-        this.LOGGER.info("run on start of ComponentRight ");
+        LOGGER.info("run on start of ComponentRight ");
 
     }
 
@@ -100,7 +100,7 @@ public class ComponentRight implements FXComponent {
      * @param arg0
      */
     public void onPreDestroyComponent(final FXComponentLayout arg0) {
-        this.LOGGER.info("run on tear down of ComponentRight ");
+        LOGGER.info("run on tear down of ComponentRight ");
 
     }
 

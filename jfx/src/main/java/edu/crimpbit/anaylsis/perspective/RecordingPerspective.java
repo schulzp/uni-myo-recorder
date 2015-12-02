@@ -50,8 +50,8 @@ import static javafx.scene.layout.Priority.ALWAYS;
 /**
  * A simple perspective defining a split pane
  *
- * @author: Andy Moncsek
- * @author: Patrick Symmangk (pete.jacp@gmail.com)
+ * @author Andy Moncsek
+ * @author Patrick Symmangk (pete.jacp@gmail.com)
  */
 @Perspective(id = BasicConfig.PERSPECTIVE_RECORDING,
         name = "recordingPerspective",
@@ -132,7 +132,7 @@ public class RecordingPerspective implements FXPerspective {
 
     /**
      * @param layout, the component layout contains references to the toolbar and the menu
-     * @PreDestroy annotated method will be executed when component is deactivated.
+     * {@code @PreDestroy} annotated method will be executed when component is deactivated.
      */
     @PreDestroy
     public void onTearDownPerspective(final FXComponentLayout layout) {

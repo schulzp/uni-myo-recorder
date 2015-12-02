@@ -50,8 +50,8 @@ import static javafx.scene.layout.Priority.ALWAYS;
 /**
  * A simple perspective defining a split pane
  *
- * @author: Andy Moncsek
- * @author: Patrick Symmangk (pete.jacp@gmail.com)
+ * @author Andy Moncsek
+ * @author Patrick Symmangk (pete.jacp@gmail.com)
  */
 @Perspective(id = BasicConfig.PERSPECTIVE_ANALYSIS,
         name = "analysisPerspective",

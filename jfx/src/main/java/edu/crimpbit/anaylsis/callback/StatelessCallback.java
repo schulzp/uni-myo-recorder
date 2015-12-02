@@ -68,7 +68,7 @@ public class StatelessCallback implements CallbackComponent {
      * The @PreDestroy annotations labels methods executed when the component is set to inactive
      */
     public void onPreDestroyComponent() {
-        this.LOGGER.info("run on tear down of StatelessCallback ");
+        LOGGER.info("run on tear down of StatelessCallback ");
 
     }
 
@@ -78,7 +78,7 @@ public class StatelessCallback implements CallbackComponent {
      * @param resourceBundle
      */
     public void onPostConstructComponent(final ResourceBundle resourceBundle) {
-        this.LOGGER.info("run on start of StatelessCallback ");
+        LOGGER.info("run on start of StatelessCallback ");
 
     }
 

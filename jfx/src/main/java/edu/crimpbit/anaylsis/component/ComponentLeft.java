@@ -91,7 +91,7 @@ public class ComponentLeft implements FXComponent {
     public void onPostConstructComponent(final FXComponentLayout arg0,
                                          final ResourceBundle resourceBundle) {
         this.pane = createUI();
-        this.LOGGER.info("run on start of ComponentLeft ");
+        LOGGER.info("run on start of ComponentLeft ");
     }
 
     @PreDestroy
@@ -100,7 +100,7 @@ public class ComponentLeft implements FXComponent {
      * @param arg0
      */
     public void onPreDestroyComponent(final FXComponentLayout arg0) {
-        this.LOGGER.info("run on tear down of ComponentLeft ");
+        LOGGER.info("run on tear down of ComponentLeft ");
 
     }
 
