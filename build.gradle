@@ -1,24 +1,31 @@
 allprojects {
-    apply plugin: 'java'
     apply plugin: 'idea'
+
     group = 'edu.crimpbit'
     version = '1.0-SNAPSHOT'
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
 }
 
 subprojects {
     apply plugin: 'java'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    ext {
+        vSpring = '4.2.3.RELEASE'
+        vSlf4j = '1.7.1'
+        vJunit = '4.12'
+        vGuava = '18.0'
+    }
 
     repositories {
         jcenter();
     }
 
     dependencies {
-        compile 'org.slf4j:slf4j-api:1.7.1'
-        compile 'com.google.guava:guava:18.0'
+        compile 'org.slf4j:slf4j-api:' + vSlf4j,
+                'com.google.guava:guava:' + vGuava
 
-        testCompile 'junit:junit:4.12'
+        testCompile 'junit:junit:' + vJunit
     }
 }
