@@ -1,27 +1,26 @@
 /************************************************************************
- *
  * Copyright (C) 2010 - 2012
- *
+ * <p>
  * [ComponentLeft.java]
  * AHCP Project (http://jacp.googlecode.com)
  * All rights reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at 
- *
- *     http://www.apache.org/licenses/LICENSE-2.0 
- *
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
- *
- *
  ************************************************************************/
 package edu.crimpbit.anaylsis.component;
 
+import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.anaylsis.fragment.DialogFragment;
 import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -36,11 +35,10 @@ import org.jacpfx.rcp.componentLayout.FXComponentLayout;
 import org.jacpfx.rcp.components.managedFragment.ManagedFragmentHandler;
 import org.jacpfx.rcp.context.Context;
 import org.jacpfx.rcp.util.FXUtil;
-import edu.crimpbit.anaylsis.config.BasicConfig;
-import edu.crimpbit.anaylsis.fragment.DialogFragment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
 
 /**
  * A simple JacpFX UI component
@@ -53,8 +51,11 @@ import java.util.logging.Logger;
         resourceBundleLocation = "bundles.languageBundle",
         initialTargetLayoutId = BasicConfig.TARGET_CONTAINER_LEFT)
 public class ComponentLeft implements FXComponent {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComponentLeft.class);
+
     private Node pane;
-    private Logger log = Logger.getLogger(ComponentLeft.class.getName());
+
     @Resource
     private Context context;
 
@@ -90,7 +91,7 @@ public class ComponentLeft implements FXComponent {
     public void onPostConstructComponent(final FXComponentLayout arg0,
                                          final ResourceBundle resourceBundle) {
         this.pane = createUI();
-        this.log.info("run on start of ComponentLeft ");
+        this.LOGGER.info("run on start of ComponentLeft ");
     }
 
     @PreDestroy
@@ -99,7 +100,7 @@ public class ComponentLeft implements FXComponent {
      * @param arg0
      */
     public void onPreDestroyComponent(final FXComponentLayout arg0) {
-        this.log.info("run on tear down of ComponentLeft ");
+        this.LOGGER.info("run on tear down of ComponentLeft ");
 
     }
 

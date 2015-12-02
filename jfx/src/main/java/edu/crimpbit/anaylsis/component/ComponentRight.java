@@ -1,27 +1,25 @@
 /************************************************************************
- *
  * Copyright (C) 2010 - 2012
- *
+ * <p>
  * [ComponentRight.java]
  * AHCP Project (http://jacp.googlecode.com)
  * All rights reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at 
- *
- *     http://www.apache.org/licenses/LICENSE-2.0 
- *
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
- *
- *
  ************************************************************************/
 package edu.crimpbit.anaylsis.component;
 
+import edu.crimpbit.anaylsis.config.BasicConfig;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -35,10 +33,10 @@ import org.jacpfx.rcp.component.FXComponent;
 import org.jacpfx.rcp.componentLayout.FXComponentLayout;
 import org.jacpfx.rcp.context.Context;
 import org.jacpfx.rcp.util.FXUtil;
-import edu.crimpbit.anaylsis.config.BasicConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
 
 /**
  * A simple JacpFX UI component
@@ -53,7 +51,9 @@ import java.util.logging.Logger;
         localeID = "en_US",
         initialTargetLayoutId = BasicConfig.TARGET_CONTAINER_MAIN)
 public class ComponentRight implements FXComponent {
-    private Logger log = Logger.getLogger(ComponentRight.class.getName());
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComponentRight.class);
+
     @Resource
     private Context context;
     @FXML
@@ -90,7 +90,7 @@ public class ComponentRight implements FXComponent {
      */
     public void onPostConstructComponent(final FXComponentLayout arg0,
                                          final ResourceBundle resourceBundle) {
-        this.log.info("run on start of ComponentRight ");
+        this.LOGGER.info("run on start of ComponentRight ");
 
     }
 
@@ -100,7 +100,7 @@ public class ComponentRight implements FXComponent {
      * @param arg0
      */
     public void onPreDestroyComponent(final FXComponentLayout arg0) {
-        this.log.info("run on tear down of ComponentRight ");
+        this.LOGGER.info("run on tear down of ComponentRight ");
 
     }
 

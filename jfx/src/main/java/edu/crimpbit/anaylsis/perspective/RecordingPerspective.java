@@ -1,27 +1,25 @@
 /************************************************************************
- *
  * Copyright (C) 2010 - 2012
- *
+ * <p>
  * [RecordingPerspective.java]
  * AHCP Project (http://jacp.googlecode.com)
  * All rights reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at 
- *
- *     http://www.apache.org/licenses/LICENSE-2.0 
- *
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
- *
- *
  ************************************************************************/
 package edu.crimpbit.anaylsis.perspective;
 
+import edu.crimpbit.anaylsis.config.BasicConfig;
 import javafx.event.Event;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
@@ -42,10 +40,11 @@ import org.jacpfx.rcp.components.toolBar.JACPToolBar;
 import org.jacpfx.rcp.context.Context;
 import org.jacpfx.rcp.perspective.FXPerspective;
 import org.jacpfx.rcp.util.LayoutUtil;
-import edu.crimpbit.anaylsis.config.BasicConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
+
 import static javafx.scene.layout.Priority.ALWAYS;
 
 /**
@@ -62,7 +61,9 @@ import static javafx.scene.layout.Priority.ALWAYS;
                 BasicConfig.STATEFUL_CALLBACK},
         resourceBundleLocation = "bundles.languageBundle")
 public class RecordingPerspective implements FXPerspective {
-    private Logger log = Logger.getLogger(RecordingPerspective.class.getName());
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecordingPerspective.class);
+
     @Resource
     public Context context;
 
@@ -81,7 +82,7 @@ public class RecordingPerspective implements FXPerspective {
      * @param layout, the component layout contains references to the toolbar and the menu
      */
     public void onShow(final FXComponentLayout layout) {
-        log.info("on show of RecordingPerspective");
+        LOGGER.info("on show of RecordingPerspective");
     }
 
     @OnHide
@@ -90,7 +91,7 @@ public class RecordingPerspective implements FXPerspective {
      * @param layout, the component layout contains references to the toolbar and the menu
      */
     public void onHide(final FXComponentLayout layout) {
-        log.info("on hide of RecordingPerspective");
+        LOGGER.info("on hide of RecordingPerspective");
     }
 
     @PostConstruct
@@ -126,16 +127,16 @@ public class RecordingPerspective implements FXPerspective {
         perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_LEFT, leftMenu);
         // register main content
         perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_MAIN, mainContent);
-        log.info("on PostConstruct of RecordingPerspective");
+        LOGGER.info("on PostConstruct of RecordingPerspective");
     }
 
     /**
-     * @PreDestroy annotated method will be executed when component is deactivated.
      * @param layout, the component layout contains references to the toolbar and the menu
+     * @PreDestroy annotated method will be executed when component is deactivated.
      */
     @PreDestroy
     public void onTearDownPerspective(final FXComponentLayout layout) {
-        log.info("on PreDestroy of RecordingPerspective");
+        LOGGER.info("on PreDestroy of RecordingPerspective");
     }
 
 }

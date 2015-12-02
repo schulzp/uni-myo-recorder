@@ -25,13 +25,13 @@
 
 package edu.crimpbit.anaylsis.fragment;
 
+import edu.crimpbit.anaylsis.config.BasicConfig;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import org.jacpfx.api.annotations.Resource;
 import org.jacpfx.api.annotations.fragment.Fragment;
 import org.jacpfx.api.fragment.Scope;
 import org.jacpfx.rcp.context.Context;
-import edu.crimpbit.anaylsis.config.BasicConfig;
 
 /**
  * Created by Andy Moncsek on 26.06.14.
@@ -42,7 +42,7 @@ import edu.crimpbit.anaylsis.config.BasicConfig;
         viewLocation = "/fxml/DialogFragment.fxml",
         resourceBundleLocation = "bundles.languageBundle",
         localeID = "en_US",
-scope = Scope.PROTOTYPE)
+        scope = Scope.PROTOTYPE)
 public class DialogFragment {
 
     @Resource
@@ -53,9 +53,9 @@ public class DialogFragment {
 
 
     public void init() {
-        name.setOnKeyReleased(event->{
+        name.setOnKeyReleased(event -> {
             final String nameValue = name.getText();
-            if(context.getParentId().equals(BasicConfig.PERSPECTIVE_RECORDING)) {
+            if (context.getParentId().equals(BasicConfig.PERSPECTIVE_RECORDING)) {
                 context.send(BasicConfig.PERSPECTIVE_RECORDING.concat(".").concat(BasicConfig.STATEFUL_CALLBACK), nameValue);
             } else {
                 context.send(BasicConfig.PERSPECTIVE_ANALYSIS.concat(".").concat(BasicConfig.STATELESS_CALLBACK), nameValue);
