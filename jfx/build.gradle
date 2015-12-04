@@ -110,5 +110,6 @@ dependencies {
             'org.jacpfx:jacpfx.API:' + vJacp,
             'org.jacpfx:jacpfx.JavaFX:' + vJacp,
             'org.jacpfx:jacpfx.JavaFXSpring:' + vJacp,
-            'org.jacpfx:jacpfx.JavaFXControls:' + vJacp
+            'org.jacpfx:jacpfx.JavaFXControls:' + vJacp,
+            project(':core')
 }

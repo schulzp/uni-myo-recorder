@@ -25,6 +25,8 @@
 
 package edu.crimpbit.anaylsis.config;
 
+import edu.crimpbit.ConnectorService;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -47,4 +49,12 @@ public class BasicConfig {
 
     public static final String TARGET_CONTAINER_LEFT = "PLeft";
     public static final String TARGET_CONTAINER_MAIN = "PMain";
+
+    @Bean
+    public ConnectorService connectorService() {
+        ConnectorService connectorService = new ConnectorService();
+        connectorService.getMyos();
+        return connectorService;
+    }
+
 }

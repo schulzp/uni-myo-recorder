@@ -13,18 +13,27 @@ subprojects {
 
     ext {
         vSpring = '4.2.3.RELEASE'
-        vSlf4j = '1.7.1'
+        vSlf4j = '1.7.13'
+        vLog4j = '2.4.1'
         vJunit = '4.12'
         vGuava = '18.0'
     }
 
     repositories {
-        jcenter();
+        jcenter()
+    }
+
+    configurations {
+        compile.exclude group: 'commons-logging', module: 'commons-logging'
     }
 
     dependencies {
         compile 'org.slf4j:slf4j-api:' + vSlf4j,
+                'org.slf4j:jcl-over-slf4j:' + vSlf4j,
                 'com.google.guava:guava:' + vGuava
+
+        runtime 'org.apache.logging.log4j:log4j-core:' + vLog4j,
+                'org.apache.logging.log4j:log4j-slf4j-impl:' + vLog4j
 
         testCompile 'junit:junit:' + vJunit
     }

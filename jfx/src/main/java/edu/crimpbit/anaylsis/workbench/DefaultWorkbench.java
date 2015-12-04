@@ -19,6 +19,7 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.workbench;
 
+import edu.crimpbit.ConnectorService;
 import edu.crimpbit.anaylsis.config.BasicConfig;
 import javafx.event.Event;
 import javafx.geometry.Pos;
@@ -39,6 +40,7 @@ import org.jacpfx.rcp.componentLayout.FXComponentLayout;
 import org.jacpfx.rcp.components.menuBar.JACPMenuBar;
 import org.jacpfx.rcp.context.Context;
 import org.jacpfx.rcp.workbench.FXWorkbench;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * A simple JacpFX workbench
@@ -52,6 +54,9 @@ import org.jacpfx.rcp.workbench.FXWorkbench;
         })
 public class DefaultWorkbench implements FXWorkbench {
 
+    @Autowired
+    private ConnectorService connectorService;
+
     @Resource
     private Context context;
 
@@ -62,6 +67,8 @@ public class DefaultWorkbench implements FXWorkbench {
         layout.registerToolBar(ToolbarPosition.NORTH);
         layout.setStyle(StageStyle.DECORATED);
         layout.setMenuEnabled(true);
+
+        connectorService.getMyos();
     }
 
     @Override
