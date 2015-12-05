@@ -103,6 +103,8 @@ javafx {
 
 ext {
     vJacp = '2.0.2'
+    vFontAwesome = '8.7'
+    vJfxtras = '8.0-r4'
 }
 
 dependencies {
@@ -111,5 +113,7 @@ dependencies {
             'org.jacpfx:jacpfx.JavaFX:' + vJacp,
             'org.jacpfx:jacpfx.JavaFXSpring:' + vJacp,
             'org.jacpfx:jacpfx.JavaFXControls:' + vJacp,
+            'de.jensd:fontawesomefx:' + vFontAwesome,
+            'org.jfxtras:jfxtras-fxml:' + vJfxtras,
             project(':core')
 }

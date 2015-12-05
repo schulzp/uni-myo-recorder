@@ -43,12 +43,10 @@ import java.util.ResourceBundle;
  *
  * @author Andy Moncsek
  */
-@DeclarativeView(id = BasicConfig.COMPONENT_RIGHT,
-        name = "SimpleView",
-        viewLocation = "/fxml/ComponentRight.fxml",
+@DeclarativeView(id = BasicConfig.COMPONENT_RIGHT, name = "SimpleView",
         active = true,
+        viewLocation = "/fxml/ComponentRight.fxml",
         resourceBundleLocation = "bundles.languageBundle",
-        localeID = "en_US",
         initialTargetLayoutId = BasicConfig.TARGET_CONTAINER_MAIN)
 public class ComponentRight implements FXComponent {
 

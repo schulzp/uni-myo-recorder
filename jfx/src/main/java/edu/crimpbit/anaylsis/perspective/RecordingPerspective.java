@@ -22,15 +22,15 @@ package edu.crimpbit.anaylsis.perspective;
 import edu.crimpbit.anaylsis.config.BasicConfig;
 import javafx.event.Event;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import org.jacpfx.api.annotations.Resource;
 import org.jacpfx.api.annotations.lifecycle.OnHide;
 import org.jacpfx.api.annotations.lifecycle.OnShow;
 import org.jacpfx.api.annotations.lifecycle.PostConstruct;
-import org.jacpfx.api.annotations.lifecycle.PreDestroy;
 import org.jacpfx.api.annotations.perspective.Perspective;
 import org.jacpfx.api.message.Message;
 import org.jacpfx.api.util.ToolbarPosition;
@@ -47,18 +47,12 @@ import java.util.ResourceBundle;
 
 import static javafx.scene.layout.Priority.ALWAYS;
 
-/**
- * A simple perspective defining a split pane
- *
- * @author Andy Moncsek
- * @author Patrick Symmangk (pete.jacp@gmail.com)
- */
-@Perspective(id = BasicConfig.PERSPECTIVE_RECORDING,
-        name = "recordingPerspective",
+@Perspective(id = BasicConfig.RECORDING_PERSPECTIVE,
+        name = "RecordingPerspective",
         components = {
-                BasicConfig.COMPONENT_LEFT,
-                BasicConfig.COMPONENT_RIGHT,
-                BasicConfig.STATEFUL_CALLBACK},
+                BasicConfig.DEVICES_VIEW,
+                BasicConfig.TAB_VIEW,
+                BasicConfig.CONNECTOR_CALLBACK},
         resourceBundleLocation = "bundles.languageBundle")
 public class RecordingPerspective implements FXPerspective {
 
@@ -70,73 +64,58 @@ public class RecordingPerspective implements FXPerspective {
     private SplitPane mainLayout;
 
     @Override
-    public void handlePerspective(final Message<Event, Object> action,
-                                  final PerspectiveLayout perspectiveLayout) {
-
+    public void handlePerspective(final Message<Event, Object> action, final PerspectiveLayout perspectiveLayout) {
     }
 
-
-    @OnShow
     /**
      * This method will be executed when the perspective gets the focus and switches to foreground
      * @param layout, the component layout contains references to the toolbar and the menu
      */
+    @OnShow
     public void onShow(final FXComponentLayout layout) {
         LOGGER.info("on show of RecordingPerspective");
     }
 
-    @OnHide
     /**
      * will be executed when an active perspective looses the focus and moved to the background.
      * @param layout, the component layout contains references to the toolbar and the menu
      */
+    @OnHide
     public void onHide(final FXComponentLayout layout) {
         LOGGER.info("on hide of RecordingPerspective");
     }
 
-    @PostConstruct
     /**
      * @PostConstruct annotated method will be executed when component is activated.
      * @param layout
      * @param resourceBundle
      */
+    @PostConstruct
     public void onStartPerspective(final PerspectiveLayout perspectiveLayout, final FXComponentLayout layout,
                                    final ResourceBundle resourceBundle) {
         // define toolbars and menu entries
         JACPToolBar toolbar = layout.getRegisteredToolBar(ToolbarPosition.NORTH);
-        Button pressMe = new Button(resourceBundle.getString("p2.button"));
-        pressMe.setOnAction((event) -> context.send(BasicConfig.PERSPECTIVE_ANALYSIS, "show"));
+        Button pressMe = new Button(resourceBundle.getString("perspective.analysis"));
+        pressMe.setOnAction((event) -> context.send(BasicConfig.ANALYSIS_PERSPECTIVE, "show"));
         toolbar.addAllOnEnd(pressMe);
-        toolbar.add(new Label(resourceBundle.getString("p1.button")));
-
+        toolbar.add(new Label(resourceBundle.getString("perspective.recording")));
 
         mainLayout = new SplitPane();
         mainLayout.setOrientation(Orientation.HORIZONTAL);
         mainLayout.setDividerPosition(0, 0.3f);
-        // let them grow
-        LayoutUtil.GridPaneUtil.setFullGrow(ALWAYS, mainLayout);
-        // create left button menu
-        GridPane leftMenu = new GridPane();
-        // create main content Top
-        GridPane mainContent = new GridPane();
 
-        mainLayout.getItems().addAll(leftMenu, mainContent);
+        LayoutUtil.GridPaneUtil.setFullGrow(ALWAYS, mainLayout);
+
+        Node leftTarget = new VBox();
+        Node mainTarget = new VBox();
+
+        mainLayout.getItems().addAll(leftTarget, mainTarget);
         // Register root component
         perspectiveLayout.registerRootComponent(mainLayout);
-        // register left menu
-        perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_LEFT, leftMenu);
-        // register main content
-        perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_MAIN, mainContent);
-        LOGGER.info("on PostConstruct of RecordingPerspective");
-    }
-
-    /**
-     * @param layout, the component layout contains references to the toolbar and the menu
-     * {@code @PreDestroy} annotated method will be executed when component is deactivated.
-     */
-    @PreDestroy
-    public void onTearDownPerspective(final FXComponentLayout layout) {
-        LOGGER.info("on PreDestroy of RecordingPerspective");
+        // register left target
+        perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_LEFT, leftTarget);
+        // register main target
+        perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_MAIN, mainTarget);
     }
 
 }

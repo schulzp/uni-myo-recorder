@@ -57,7 +57,7 @@ public class StatelessCallback implements CallbackComponent {
     @Override
     public Object handle(final Message<Event, Object> message) {
         if (!message.messageBodyEquals(FXUtil.MessageUtil.INIT)) {
-            context.setReturnTarget(BasicConfig.PERSPECTIVE_ANALYSIS.concat(".").concat(BasicConfig.COMPONENT_RIGHT));
+            context.setReturnTarget(BasicConfig.ANALYSIS_PERSPECTIVE.concat(".").concat(BasicConfig.COMPONENT_RIGHT));
             return "Hello: " + message.getTypedMessageBody(String.class) + " from StatelessCallback";
         }
         return null;

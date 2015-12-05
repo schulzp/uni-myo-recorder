@@ -8,13 +8,12 @@ import com.thalmic.myo.enums.Arm;
 import com.thalmic.myo.enums.WarmupResult;
 import com.thalmic.myo.enums.WarmupState;
 import com.thalmic.myo.enums.XDirection;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Service wrapper for connector/hub.
@@ -25,7 +24,7 @@ public class ConnectorService {
 
     private static final String HUB_ID = "edu.crimpbit.analysis";
 
-    private final List<Myo> myos = Collections.synchronizedList(new LinkedList<>());
+    private final ObservableList<Device> devices = FXCollections.observableArrayList();
     private final Hub hub = new Hub(HUB_ID);
 
     {
@@ -44,11 +43,13 @@ public class ConnectorService {
             @Override
             public void onDisconnect(Myo myo, long timestamp) {
                 LOGGER.info("{} {} disconnected", myo, identify(myo));
+                findDevice(myo).ifPresent(device -> device.setConnected(false));
             }
 
             @Override
             public void onConnect(Myo myo, long timestamp, FirmwareVersion firmwareVersion) {
                 LOGGER.info("{} {} connected", myo, identify(myo));
+                findDevice(myo).ifPresent(device -> device.setConnected(true));
             }
 
             @Override
@@ -74,26 +75,47 @@ public class ConnectorService {
             }
 
             private String identify(Myo myo) {
-                return Integer.toString(myos.indexOf(myo));
+                return findDevice(myo).map(Device::getName).orElse("<unknown>");
             }
 
         });
     }
 
-    public Collection<Myo> getMyos() {
+    public void refresh() {
         Myo myo;
         do  {
-            myo = hub.waitForMyo(10000);
-            if (myo != null && !myos.contains(myo)) {
+            myo = hub.waitForMyo(2000);
+
+            if (myo != null && !findDevice(myo).isPresent()) {
                 LOGGER.debug("added {}", myo);
-                myos.add(myo);
+                devices.add(bind(myo));
             }
         } while (myo != null);
-
-        return myos;
     }
 
-    public Hub getHub() {
+    public ObservableList<Device> getDevices() {
+        return devices;
+    }
+
+    public Optional<Device> findDevice(Myo myo) {
+        for (Device device : devices) {
+            if (myo.equals(device.getMyo())) {
+                return Optional.of(device);
+            }
+        }
+        return Optional.empty();
+    }
+
+    Device bind(Myo myo) {
+        Device device = new Device(myo);
+        device.setName(Integer.toString(devices.size()));
+        device.setConnected(true);
+        myo.requestBatteryLevel();
+        myo.requestRssi();
+        return device;
+    }
+
+    Hub getHub() {
         return hub;
     }
 

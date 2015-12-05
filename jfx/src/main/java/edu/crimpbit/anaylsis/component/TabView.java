@@ -1,7 +1,7 @@
 /************************************************************************
  * Copyright (C) 2010 - 2012
  * <p>
- * [ComponentLeft.java]
+ * [ComponentRight.java]
  * AHCP Project (http://jacp.googlecode.com)
  * All rights reserved.
  * <p>
@@ -20,21 +20,18 @@
 package edu.crimpbit.anaylsis.component;
 
 import edu.crimpbit.anaylsis.config.BasicConfig;
-import edu.crimpbit.anaylsis.fragment.DialogFragment;
 import javafx.event.Event;
-import javafx.geometry.Insets;
+import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.TabPane;
 import org.jacpfx.api.annotations.Resource;
-import org.jacpfx.api.annotations.component.View;
+import org.jacpfx.api.annotations.component.DeclarativeView;
 import org.jacpfx.api.annotations.lifecycle.PostConstruct;
 import org.jacpfx.api.annotations.lifecycle.PreDestroy;
 import org.jacpfx.api.message.Message;
 import org.jacpfx.rcp.component.FXComponent;
 import org.jacpfx.rcp.componentLayout.FXComponentLayout;
-import org.jacpfx.rcp.components.managedFragment.ManagedFragmentHandler;
 import org.jacpfx.rcp.context.Context;
-import org.jacpfx.rcp.util.FXUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,81 +42,57 @@ import java.util.ResourceBundle;
  *
  * @author Andy Moncsek
  */
-@View(id = BasicConfig.COMPONENT_LEFT,
-        name = "SimpleView",
+@DeclarativeView(id = BasicConfig.TAB_VIEW, name = "TabView",
         active = true,
+        viewLocation = "/fxml/TabView.fxml",
         resourceBundleLocation = "bundles.languageBundle",
-        initialTargetLayoutId = BasicConfig.TARGET_CONTAINER_LEFT)
-public class ComponentLeft implements FXComponent {
+        initialTargetLayoutId = BasicConfig.TARGET_CONTAINER_MAIN)
+public class TabView implements FXComponent {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ComponentLeft.class);
-
-    private Node pane;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TabView.class);
 
     @Resource
     private Context context;
 
-    @Override
-    /**
-     * The handle method always runs outside the main application thread. You can create new nodes, execute long running tasks but you are not allowed to manipulate existing nodes here.
-     */
-    public Node handle(final Message<Event, Object> message) {
-        // runs in worker thread
+    @FXML
+    private TabPane tabPane;
 
+    /**
+     * The handle method always runs outside the main application thread. You can create new nodes,
+     * execute long running tasks but you are not allowed to manipulate existing nodes here.
+     */
+    @Override
+    public Node handle(final Message<Event, Object> message) {
         return null;
     }
 
-    @Override
     /**
      * The postHandle method runs always in the main application thread.
      */
-    public Node postHandle(final Node arg0,
-                           final Message<Event, Object> message) {
-        // runs in FX application thread
-        if (message.messageBodyEquals(FXUtil.MessageUtil.INIT)) {
-
-        }
-        return this.pane;
+    @Override
+    public Node postHandle(final Node target, final Message<Event, Object> message) {
+        return null;
     }
 
-    @PostConstruct
     /**
      * The @PostConstruct annotation labels methods executed when the component switch from inactive to active state
-     * @param arg0
+     * @param layout
      * @param resourceBundle
      */
-    public void onPostConstructComponent(final FXComponentLayout arg0,
-                                         final ResourceBundle resourceBundle) {
-        this.pane = createUI();
-        LOGGER.info("run on start of ComponentLeft ");
+    @PostConstruct
+    public void onPostConstructComponent(final FXComponentLayout layout, final ResourceBundle resourceBundle) {
+        LOGGER.info("run on start of ComponentRight ");
     }
 
-    @PreDestroy
     /**
      * The @PreDestroy annotations labels methods executed when the component is set to inactive
-     * @param arg0
+     * @param layout
      */
-    public void onPreDestroyComponent(final FXComponentLayout arg0) {
-        LOGGER.info("run on tear down of ComponentLeft ");
-
-    }
-
-    /**
-     * create the UI on first call
-     *
-     * @return
-     */
-    private Node createUI() {
-        final VBox main = new VBox();
-        main.setSpacing(10);
-        main.setPadding(new Insets(0, 20, 10, 20));
-
-        final ManagedFragmentHandler<DialogFragment> handler = context.getManagedFragmentHandler(DialogFragment.class);
-        final DialogFragment controller = handler.getController();
-        controller.init();
-        main.getChildren().addAll(handler.getFragmentNode());
-        return main;
+    @PreDestroy
+    public void onPreDestroyComponent(final FXComponentLayout layout) {
+        LOGGER.info("run on tear down of ComponentRight ");
     }
 
 
 }
+

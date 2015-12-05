@@ -49,8 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 @Workbench(id = BasicConfig.WORKBENCH_DEFAULT, name = "defaultWorkbench",
         perspectives = {
-                BasicConfig.PERSPECTIVE_ANALYSIS,
-                BasicConfig.PERSPECTIVE_RECORDING
+                BasicConfig.RECORDING_PERSPECTIVE
         })
 public class DefaultWorkbench implements FXWorkbench {
 
@@ -68,7 +67,7 @@ public class DefaultWorkbench implements FXWorkbench {
         layout.setStyle(StageStyle.DECORATED);
         layout.setMenuEnabled(true);
 
-        connectorService.getMyos();
+        connectorService.getDevices();
     }
 
     @Override

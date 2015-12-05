@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<VBox minHeight="-Infinity" minWidth="-Infinity"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <HBox fx:id="devicesToolbar" VBox.vgrow="NEVER" alignment="CENTER_LEFT">
+        <children>
+            <Text text="%devices.view.title" />
+            <HBox HBox.hgrow="ALWAYS" />
+            <ToggleButton fx:id="refreshButton" text="%devices.view.refresh">
+                <graphic>
+                    <FontAwesomeIconView glyphName="REFRESH" />
+                </graphic>
+            </ToggleButton>
+        </children>
+    </HBox>
+    <ListView fx:id="devicesList">
+
+    </ListView>
+</VBox>

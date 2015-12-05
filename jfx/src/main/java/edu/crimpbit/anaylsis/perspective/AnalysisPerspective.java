@@ -53,7 +53,7 @@ import static javafx.scene.layout.Priority.ALWAYS;
  * @author Andy Moncsek
  * @author Patrick Symmangk (pete.jacp@gmail.com)
  */
-@Perspective(id = BasicConfig.PERSPECTIVE_ANALYSIS,
+@Perspective(id = BasicConfig.ANALYSIS_PERSPECTIVE,
         name = "analysisPerspective",
         components = {
                 BasicConfig.COMPONENT_LEFT,
@@ -115,10 +115,10 @@ public class AnalysisPerspective implements FXPerspective {
         JACPToolBar toolbar = layout.getRegisteredToolBar(ToolbarPosition.NORTH);
 
 
-        Button pressMe = new Button(resourceBundle.getString("p1.button"));
-        pressMe.setOnAction((event) -> context.send(BasicConfig.PERSPECTIVE_RECORDING, "show"));
+        Button pressMe = new Button(resourceBundle.getString("perspective.recording"));
+        pressMe.setOnAction((event) -> context.send(BasicConfig.RECORDING_PERSPECTIVE, "show"));
         toolbar.addAllOnEnd(pressMe);
-        toolbar.add(new Label(resourceBundle.getString("p2.button")));
+        toolbar.add(new Label(resourceBundle.getString("perspective.analysis")));
         // let them grow
         LayoutUtil.GridPaneUtil.setFullGrow(ALWAYS, mainLayout);
         // register left menu

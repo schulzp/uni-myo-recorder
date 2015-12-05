@@ -36,25 +36,28 @@ public class BasicConfig {
 
     public static final String WORKBENCH_DEFAULT = "wDefault";
 
-    public static final String PERSPECTIVE_RECORDING = "pRecording";
-    public static final String PERSPECTIVE_ANALYSIS = "pAnalysis";
+    public static final String RECORDING_PERSPECTIVE = "pRecording";
+    public static final String ANALYSIS_PERSPECTIVE = "pAnalysis";
 
     public static final String COMPONENT_LEFT = "id002";
     public static final String COMPONENT_RIGHT = "id003";
+
+    public static final String DEVICES_VIEW = "fDevices";
+    public static final String DIALOG_FRAGMENT = "fDialog";
+
     public static final String STATELESS_CALLBACK = "id004";
     public static final String STATEFUL_CALLBACK = "id005";
 
+    public static final String TARGET_CONTAINER_LEFT = "tLeft";
+    public static final String TARGET_CONTAINER_MAIN = "tMain";
 
-    public static final String DIALOG_FRAGMENT = "idD1";
+    public static final String CONNECTOR_CALLBACK = "cConnector";
 
-    public static final String TARGET_CONTAINER_LEFT = "PLeft";
-    public static final String TARGET_CONTAINER_MAIN = "PMain";
+    public static final String TAB_VIEW = "vTab";
 
     @Bean
     public ConnectorService connectorService() {
-        ConnectorService connectorService = new ConnectorService();
-        connectorService.getMyos();
-        return connectorService;
+        return new ConnectorService();
     }
 
 }
