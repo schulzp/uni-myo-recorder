@@ -19,26 +19,32 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.perspective;
 
+import edu.crimpbit.anaylsis.component.ComponentRight;
+import edu.crimpbit.anaylsis.component.DevicesView;
 import edu.crimpbit.anaylsis.config.BasicConfig;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import org.jacpfx.api.annotations.Resource;
 import org.jacpfx.api.annotations.lifecycle.OnHide;
 import org.jacpfx.api.annotations.lifecycle.OnShow;
 import org.jacpfx.api.annotations.lifecycle.PostConstruct;
 import org.jacpfx.api.annotations.perspective.Perspective;
+import org.jacpfx.api.component.ComponentHandle;
+import org.jacpfx.api.component.SubComponent;
 import org.jacpfx.api.message.Message;
 import org.jacpfx.api.util.ToolbarPosition;
+import org.jacpfx.rcp.component.EmbeddedFXComponent;
 import org.jacpfx.rcp.componentLayout.FXComponentLayout;
 import org.jacpfx.rcp.componentLayout.PerspectiveLayout;
 import org.jacpfx.rcp.components.toolBar.JACPToolBar;
 import org.jacpfx.rcp.context.Context;
 import org.jacpfx.rcp.perspective.FXPerspective;
+import org.jacpfx.rcp.registry.ComponentRegistry;
 import org.jacpfx.rcp.util.LayoutUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +57,6 @@ import static javafx.scene.layout.Priority.ALWAYS;
         name = "RecordingPerspective",
         components = {
                 BasicConfig.DEVICES_VIEW,
-                BasicConfig.TAB_VIEW,
                 BasicConfig.CONNECTOR_CALLBACK},
         resourceBundleLocation = "bundles.languageBundle")
 public class RecordingPerspective implements FXPerspective {
@@ -62,9 +67,25 @@ public class RecordingPerspective implements FXPerspective {
     public Context context;
 
     private SplitPane mainLayout;
+    private TabPane mainTarget;
 
     @Override
     public void handlePerspective(final Message<Event, Object> action, final PerspectiveLayout perspectiveLayout) {
+        LOGGER.info("handle perspective {}", action);
+
+        if (action.getMessageBody().equals("new")) {
+            Tab tab = new Tab();
+            tab.setText("New Tab");
+            SubComponent<EventHandler<Event>, Event, Object> subComponent = ComponentRegistry.findComponentByClass(ComponentRight.class);
+            SubComponent<EventHandler<Event>, Event, Object> subComponent2 = ComponentRegistry.findComponentByClass(ComponentRight.class);
+
+            if (subComponent instanceof EmbeddedFXComponent) {
+                Text text = new Text();
+                text.setText("text");
+                tab.setContent(text);
+            }
+            mainTarget.getTabs().add(tab);
+        }
     }
 
     /**
@@ -107,7 +128,7 @@ public class RecordingPerspective implements FXPerspective {
         LayoutUtil.GridPaneUtil.setFullGrow(ALWAYS, mainLayout);
 
         Node leftTarget = new VBox();
-        Node mainTarget = new VBox();
+        mainTarget = new TabPane();
 
         mainLayout.getItems().addAll(leftTarget, mainTarget);
         // Register root component

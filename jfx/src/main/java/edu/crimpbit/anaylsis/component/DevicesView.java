@@ -53,6 +53,11 @@ public class DevicesView implements FXComponent {
         return null;
     }
 
+
+    public DevicesView() {
+        System.out.print("\n");
+    }
+
     @Override
     public Node handle(Message<Event, Object> message) throws Exception {
         if (message.getMessageBody().equals(ConnectorCallback.COMMAND_REFRESH_DONE)) {

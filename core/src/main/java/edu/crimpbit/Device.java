@@ -1,9 +1,11 @@
 package edu.crimpbit;
 
 import com.google.common.base.MoreObjects;
-import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
-import javafx.beans.property.*;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 /**
  * Device representation.
@@ -64,6 +66,9 @@ public class Device {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("name", name.getValue()).toString();
+        return MoreObjects.toStringHelper(this)
+                .add("name", name.getValue())
+                .add("connected", connected.getValue())
+                .add("locked", locked.getValue()).toString();
     }
 }

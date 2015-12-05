@@ -26,6 +26,7 @@ import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import org.jacpfx.api.annotations.Resource;
 import org.jacpfx.api.annotations.component.DeclarativeView;
+import org.jacpfx.api.annotations.component.Stateless;
 import org.jacpfx.api.annotations.lifecycle.PostConstruct;
 import org.jacpfx.api.annotations.lifecycle.PreDestroy;
 import org.jacpfx.api.message.Message;
@@ -48,6 +49,7 @@ import java.util.ResourceBundle;
         viewLocation = "/fxml/ComponentRight.fxml",
         resourceBundleLocation = "bundles.languageBundle",
         initialTargetLayoutId = BasicConfig.TARGET_CONTAINER_MAIN)
+@Stateless
 public class ComponentRight implements FXComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentRight.class);

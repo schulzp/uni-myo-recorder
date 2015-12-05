@@ -21,11 +21,16 @@ package edu.crimpbit.anaylsis.workbench;
 
 import edu.crimpbit.ConnectorService;
 import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.anaylsis.perspective.RecordingPerspective;
 import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCharacterCombination;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jacpfx.api.annotations.Resource;
@@ -74,8 +79,18 @@ public class DefaultWorkbench implements FXWorkbench {
     public void postHandle(final FXComponentLayout layout) {
         final JACPMenuBar menu = layout.getMenu();
         final Menu menuFile = new Menu("File");
+        menuFile.getItems().add(createNewItem());
         menuFile.getItems().add(createHelpItem());
         menu.getMenus().addAll(menuFile);
+    }
+
+    private MenuItem createNewItem() {
+        final MenuItem itemNew = new MenuItem("New");
+        itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
+        itemNew.setOnAction((event) -> {
+            context.send(BasicConfig.RECORDING_PERSPECTIVE, "new");
+        });
+        return itemNew;
     }
 
     private MenuItem createHelpItem() {
