@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.chart.NumberAxis?>
 <VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       minHeight="-Infinity" minWidth="-Infinity">
     <ButtonBar>
@@ -12,12 +11,5 @@
             <ToggleButton fx:id="recordButton" text="%recorder.record" ButtonBar.buttonData="LEFT" />
         </buttons>
     </ButtonBar>
-    <LineChart fx:id="emgChart">
-        <xAxis>
-            <NumberAxis fx:id="xAxis" side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-            <NumberAxis fx:id="yAxis" side="LEFT"  />
-        </yAxis>
-    </LineChart>
+    <TilePane fx:id="emgCharts" hgap="10" vgap="10" prefColumns="2" />
 </VBox>

@@ -38,9 +38,12 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.layout.TilePane;
 import javafx.util.Duration;
 import org.jacpfx.api.annotations.Resource;
 import org.jacpfx.api.annotations.fragment.Fragment;
@@ -69,7 +72,7 @@ public class RecorderFragment {
     private ToggleButton recordButton;
 
     @FXML
-    private LineChart<Integer, Byte> emgChart;
+    private TilePane emgCharts;
 
     @Autowired
     private RecorderService recorderService;
@@ -77,7 +80,7 @@ public class RecorderFragment {
     @Autowired
     private ConnectorService connectorService;
 
-    private ObservableList<LineChart.Series<Integer, Byte>> emgData = FXCollections.observableArrayList();
+    private ObservableList<LineChart.Series<Number, Number>> emgData = FXCollections.observableArrayList();
     private Timeline emgChartUpdateTimeline;
     private EmgDataRecorder emgDataRecorder;
     private int emgDataOffset;
@@ -98,12 +101,7 @@ public class RecorderFragment {
 
     @FXML
     private void initialize() {
-        for (int i = 0; i < 8; ++i) {
-            XYChart.Series<Integer, Byte> series = new LineChart.Series<>();
-            series.setName("EMG " + i);
-            emgData.add(series);
-        }
-        emgChart.setData(emgData);
+        createCharts();
         recordButton.selectedProperty().addListener(observable -> {
             ObservableList<Device> devices = connectorService.getDevices();
             if (recordButton.isSelected()) {
@@ -116,6 +114,26 @@ public class RecorderFragment {
         });
     }
 
+    private void createCharts() {
+        for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
+            XYChart.Series<Number, Number> series = new LineChart.Series<>();
+            series.setName("EMG " + emgIndex);
+            emgData.add(series);
+
+            NumberAxis xAxis = new NumberAxis();
+            NumberAxis yAxis = new NumberAxis();
+            LineChart<Number, Number> emgChart = new LineChart<>(xAxis,  yAxis);
+            emgChart.setMaxSize(300, 150);
+            emgChart.setTitle("EMG " + emgIndex);
+            emgChart.setTitleSide(Side.TOP);
+            emgChart.getStyleClass().add("emg-chart");
+            emgChart.setData(FXCollections.singletonObservableList(series));
+            emgChart.applyCss();
+
+            emgCharts.getChildren().add(emgChart);
+        }
+    }
+
     private void handleRecordingStarted() {
         Platform.runLater(() -> recordButton.setText(bundle.getString("recorder.recording")));
         ObservableList<EmgDataRecorder.EmgDataRecord> records = emgDataRecorder.getRecords();
@@ -124,7 +142,7 @@ public class RecorderFragment {
             for (int i = emgDataOffset; i < emgDataSize; ++i) {
                 EmgDataRecorder.EmgDataRecord record = records.get(i);
                 for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
-                    emgData.get(emgIndex).getData().add(new XYChart.Data<Integer, Byte>(i, record.getData()[emgIndex]));
+                    emgData.get(emgIndex).getData().add(new XYChart.Data<Number, Number>(i, record.getData()[emgIndex]));
                 }
                 emgDataOffset = i;
             }

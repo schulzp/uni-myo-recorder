@@ -36,15 +36,17 @@ public class RecorderService {
             String[] nextLine = {"timestamp", "emg0", "emg1", "emg2", "emg3", "emg4", "emg5", "emg6", "emg7"};
             long firstTimestamp = -1;
             csvWriter.writeNext(nextLine);
-            for (EmgDataRecorder.EmgDataRecord record : recorder.getRecords()) {
+            for (int recordIndex = 0; recordIndex < recorder.getRecords().size(); ++recordIndex) {
+                EmgDataRecorder.EmgDataRecord record = recorder.getRecords().get(recordIndex);
                 if (firstTimestamp == -1) {
                     firstTimestamp = record.getTimestamp();
                 }
                 nextLine[0] = Long.toString(record.getTimestamp() - firstTimestamp);
-                for (int i = 0; i < 8; ++i) {
-                    nextLine[i + 1] = Byte.toString(record.getData()[i]);
+                for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
+                    nextLine[emgIndex + 1] = Byte.toString(record.getData()[emgIndex]);
                 }
                 csvWriter.writeNext(nextLine);
+                progressListener.accept(recordIndex + 1, recorder.getRecords().size());
             }
         }
     }

@@ -1,0 +1,12 @@
+.emg-chart .chart-series-line {
+   -fx-stroke-width: 1px;
+   -fx-effect: null;
+}
+
+.emg-chart .chart-line-symbol {
+    visibility: hidden;
+}
+
+.default-color0.chart-series-line { -fx-stroke: red; }
+.default-color1.chart-series-line { -fx-stroke: green; }
+.default-color2.chart-series-line { -fx-stroke: blue; }
