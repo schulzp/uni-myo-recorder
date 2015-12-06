@@ -26,7 +26,7 @@
 package edu.crimpbit.anaylsis.config;
 
 import edu.crimpbit.ConnectorService;
-import edu.crimpbit.RecordingService;
+import edu.crimpbit.RecorderService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -54,8 +54,6 @@ public class BasicConfig {
     public static final String TARGET_CONTAINER_LEFT = "tLeft";
     public static final String TARGET_CONTAINER_MAIN = "tMain";
 
-    public static final String CONNECTOR_CALLBACK = "cConnector";
-
     public static final String TAB_VIEW = "vTab";
 
     @Bean
@@ -64,8 +62,8 @@ public class BasicConfig {
     }
 
     @Bean
-    public RecordingService recordingService(ConnectorService connectorService) {
-        return new RecordingService(connectorService);
+    public RecorderService recordingService(ConnectorService connectorService) {
+        return new RecorderService(connectorService);
     }
 
 }

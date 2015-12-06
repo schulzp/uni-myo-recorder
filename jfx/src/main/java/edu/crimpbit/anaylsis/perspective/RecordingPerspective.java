@@ -54,9 +54,7 @@ import static javafx.scene.layout.Priority.ALWAYS;
 
 @Perspective(id = BasicConfig.RECORDING_PERSPECTIVE,
         name = "RecordingPerspective",
-        components = {
-                BasicConfig.DEVICES_VIEW,
-                BasicConfig.CONNECTOR_CALLBACK},
+        components = { BasicConfig.DEVICES_VIEW },
         resourceBundleLocation = "bundles.languageBundle")
 public class RecordingPerspective implements FXPerspective {
 

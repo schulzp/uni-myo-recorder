@@ -98,9 +98,11 @@ public class ConnectorService {
     }
 
     public Optional<Device> findDevice(Myo myo) {
-        for (Device device : devices) {
-            if (myo.equals(device.getMyo())) {
-                return Optional.of(device);
+        if (myo != null) {
+            for (Device device : devices) {
+                if (myo.equals(device.getMyo())) {
+                    return Optional.of(device);
+                }
             }
         }
         return Optional.empty();
