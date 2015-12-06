@@ -27,16 +27,22 @@ package edu.crimpbit.anaylsis.config;
 
 import edu.crimpbit.ConnectorService;
 import edu.crimpbit.RecorderService;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.ContextClosedEvent;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Configuration
 @ComponentScan
-public class BasicConfig {
+public class BasicConfig implements ApplicationContextAware {
 
     public static final String WORKBENCH_DEFAULT = "wDefault";
 
@@ -71,11 +77,33 @@ public class BasicConfig {
 
     @Bean
     public Executor executor() {
-        return Executors.newSingleThreadExecutor(runnable -> {
+        ExecutorService executor = Executors.newSingleThreadExecutor(runnable -> {
             Thread thread = new Thread(runnable);
             thread.setName("Background Tasks");
             return thread;
         });
+
+        context.addApplicationListener(event -> {
+            if (event instanceof ContextClosedEvent) {
+                executor.shutdown();
+            }
+        });
+
+        return executor;
+    }
+
+    private static ConfigurableApplicationContext context;
+
+    public static void stop() {
+        if (context != null) {
+            context.close();
+        }
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        context = (ConfigurableApplicationContext) applicationContext;
+        context.registerShutdownHook();
     }
 
 }

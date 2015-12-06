@@ -22,10 +22,13 @@ package edu.crimpbit.anaylsis.main;
 import edu.crimpbit.anaylsis.config.BasicConfig;
 import edu.crimpbit.anaylsis.workbench.DefaultWorkbench;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.jacpfx.rcp.workbench.FXWorkbench;
 import org.jacpfx.spring.launcher.AFXSpringJavaConfigLauncher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * The application launcher containing the main method, the workbench definition, the configuration class and the packages to scan
@@ -61,9 +64,17 @@ public class ApplicationLauncher extends AFXSpringJavaConfigLauncher {
         Scene scene = stage.getScene();
         // add style sheet
         scene.getStylesheets().addAll(
-                ApplicationLauncher.class.getResource("/styles/default.css")
-                        .toExternalForm()
+                ApplicationLauncher.class.getResource("/styles/default.css").toExternalForm(),
+                ApplicationLauncher.class.getResource("/styles/charts.css").toExternalForm()
         );
+    }
+
+    @Autowired
+    private ConfigurableApplicationContext context;
+
+    @Override
+    public void stop() throws Exception {
+        BasicConfig.stop();
     }
 
     @Override
