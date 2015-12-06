@@ -19,9 +19,11 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.perspective;
 
+import edu.crimpbit.RecorderService;
 import edu.crimpbit.anaylsis.component.ComponentRight;
 import edu.crimpbit.anaylsis.config.BasicConfig;
 import edu.crimpbit.anaylsis.fragment.RecorderFragment;
+import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -47,8 +49,10 @@ import org.jacpfx.rcp.registry.ComponentRegistry;
 import org.jacpfx.rcp.util.LayoutUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ResourceBundle;
+import java.util.concurrent.Executor;
 
 import static javafx.scene.layout.Priority.ALWAYS;
 
@@ -59,6 +63,12 @@ import static javafx.scene.layout.Priority.ALWAYS;
 public class RecordingPerspective implements FXPerspective {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordingPerspective.class);
+
+    @Autowired
+    private Executor executor;
+
+    @Autowired
+    private RecorderService recorderService;
 
     @Resource
     public Context context;
@@ -78,6 +88,16 @@ public class RecordingPerspective implements FXPerspective {
             tab.setContent(recorderFragmentHandler.getFragmentNode());
 
             mainTarget.getTabs().add(tab);
+        } else if (action.getMessageBody().equals("save")) {
+            executor.execute(new Task<Void>() {
+
+                @Override
+                protected Void call() throws Exception {
+                    recorderService.save("emg-recording", (of, total) -> {});
+                    return null;
+                }
+
+            });
         }
     }
 

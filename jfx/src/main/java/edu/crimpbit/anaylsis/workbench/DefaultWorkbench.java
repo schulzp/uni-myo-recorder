@@ -47,6 +47,8 @@ import org.jacpfx.rcp.context.Context;
 import org.jacpfx.rcp.workbench.FXWorkbench;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ResourceBundle;
+
 /**
  * A simple JacpFX workbench
  *
@@ -80,6 +82,7 @@ public class DefaultWorkbench implements FXWorkbench {
         final JACPMenuBar menu = layout.getMenu();
         final Menu menuFile = new Menu("File");
         menuFile.getItems().add(createNewItem());
+        menuFile.getItems().add(createSaveItem());
         menuFile.getItems().add(createHelpItem());
         menu.getMenus().addAll(menuFile);
     }
@@ -89,6 +92,15 @@ public class DefaultWorkbench implements FXWorkbench {
         itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.META_DOWN));
         itemNew.setOnAction((event) -> {
             context.send(BasicConfig.RECORDING_PERSPECTIVE, "new");
+        });
+        return itemNew;
+    }
+
+    private MenuItem createSaveItem() {
+        final MenuItem itemNew = new MenuItem("Save");
+        itemNew.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.META_DOWN));
+        itemNew.setOnAction((event) -> {
+            context.send(BasicConfig.RECORDING_PERSPECTIVE, "save");
         });
         return itemNew;
     }

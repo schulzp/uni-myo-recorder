@@ -37,14 +37,11 @@ public class DevicesView implements FXComponent {
     @Autowired
     private ConnectorService connectorService;
 
+    @Autowired
+    private Executor executor;
+
     @Resource
     private Context context;
-
-    private Executor executor = Executors.newSingleThreadExecutor(runnable -> {
-        Thread thread = new Thread(runnable);
-        thread.setName("devices");
-        return thread;
-    });
 
     private void refresh() {
         Task<Void> refreshTask = new Task<Void>() {

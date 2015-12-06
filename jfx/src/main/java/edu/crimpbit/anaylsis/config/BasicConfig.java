@@ -31,6 +31,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 @Configuration
 @ComponentScan
 public class BasicConfig {
@@ -64,6 +67,15 @@ public class BasicConfig {
     @Bean
     public RecorderService recordingService(ConnectorService connectorService) {
         return new RecorderService(connectorService);
+    }
+
+    @Bean
+    public Executor executor() {
+        return Executors.newSingleThreadExecutor(runnable -> {
+            Thread thread = new Thread(runnable);
+            thread.setName("Background Tasks");
+            return thread;
+        });
     }
 
 }

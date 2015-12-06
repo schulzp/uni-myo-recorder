@@ -1,4 +1,10 @@
+ext {
+    vOpenCsv = '3.6'
+    vMyo = '0.9.1'
+}
+
 dependencies {
-    compile 'com.github.nicholasastuart:myo-java:0.9.1',
-            'org.springframework:spring-core:' + vSpring
+    compile 'com.github.nicholasastuart:myo-java:' + vMyo,
+            'org.springframework:spring-core:' + vSpring,
+            'com.opencsv:opencsv:' + vOpenCsv
 }

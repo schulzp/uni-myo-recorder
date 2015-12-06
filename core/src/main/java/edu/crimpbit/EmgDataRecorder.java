@@ -78,6 +78,10 @@ public class EmgDataRecorder extends AbstractExecutionThreadService {
             return data;
         }
 
+        public long getTimestamp() {
+            return timestamp;
+        }
+
         @Override
         public String toString() {
             return "EMG at " + timestamp + ": " + Arrays.toString(data);
