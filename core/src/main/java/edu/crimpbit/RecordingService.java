@@ -19,15 +19,14 @@ public class RecordingService {
         this.connectorService = connectorService;
     }
 
-    public void startRecording(Myo myo) {
-        recorder = new EmgDataRecorder(connectorService.getHub(), myo);
+    public EmgDataRecorder startRecording(Device device) {
+        if (recorder != null && recorder.isRunning()) {
+            throw new IllegalStateException("Recording is still running");
+        }
+        recorder = new EmgDataRecorder(connectorService.getHub(), device.getMyo());
         LOGGER.info("starting {}", recorder);
         recorder.startAsync();
-    }
-
-    public void stopRecording(Myo myo) {
-        LOGGER.info("stopping {}", recorder);
-        recorder.stopAsync();
+        return recorder;
     }
 
 }

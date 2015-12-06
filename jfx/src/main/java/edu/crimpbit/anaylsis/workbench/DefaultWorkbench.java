@@ -86,7 +86,7 @@ public class DefaultWorkbench implements FXWorkbench {
 
     private MenuItem createNewItem() {
         final MenuItem itemNew = new MenuItem("New");
-        itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
+        itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.META_DOWN));
         itemNew.setOnAction((event) -> {
             context.send(BasicConfig.RECORDING_PERSPECTIVE, "new");
         });

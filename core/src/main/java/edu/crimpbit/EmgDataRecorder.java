@@ -1,12 +1,15 @@
 package edu.crimpbit;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.DeviceListener;
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 import com.thalmic.myo.enums.StreamEmgType;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -15,9 +18,9 @@ import java.util.List;
 /**
  * EMG data recorder.
  */
-public class EmgDataRecorder extends AbstractIdleService {
+public class EmgDataRecorder extends AbstractExecutionThreadService {
 
-    private final List<EmgDataRecord> records = new LinkedList<>();
+    private final ObservableList<EmgDataRecord> records = FXCollections.observableArrayList();
 
     private final DeviceListener listener = new AbstractDeviceListener() {
 
@@ -44,12 +47,23 @@ public class EmgDataRecorder extends AbstractIdleService {
     }
 
     @Override
+    protected void run() throws Exception {
+        while (isRunning()) {
+            hub.run(1000/100);
+        }
+    }
+
+    @Override
     protected void shutDown() throws Exception {
         hub.removeListener(listener);
         myo.setStreamEmg(StreamEmgType.STREAM_EMG_DISABLED);
     }
 
-    private static class EmgDataRecord {
+    public ObservableList<EmgDataRecord> getRecords() {
+        return records;
+    }
+
+    public static class EmgDataRecord {
 
         private final long timestamp;
 
@@ -58,6 +72,10 @@ public class EmgDataRecorder extends AbstractIdleService {
         private EmgDataRecord(long timestamp, byte[] data) {
             this.timestamp = timestamp;
             this.data = data;
+        }
+
+        public byte[] getData() {
+            return data;
         }
 
         @Override

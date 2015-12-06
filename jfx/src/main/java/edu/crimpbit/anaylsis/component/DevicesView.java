@@ -1,9 +1,9 @@
 package edu.crimpbit.anaylsis.component;
 
 import edu.crimpbit.ConnectorService;
+import edu.crimpbit.Device;
 import edu.crimpbit.anaylsis.callback.ConnectorCallback;
 import edu.crimpbit.anaylsis.config.BasicConfig;
-import edu.crimpbit.Device;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -46,16 +46,13 @@ public class DevicesView implements FXComponent {
             devicesList.setItems(connectorService.getDevices());
             refreshButton.selectedProperty().addListener(selected -> {
                 if (refreshButton.isSelected()) {
-                    context.send(BasicConfig.CONNECTOR_CALLBACK, ConnectorCallback.COMMAND_REFRESH);
+                    refresh();
                 }
             });
+
+            refresh();
         }
         return null;
-    }
-
-
-    public DevicesView() {
-        System.out.print("\n");
     }
 
     @Override
@@ -64,6 +61,10 @@ public class DevicesView implements FXComponent {
             refreshButton.setSelected(false);
         }
         return null;
+    }
+
+    private void refresh() {
+        context.send(BasicConfig.CONNECTOR_CALLBACK, ConnectorCallback.COMMAND_REFRESH);
     }
 
 }

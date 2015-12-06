@@ -20,27 +20,26 @@
 package edu.crimpbit.anaylsis.perspective;
 
 import edu.crimpbit.anaylsis.component.ComponentRight;
-import edu.crimpbit.anaylsis.component.DevicesView;
 import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.anaylsis.fragment.RecorderFragment;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import org.jacpfx.api.annotations.Resource;
 import org.jacpfx.api.annotations.lifecycle.OnHide;
 import org.jacpfx.api.annotations.lifecycle.OnShow;
 import org.jacpfx.api.annotations.lifecycle.PostConstruct;
 import org.jacpfx.api.annotations.perspective.Perspective;
-import org.jacpfx.api.component.ComponentHandle;
 import org.jacpfx.api.component.SubComponent;
 import org.jacpfx.api.message.Message;
 import org.jacpfx.api.util.ToolbarPosition;
 import org.jacpfx.rcp.component.EmbeddedFXComponent;
 import org.jacpfx.rcp.componentLayout.FXComponentLayout;
 import org.jacpfx.rcp.componentLayout.PerspectiveLayout;
+import org.jacpfx.rcp.components.managedFragment.ManagedFragmentHandler;
 import org.jacpfx.rcp.components.toolBar.JACPToolBar;
 import org.jacpfx.rcp.context.Context;
 import org.jacpfx.rcp.perspective.FXPerspective;
@@ -76,14 +75,10 @@ public class RecordingPerspective implements FXPerspective {
         if (action.getMessageBody().equals("new")) {
             Tab tab = new Tab();
             tab.setText("New Tab");
-            SubComponent<EventHandler<Event>, Event, Object> subComponent = ComponentRegistry.findComponentByClass(ComponentRight.class);
-            SubComponent<EventHandler<Event>, Event, Object> subComponent2 = ComponentRegistry.findComponentByClass(ComponentRight.class);
 
-            if (subComponent instanceof EmbeddedFXComponent) {
-                Text text = new Text();
-                text.setText("text");
-                tab.setContent(text);
-            }
+            ManagedFragmentHandler<RecorderFragment> recorderFragmentHandler = context.getManagedFragmentHandler(RecorderFragment.class);
+            tab.setContent(recorderFragmentHandler.getFragmentNode());
+
             mainTarget.getTabs().add(tab);
         }
     }

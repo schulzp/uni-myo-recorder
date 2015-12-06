@@ -26,6 +26,7 @@
 package edu.crimpbit.anaylsis.config;
 
 import edu.crimpbit.ConnectorService;
+import edu.crimpbit.RecordingService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -42,8 +43,10 @@ public class BasicConfig {
     public static final String COMPONENT_LEFT = "id002";
     public static final String COMPONENT_RIGHT = "id003";
 
-    public static final String DEVICES_VIEW = "fDevices";
+    public static final String DEVICES_VIEW = "vDevices";
+
     public static final String DIALOG_FRAGMENT = "fDialog";
+    public static final String RECORDER_FRAGMENT = "fRecorder";
 
     public static final String STATELESS_CALLBACK = "id004";
     public static final String STATEFUL_CALLBACK = "id005";
@@ -58,6 +61,11 @@ public class BasicConfig {
     @Bean
     public ConnectorService connectorService() {
         return new ConnectorService();
+    }
+
+    @Bean
+    public RecordingService recordingService(ConnectorService connectorService) {
+        return new RecordingService(connectorService);
     }
 
 }
