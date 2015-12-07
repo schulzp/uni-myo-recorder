@@ -37,6 +37,8 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
@@ -51,6 +53,8 @@ import org.jacpfx.api.fragment.Scope;
 import org.jacpfx.rcp.context.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -62,6 +66,7 @@ import java.util.ResourceBundle;
         scope = Scope.PROTOTYPE)
 public class RecorderFragment {
 
+    public static final int MAX_OVERRIDES = 3;
     @Resource
     private Context context;
 
@@ -80,10 +85,11 @@ public class RecorderFragment {
     @Autowired
     private ConnectorService connectorService;
 
-    private ObservableList<LineChart.Series<Number, Number>> emgData = FXCollections.observableArrayList();
+    private List<List<LineChart.Series<Number, Number>>> emgData = new ArrayList<>(8);
     private Timeline emgChartUpdateTimeline;
     private EmgDataRecorder emgDataRecorder;
-    private int emgDataOffset;
+
+    private int numberOfOverrides;
 
     private final Service.Listener listener = new Service.Listener() {
 
@@ -116,9 +122,14 @@ public class RecorderFragment {
 
     private void createCharts() {
         for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
-            XYChart.Series<Number, Number> series = new LineChart.Series<>();
-            series.setName("EMG " + emgIndex);
-            emgData.add(series);
+            ObservableList overrideSeries = FXCollections.observableArrayList();
+            for (int overrideIndex = 0; overrideIndex < MAX_OVERRIDES; ++overrideIndex) {
+                XYChart.Series<Number, Number> series = new LineChart.Series<>();
+                series.setName("Override " + overrideIndex);
+                overrideSeries.add(series);
+            }
+
+            emgData.add(overrideSeries);
 
             NumberAxis xAxis = new NumberAxis();
             NumberAxis yAxis = new NumberAxis();
@@ -127,7 +138,7 @@ public class RecorderFragment {
             emgChart.setTitle("EMG " + emgIndex);
             emgChart.setTitleSide(Side.TOP);
             emgChart.getStyleClass().add("emg-chart");
-            emgChart.setData(FXCollections.singletonObservableList(series));
+            emgChart.setData(overrideSeries);
             emgChart.applyCss();
 
             emgCharts.getChildren().add(emgChart);
@@ -135,17 +146,30 @@ public class RecorderFragment {
     }
 
     private void handleRecordingStarted() {
+        int overrideIndex = numberOfOverrides++ % MAX_OVERRIDES;
+
         Platform.runLater(() -> recordButton.setText(bundle.getString("recorder.recording")));
         ObservableList<EmgDataRecorder.EmgDataRecord> records = emgDataRecorder.getRecords();
-        emgChartUpdateTimeline = new Timeline(new KeyFrame(Duration.millis(100), event -> {
-            int emgDataSize = records.size();
-            for (int i = emgDataOffset; i < emgDataSize; ++i) {
-                EmgDataRecorder.EmgDataRecord record = records.get(i);
-                for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
-                    emgData.get(emgIndex).getData().add(new XYChart.Data<Number, Number>(i, record.getData()[emgIndex]));
+        emgChartUpdateTimeline = new Timeline(new KeyFrame(Duration.millis(100), new EventHandler<ActionEvent>() {
+
+            private int emgDataOffset = 0;
+
+            @Override
+            public void handle(ActionEvent event) {
+                int emgDataSize = records.size();
+                long firstTimestamp = -1;
+                for (; emgDataOffset < emgDataSize; ++emgDataOffset) {
+                    EmgDataRecorder.EmgDataRecord record = records.get(emgDataOffset);
+                    if (firstTimestamp == -1) {
+                        firstTimestamp = record.getTimestamp();
+                    }
+                    for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
+                        XYChart.Data<Number, Number> data = new XYChart.Data<>(emgDataOffset, record.getData()[emgIndex]);
+                        emgData.get(emgIndex).get(overrideIndex).getData().add(data);
+                    }
                 }
-                emgDataOffset = i;
             }
+
         }));
         emgChartUpdateTimeline.setCycleCount(Timeline.INDEFINITE);
         emgChartUpdateTimeline.play();
@@ -154,6 +178,7 @@ public class RecorderFragment {
     private void handleRecordingStopped() {
         Platform.runLater(() -> recordButton.setText(bundle.getString("recorder.record")));
         emgChartUpdateTimeline.stop();
+        emgChartUpdateTimeline = null;
     }
 
 }
