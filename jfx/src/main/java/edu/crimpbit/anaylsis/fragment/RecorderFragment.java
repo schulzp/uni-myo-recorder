@@ -32,13 +32,10 @@ import edu.crimpbit.Device;
 import edu.crimpbit.EmgDataRecorder;
 import edu.crimpbit.RecorderService;
 import edu.crimpbit.anaylsis.config.BasicConfig;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
@@ -46,7 +43,6 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.TilePane;
-import javafx.util.Duration;
 import org.jacpfx.api.annotations.Resource;
 import org.jacpfx.api.annotations.fragment.Fragment;
 import org.jacpfx.api.fragment.Scope;
@@ -67,6 +63,7 @@ import java.util.ResourceBundle;
 public class RecorderFragment {
 
     public static final int MAX_OVERRIDES = 3;
+    public static final int CHART_UPDATE_CHUNK_SIZE = 20;
     @Resource
     private Context context;
 
@@ -86,7 +83,7 @@ public class RecorderFragment {
     private ConnectorService connectorService;
 
     private List<List<LineChart.Series<Number, Number>>> emgData = new ArrayList<>(8);
-    private Timeline emgChartUpdateTimeline;
+
     private EmgDataRecorder emgDataRecorder;
 
     private int numberOfOverrides;
@@ -132,8 +129,11 @@ public class RecorderFragment {
             emgData.add(overrideSeries);
 
             NumberAxis xAxis = new NumberAxis();
-            NumberAxis yAxis = new NumberAxis();
+            NumberAxis yAxis = new NumberAxis(-150, 150, 50);
+            yAxis.setAutoRanging(false);
+
             LineChart<Number, Number> emgChart = new LineChart<>(xAxis,  yAxis);
+            emgChart.setAnimated(false);
             emgChart.setMaxSize(300, 150);
             emgChart.setTitle("EMG " + emgIndex);
             emgChart.setTitleSide(Side.TOP);
@@ -150,35 +150,41 @@ public class RecorderFragment {
 
         Platform.runLater(() -> recordButton.setText(bundle.getString("recorder.recording")));
         ObservableList<EmgDataRecorder.EmgDataRecord> records = emgDataRecorder.getRecords();
-        emgChartUpdateTimeline = new Timeline(new KeyFrame(Duration.millis(100), new EventHandler<ActionEvent>() {
+        records.addListener(new ListChangeListener<EmgDataRecorder.EmgDataRecord>() {
 
-            private int emgDataOffset = 0;
+            private int emgDataRangeBegin = 0;
+            private int emgDataRangeEnd = 0;
 
             @Override
-            public void handle(ActionEvent event) {
-                int emgDataSize = records.size();
-                long firstTimestamp = -1;
-                for (; emgDataOffset < emgDataSize; ++emgDataOffset) {
-                    EmgDataRecorder.EmgDataRecord record = records.get(emgDataOffset);
-                    if (firstTimestamp == -1) {
-                        firstTimestamp = record.getTimestamp();
-                    }
-                    for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
-                        XYChart.Data<Number, Number> data = new XYChart.Data<>(emgDataOffset, record.getData()[emgIndex]);
-                        emgData.get(emgIndex).get(overrideIndex).getData().add(data);
+            public void onChanged(Change<? extends EmgDataRecorder.EmgDataRecord> c) {
+                while (c.next()) {
+                    emgDataRangeEnd += c.getAddedSize();
+                    if (emgDataRangeEnd - emgDataRangeBegin > CHART_UPDATE_CHUNK_SIZE) {
+                        int begin = emgDataRangeBegin;
+                        int end = emgDataRangeEnd;
+                        Platform.runLater(() -> {
+                            for (int emgDataOffset = begin; emgDataOffset < end; ++emgDataOffset) {
+                                EmgDataRecorder.EmgDataRecord record = records.get(emgDataOffset);
+                                for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
+                                    XYChart.Data<Number, Number> data = new XYChart.Data<>(emgDataOffset, filter(record.getData()[emgIndex]));
+                                    emgData.get(emgIndex).get(overrideIndex).getData().add(data);
+                                }
+                            }
+                        });
+                        emgDataRangeBegin = emgDataRangeEnd;
                     }
                 }
             }
 
-        }));
-        emgChartUpdateTimeline.setCycleCount(Timeline.INDEFINITE);
-        emgChartUpdateTimeline.play();
+            private int filter(byte b) {
+                return b < 0 ? -b : b;
+            }
+
+        });
     }
 
     private void handleRecordingStopped() {
         Platform.runLater(() -> recordButton.setText(bundle.getString("recorder.record")));
-        emgChartUpdateTimeline.stop();
-        emgChartUpdateTimeline = null;
     }
 
 }
