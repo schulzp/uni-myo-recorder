@@ -4,10 +4,7 @@ import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.FirmwareVersion;
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
-import com.thalmic.myo.enums.Arm;
-import com.thalmic.myo.enums.WarmupResult;
-import com.thalmic.myo.enums.WarmupState;
-import com.thalmic.myo.enums.XDirection;
+import com.thalmic.myo.enums.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
@@ -38,29 +35,48 @@ public class ConnectorService {
             @Override
             public void onUnpair(Myo myo, long timestamp) {
                 LOGGER.info("{} {} unpaired", myo, identify(myo));
+
+                updateConnected(myo, false);
             }
 
             @Override
             public void onDisconnect(Myo myo, long timestamp) {
                 LOGGER.info("{} {} disconnected", myo, identify(myo));
-                findDevice(myo).ifPresent(device -> device.setConnected(false));
+
+                updateConnected(myo, false);
             }
 
             @Override
             public void onConnect(Myo myo, long timestamp, FirmwareVersion firmwareVersion) {
                 LOGGER.info("{} {} connected", myo, identify(myo));
-                findDevice(myo).ifPresent(device -> device.setConnected(true));
+
+                updateConnected(myo, true);
             }
 
             @Override
             public void onRssi(Myo myo, long timestamp, int rssi) {
                 LOGGER.info("{} {} got RSSI: {}", myo, identify(myo), rssi);
+
+                updateConnected(myo, true);
+            }
+
+            @Override
+            public void onBatteryLevelReceived(Myo myo, long timestamp, int level) {
+                LOGGER.info("{} {} got batery: {}", myo, identify(myo), level);
+
+                updateConnected(myo, true);
             }
 
             @Override
             public void onArmSync(Myo myo, long timestamp, Arm arm, XDirection xDirection, float rotation, WarmupState warmupState) {
                 LOGGER.info("{} {} arm sync (timestamp: {}, arm: {}, x-direction: {}, rotation: {}, warm-up-state: {})",
                         myo, identify(myo), timestamp, arm, xDirection, rotation, warmupState);
+
+                findDevice(myo).ifPresent(device -> {
+                    device.setArm(arm);
+                    device.setConnected(true);
+                    device.setXDirection(xDirection);
+                });
             }
 
             @Override
@@ -78,7 +94,15 @@ public class ConnectorService {
                 return findDevice(myo).map(Device::getName).orElse("<unknown>");
             }
 
+            private void updateConnected(Myo myo, boolean connected) {
+                findDevice(myo).ifPresent(device -> device.setConnected(connected));
+            }
+
         });
+    }
+
+    public void ping(Device device) {
+        device.getMyo().vibrate(VibrationType.VIBRATION_SHORT);
     }
 
     public void refresh() {
@@ -89,6 +113,10 @@ public class ConnectorService {
             if (myo != null && !findDevice(myo).isPresent()) {
                 LOGGER.debug("added {}", myo);
                 devices.add(bind(myo));
+            }
+
+            for (Device device : devices) {
+                device.getMyo().requestRssi();
             }
         } while (myo != null);
     }
@@ -111,7 +139,6 @@ public class ConnectorService {
     Device bind(Myo myo) {
         Device device = new Device(myo);
         device.setName(Integer.toString(devices.size()));
-        device.setConnected(true);
         myo.requestBatteryLevel();
         myo.requestRssi();
         return device;
