@@ -10,7 +10,7 @@ import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Optional;
 
 /**
  * Service wrapper for connector/hub.

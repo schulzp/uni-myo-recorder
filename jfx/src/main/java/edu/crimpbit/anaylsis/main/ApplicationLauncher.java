@@ -22,7 +22,6 @@ package edu.crimpbit.anaylsis.main;
 import edu.crimpbit.anaylsis.config.BasicConfig;
 import edu.crimpbit.anaylsis.workbench.DefaultWorkbench;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.jacpfx.rcp.workbench.FXWorkbench;

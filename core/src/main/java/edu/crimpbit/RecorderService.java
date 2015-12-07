@@ -27,6 +27,7 @@ public class RecorderService {
         if (recorder != null && recorder.isRunning()) {
             throw new IllegalStateException("There is a recorder still running: " + recorder);
         }
+
         recorder = new EmgDataRecorder(connectorService.getHub(), device.getMyo());
         return recorder;
     }

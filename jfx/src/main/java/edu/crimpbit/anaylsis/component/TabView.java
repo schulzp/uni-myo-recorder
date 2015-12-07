@@ -19,7 +19,6 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.component;
 
-import com.sun.deploy.uitoolkit.impl.fx.ui.FXUIFactory;
 import edu.crimpbit.anaylsis.config.BasicConfig;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -33,7 +32,6 @@ import org.jacpfx.api.message.Message;
 import org.jacpfx.rcp.component.FXComponent;
 import org.jacpfx.rcp.componentLayout.FXComponentLayout;
 import org.jacpfx.rcp.context.Context;
-import org.jacpfx.rcp.util.FXUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -21,13 +21,11 @@ package edu.crimpbit.anaylsis.workbench;
 
 import edu.crimpbit.ConnectorService;
 import edu.crimpbit.anaylsis.config.BasicConfig;
-import edu.crimpbit.anaylsis.perspective.RecordingPerspective;
 import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -46,8 +44,6 @@ import org.jacpfx.rcp.components.menuBar.JACPMenuBar;
 import org.jacpfx.rcp.context.Context;
 import org.jacpfx.rcp.workbench.FXWorkbench;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.ResourceBundle;
 
 /**
  * A simple JacpFX workbench
