@@ -108,12 +108,15 @@ ext {
 }
 
 dependencies {
-    compile 'org.springframework:spring-core:' + vSpring,
-            'org.jacpfx:jacpfx.API:' + vJacp,
+    compile 'org.jacpfx:jacpfx.API:' + vJacp,
             'org.jacpfx:jacpfx.JavaFX:' + vJacp,
             'org.jacpfx:jacpfx.JavaFXSpring:' + vJacp,
             'org.jacpfx:jacpfx.JavaFXControls:' + vJacp,
             'de.jensd:fontawesomefx:' + vFontAwesome,
             'org.jfxtras:jfxtras-fxml:' + vJfxtras,
             project(':core')
+
+    compile('org.springframework.boot:spring-boot-starter:1.3.0.RELEASE') {
+        exclude module: 'spring-boot-starter-logging'
+    }
 }
