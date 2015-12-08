@@ -1,30 +1,18 @@
 package edu.crimpbit.anaylsis.main;
 
 import javafx.application.Application;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.MessageSourceResourceBundle;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.javafx.EnableFXMLComponents;
+import org.springframework.javafx.FXMLComponent;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.Locale;
 
 public class SpringBootApplication extends Application {
 
@@ -51,7 +39,6 @@ public class SpringBootApplication extends Application {
 
     @Override
     public void stop() throws Exception {
-
         super.stop();
         applicationContext.close();
     }
@@ -64,12 +51,8 @@ public class SpringBootApplication extends Application {
 }
 
 @Configuration
+@EnableFXMLComponents
 class SpringBootApplicationConfiguration {
-
-    @Bean
-    public FXMLComponentPostProcessor fxmlComponentPostProcessor() {
-        return new FXMLComponentPostProcessor();
-    }
 
     @Bean
     public SceneService sceneService() {
@@ -97,60 +80,24 @@ class SceneService {
     private MainLayout mainLayout;
 
     public Scene getMainScene() {
-        return new Scene(mainLayout.getNode());
+        return new Scene(mainLayout.getParent());
     }
 }
 
-@FXMLComponent(location = "/fxml/MainLayout.fxml")
-class MainLayout {
+@FXMLComponent
+class MainLayout implements FXMLComponent.ParentAware<SplitPane> {
 
-    @FXML
-    private SplitPane root;
+    private SplitPane parent;
 
-    public Parent getNode() {
-        return root;
+    @Override
+    public SplitPane getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(SplitPane parent) {
+        this.parent = parent;
     }
 
 }
 
-@Component
-class FXMLComponentPostProcessor implements BeanPostProcessor, ApplicationContextAware {
-
-    private ApplicationContext applicationContext;
-    private MessageSourceResourceBundle resourceBundle;
-
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        FXMLComponent annotation = AnnotationUtils.findAnnotation(bean.getClass(), FXMLComponent.class);
-        if (annotation != null) {
-            String location = annotation.location();
-            try {
-                load(bean, beanName, location);
-            } catch (IOException e) {
-                throw new BeanInitializationException("Failed to load FXML component " + bean, e);
-            }
-        }
-        return bean;
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-        resourceBundle = new MessageSourceResourceBundle(applicationContext, Locale.getDefault());
-    }
-
-    protected void load(Object bean, String beanName, String location) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(applicationContext.getResource(location).getURL());
-        loader.setResources(resourceBundle);
-        loader.setController(bean);
-
-        loader.load();
-    }
-
-}
