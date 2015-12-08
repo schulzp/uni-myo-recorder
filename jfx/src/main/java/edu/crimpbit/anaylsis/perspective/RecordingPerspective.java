@@ -19,9 +19,9 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.perspective;
 
-import edu.crimpbit.RecorderService;
-import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.anaylsis.config.ApplicationConfiguration;
 import edu.crimpbit.anaylsis.fragment.RecorderFragment;
+import edu.crimpbit.service.RecordingService;
 import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.geometry.Orientation;
@@ -51,9 +51,9 @@ import java.util.concurrent.Executor;
 
 import static javafx.scene.layout.Priority.ALWAYS;
 
-@Perspective(id = BasicConfig.RECORDING_PERSPECTIVE,
+@Perspective(id = ApplicationConfiguration.RECORDING_PERSPECTIVE,
         name = "RecordingPerspective",
-        components = { BasicConfig.DEVICES_VIEW },
+        components = { ApplicationConfiguration.DEVICES_VIEW },
         resourceBundleLocation = "bundles.languageBundle")
 public class RecordingPerspective implements FXPerspective {
 
@@ -63,7 +63,7 @@ public class RecordingPerspective implements FXPerspective {
     private Executor executor;
 
     @Autowired
-    private RecorderService recorderService;
+    private RecordingService recordingService;
 
     @Resource
     public Context context;
@@ -88,7 +88,7 @@ public class RecordingPerspective implements FXPerspective {
 
                 @Override
                 protected Void call() throws Exception {
-                    recorderService.save("emg-recording", (of, total) -> {});
+                    recordingService.save("emg-recording", (of, total) -> {});
                     return null;
                 }
 
@@ -125,7 +125,7 @@ public class RecordingPerspective implements FXPerspective {
         // define toolbars and menu entries
         JACPToolBar toolbar = layout.getRegisteredToolBar(ToolbarPosition.NORTH);
         Button pressMe = new Button(resourceBundle.getString("perspective.analysis"));
-        pressMe.setOnAction((event) -> context.send(BasicConfig.ANALYSIS_PERSPECTIVE, "show"));
+        pressMe.setOnAction((event) -> context.send(ApplicationConfiguration.ANALYSIS_PERSPECTIVE, "show"));
         toolbar.addAllOnEnd(pressMe);
         toolbar.add(new Label(resourceBundle.getString("perspective.recording")));
 
@@ -142,9 +142,9 @@ public class RecordingPerspective implements FXPerspective {
         // Register root component
         perspectiveLayout.registerRootComponent(mainLayout);
         // register left target
-        perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_LEFT, leftTarget);
+        perspectiveLayout.registerTargetLayoutComponent(ApplicationConfiguration.TARGET_CONTAINER_LEFT, leftTarget);
         // register main target
-        perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_MAIN, mainTarget);
+        perspectiveLayout.registerTargetLayoutComponent(ApplicationConfiguration.TARGET_CONTAINER_MAIN, mainTarget);
     }
 
 }

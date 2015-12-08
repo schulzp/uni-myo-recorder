@@ -1,6 +1,10 @@
-package edu.crimpbit;
+package edu.crimpbit.service;
 
 import com.opencsv.CSVWriter;
+import edu.crimpbit.Device;
+import edu.crimpbit.Recorder;
+import edu.crimpbit.Recording;
+import edu.crimpbit.repository.RecordingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,25 +15,32 @@ import java.util.function.BiConsumer;
 /**
  * Service providing means to record data.
  */
-public class RecorderService {
+public class RecordingService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RecorderService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecordingService.class);
 
     private final ConnectorService connectorService;
+    private final RecordingRepository recordingRepository;
 
-    private EmgDataRecorder recorder;
+    private Recorder recorder;
 
-    public RecorderService(ConnectorService connectorService) {
+    public RecordingService(ConnectorService connectorService, RecordingRepository recordingRepository) {
         this.connectorService = connectorService;
+        this.recordingRepository = recordingRepository;
     }
 
-    public EmgDataRecorder createRecorder(Device device) {
+    public Recorder createRecorder(Device device) {
         if (recorder != null && recorder.isRunning()) {
             throw new IllegalStateException("There is a recorder still running: " + recorder);
         }
 
-        recorder = new EmgDataRecorder(connectorService.getHub(), device.getMyo());
+        Recording recording = new Recording(device.getArm(), device.getXDirection(), device.getRotation());
+        recorder = new Recorder(connectorService.getHub(), device.getMyo(), recording);
         return recorder;
+    }
+
+    public void save() {
+        recordingRepository.save(recorder.getRecording());
     }
 
     public void save(String fileName, BiConsumer<Integer, Integer> progressListener) throws IOException {
@@ -38,7 +49,7 @@ public class RecorderService {
             long firstTimestamp = -1;
             csvWriter.writeNext(nextLine);
             for (int recordIndex = 0; recordIndex < recorder.getRecords().size(); ++recordIndex) {
-                EmgDataRecorder.EmgDataRecord record = recorder.getRecords().get(recordIndex);
+                Recording.EmgRecord record = recorder.getRecords().get(recordIndex);
                 if (firstTimestamp == -1) {
                     firstTimestamp = record.getTimestamp();
                 }

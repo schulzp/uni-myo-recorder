@@ -19,7 +19,7 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.component;
 
-import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.anaylsis.config.ApplicationConfiguration;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -44,11 +44,11 @@ import java.util.ResourceBundle;
  *
  * @author Andy Moncsek
  */
-@DeclarativeView(id = BasicConfig.COMPONENT_RIGHT, name = "SimpleView",
+@DeclarativeView(id = ApplicationConfiguration.COMPONENT_RIGHT, name = "SimpleView",
         active = true,
         viewLocation = "/fxml/ComponentRight.fxml",
         resourceBundleLocation = "bundles.languageBundle",
-        initialTargetLayoutId = BasicConfig.TARGET_CONTAINER_MAIN)
+        initialTargetLayoutId = ApplicationConfiguration.TARGET_CONTAINER_MAIN)
 @Stateless
 public class ComponentRight implements FXComponent {
 

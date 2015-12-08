@@ -25,15 +25,14 @@
 
 package edu.crimpbit.anaylsis.config;
 
-import edu.crimpbit.ConnectorService;
-import edu.crimpbit.RecorderService;
+import edu.crimpbit.config.CoreConfiguration;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextClosedEvent;
 
 import java.util.concurrent.Executor;
@@ -41,8 +40,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Configuration
-@ComponentScan
-public class BasicConfig implements ApplicationContextAware {
+@Import({ CoreConfiguration.class })
+public class ApplicationConfiguration implements ApplicationContextAware {
 
     public static final String WORKBENCH_DEFAULT = "wDefault";
 
@@ -64,16 +63,6 @@ public class BasicConfig implements ApplicationContextAware {
     public static final String TARGET_CONTAINER_MAIN = "tMain";
 
     public static final String TAB_VIEW = "vTab";
-
-    @Bean
-    public ConnectorService connectorService() {
-        return new ConnectorService();
-    }
-
-    @Bean
-    public RecorderService recordingService(ConnectorService connectorService) {
-        return new RecorderService(connectorService);
-    }
 
     @Bean
     public Executor executor() {

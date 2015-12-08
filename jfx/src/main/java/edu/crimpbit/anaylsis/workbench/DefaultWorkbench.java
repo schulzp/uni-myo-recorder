@@ -19,8 +19,8 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.workbench;
 
-import edu.crimpbit.ConnectorService;
-import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.anaylsis.config.ApplicationConfiguration;
+import edu.crimpbit.service.ConnectorService;
 import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -50,9 +50,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Andy Moncsek
  */
-@Workbench(id = BasicConfig.WORKBENCH_DEFAULT, name = "defaultWorkbench",
+@Workbench(id = ApplicationConfiguration.WORKBENCH_DEFAULT, name = "defaultWorkbench",
         perspectives = {
-                BasicConfig.RECORDING_PERSPECTIVE
+                ApplicationConfiguration.RECORDING_PERSPECTIVE
         })
 public class DefaultWorkbench implements FXWorkbench {
 
@@ -87,7 +87,7 @@ public class DefaultWorkbench implements FXWorkbench {
         final MenuItem itemNew = new MenuItem("New");
         itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.META_DOWN));
         itemNew.setOnAction((event) -> {
-            context.send(BasicConfig.RECORDING_PERSPECTIVE, "new");
+            context.send(ApplicationConfiguration.RECORDING_PERSPECTIVE, "new");
         });
         return itemNew;
     }
@@ -96,7 +96,7 @@ public class DefaultWorkbench implements FXWorkbench {
         final MenuItem itemNew = new MenuItem("Save");
         itemNew.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.META_DOWN));
         itemNew.setOnAction((event) -> {
-            context.send(BasicConfig.RECORDING_PERSPECTIVE, "save");
+            context.send(ApplicationConfiguration.RECORDING_PERSPECTIVE, "save");
         });
         return itemNew;
     }

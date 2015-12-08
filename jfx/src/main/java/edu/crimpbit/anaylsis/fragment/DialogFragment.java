@@ -25,7 +25,7 @@
 
 package edu.crimpbit.anaylsis.fragment;
 
-import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.anaylsis.config.ApplicationConfiguration;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import org.jacpfx.api.annotations.Resource;
@@ -38,7 +38,7 @@ import org.jacpfx.rcp.context.Context;
  *
  * @author Andy Moncsek
  */
-@Fragment(id = BasicConfig.DIALOG_FRAGMENT,
+@Fragment(id = ApplicationConfiguration.DIALOG_FRAGMENT,
         viewLocation = "/fxml/DialogFragment.fxml",
         resourceBundleLocation = "bundles.languageBundle",
         localeID = "en_US",
@@ -55,10 +55,10 @@ public class DialogFragment {
     public void init() {
         name.setOnKeyReleased(event -> {
             final String nameValue = name.getText();
-            if (context.getParentId().equals(BasicConfig.RECORDING_PERSPECTIVE)) {
-                context.send(BasicConfig.RECORDING_PERSPECTIVE.concat(".").concat(BasicConfig.STATEFUL_CALLBACK), nameValue);
+            if (context.getParentId().equals(ApplicationConfiguration.RECORDING_PERSPECTIVE)) {
+                context.send(ApplicationConfiguration.RECORDING_PERSPECTIVE.concat(".").concat(ApplicationConfiguration.STATEFUL_CALLBACK), nameValue);
             } else {
-                context.send(BasicConfig.ANALYSIS_PERSPECTIVE.concat(".").concat(BasicConfig.STATELESS_CALLBACK), nameValue);
+                context.send(ApplicationConfiguration.ANALYSIS_PERSPECTIVE.concat(".").concat(ApplicationConfiguration.STATELESS_CALLBACK), nameValue);
             }
         });
     }

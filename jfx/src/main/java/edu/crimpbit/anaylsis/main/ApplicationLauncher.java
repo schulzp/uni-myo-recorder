@@ -19,7 +19,7 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.main;
 
-import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.anaylsis.config.ApplicationConfiguration;
 import edu.crimpbit.anaylsis.workbench.DefaultWorkbench;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * The application launcher containing the main method, the workbench definition, the configuration class and the packages to scan
+ * The application launcher containing the main method, the workbench definition, the config class and the packages to scan
  *
  * @author Andy Moncsek
  */
@@ -73,11 +73,11 @@ public class ApplicationLauncher extends AFXSpringJavaConfigLauncher {
 
     @Override
     public void stop() throws Exception {
-        BasicConfig.stop();
+        ApplicationConfiguration.stop();
     }
 
     @Override
     protected Class<?>[] getConfigClasses() {
-        return new Class<?>[]{BasicConfig.class};
+        return new Class<?>[]{ApplicationConfiguration.class};
     }
 }

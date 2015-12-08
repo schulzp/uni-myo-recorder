@@ -1,11 +1,12 @@
 package edu.crimpbit.anaylsis.component;
 
 import com.thalmic.myo.enums.Arm;
-import edu.crimpbit.ConnectorService;
 import edu.crimpbit.Device;
-import edu.crimpbit.anaylsis.config.BasicConfig;
-import javafx.beans.binding.Bindings;
+import edu.crimpbit.anaylsis.config.ApplicationConfiguration;
+import edu.crimpbit.service.ConnectorService;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -24,10 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
 
-@DeclarativeView(id = BasicConfig.DEVICES_VIEW, name = "",
+@DeclarativeView(id = ApplicationConfiguration.DEVICES_VIEW, name = "",
         resourceBundleLocation = "bundles.languageBundle",
         viewLocation = "/fxml/DevicesView.fxml",
-        initialTargetLayoutId = BasicConfig.TARGET_CONTAINER_LEFT)
+        initialTargetLayoutId = ApplicationConfiguration.TARGET_CONTAINER_LEFT)
 public class DevicesView implements FXComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DevicesView.class);
@@ -81,10 +82,11 @@ public class DevicesView implements FXComponent {
 
                 private CheckBox checkBox = new CheckBox();
                 private BooleanProperty checkedProperty;
+                private ChangeListener<Arm> armListener;
 
                 @Override
-                public void updateItem(Device item, boolean empty) {
-                    super.updateItem(item, empty);
+                public void updateItem(Device device, boolean empty) {
+                    super.updateItem(device, empty);
 
                     textProperty().unbind();
                     if (checkedProperty != null) {
@@ -94,8 +96,17 @@ public class DevicesView implements FXComponent {
                     if (!empty) {
                         setGraphic(checkBox);
 
-                        textProperty().bind(Bindings.convert(item.armProperty()));
-                        checkedProperty = item.selectedProperty();
+                        if (armListener != null) {
+                            device.armProperty().removeListener(armListener);
+                        }
+                        armListener = (property, oldValue, newValue) -> {
+                            Platform.runLater(() -> setText(newValue.name()));
+                        };
+
+                        device.armProperty().addListener(armListener);
+                        setText(device.getArm().name());
+
+                        checkedProperty = device.selectedProperty();
                         checkBox.selectedProperty().bindBidirectional(checkedProperty);
                     } else {
                         setGraphic(null);

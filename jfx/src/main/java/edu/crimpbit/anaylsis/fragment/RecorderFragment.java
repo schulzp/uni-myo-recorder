@@ -27,11 +27,12 @@ package edu.crimpbit.anaylsis.fragment;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Service;
-import edu.crimpbit.ConnectorService;
 import edu.crimpbit.Device;
-import edu.crimpbit.EmgDataRecorder;
-import edu.crimpbit.RecorderService;
-import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.Recorder;
+import edu.crimpbit.Recording;
+import edu.crimpbit.anaylsis.config.ApplicationConfiguration;
+import edu.crimpbit.service.ConnectorService;
+import edu.crimpbit.service.RecordingService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -56,7 +57,7 @@ import java.util.ResourceBundle;
 /**
  * Recorder UI.
  */
-@Fragment(id = BasicConfig.RECORDER_FRAGMENT,
+@Fragment(id = ApplicationConfiguration.RECORDER_FRAGMENT,
         viewLocation = "/fxml/RecorderFragment.fxml",
         resourceBundleLocation = "bundles.languageBundle",
         scope = Scope.PROTOTYPE)
@@ -77,14 +78,14 @@ public class RecorderFragment {
     private TilePane emgCharts;
 
     @Autowired
-    private RecorderService recorderService;
+    private RecordingService recordingService;
 
     @Autowired
     private ConnectorService connectorService;
 
     private List<List<LineChart.Series<Number, Number>>> emgData = new ArrayList<>(8);
 
-    private EmgDataRecorder emgDataRecorder;
+    private Recorder recorder;
 
     private int numberOfOverrides;
 
@@ -108,11 +109,13 @@ public class RecorderFragment {
         recordButton.selectedProperty().addListener(observable -> {
             ObservableList<Device> devices = connectorService.getDevices();
             if (recordButton.isSelected()) {
-                emgDataRecorder = recorderService.createRecorder(devices.get(0));
-                emgDataRecorder.addListener(listener, MoreExecutors.directExecutor());
-                emgDataRecorder.startAsync();
-            } else {
-                emgDataRecorder.stopAsync().awaitTerminated();
+                devices.stream().filter(Device::isSelected).findFirst().ifPresent(device -> {
+                    recorder = recordingService.createRecorder(device);
+                    recorder.addListener(listener, MoreExecutors.directExecutor());
+                    recorder.startAsync();
+                });
+            } else if (recorder != null) {
+                recorder.stopAsync().awaitTerminated();
             }
         });
     }
@@ -149,14 +152,14 @@ public class RecorderFragment {
         int overrideIndex = numberOfOverrides++ % MAX_OVERRIDES;
 
         Platform.runLater(() -> recordButton.setText(bundle.getString("recorder.recording")));
-        ObservableList<EmgDataRecorder.EmgDataRecord> records = emgDataRecorder.getRecords();
-        records.addListener(new ListChangeListener<EmgDataRecorder.EmgDataRecord>() {
+        ObservableList<Recording.EmgRecord> records = recorder.getRecords();
+        records.addListener(new ListChangeListener<Recording.EmgRecord>() {
 
             private int emgDataRangeBegin = 0;
             private int emgDataRangeEnd = 0;
 
             @Override
-            public void onChanged(Change<? extends EmgDataRecorder.EmgDataRecord> c) {
+            public void onChanged(Change<? extends Recording.EmgRecord> c) {
                 while (c.next()) {
                     emgDataRangeEnd += c.getAddedSize();
                     if (emgDataRangeEnd - emgDataRangeBegin > CHART_UPDATE_CHUNK_SIZE) {
@@ -164,7 +167,7 @@ public class RecorderFragment {
                         int end = emgDataRangeEnd;
                         Platform.runLater(() -> {
                             for (int emgDataOffset = begin; emgDataOffset < end; ++emgDataOffset) {
-                                EmgDataRecorder.EmgDataRecord record = records.get(emgDataOffset);
+                                Recording.EmgRecord record = records.get(emgDataOffset);
                                 for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
                                     XYChart.Data<Number, Number> data = new XYChart.Data<>(emgDataOffset, filter(record.getData()[emgIndex]));
                                     emgData.get(emgIndex).get(overrideIndex).getData().add(data);

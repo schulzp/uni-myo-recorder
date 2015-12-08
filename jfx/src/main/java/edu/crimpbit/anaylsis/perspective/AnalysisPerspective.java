@@ -19,7 +19,7 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.perspective;
 
-import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.anaylsis.config.ApplicationConfiguration;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -53,12 +53,12 @@ import static javafx.scene.layout.Priority.ALWAYS;
  * @author Andy Moncsek
  * @author Patrick Symmangk (pete.jacp@gmail.com)
  */
-@Perspective(id = BasicConfig.ANALYSIS_PERSPECTIVE,
+@Perspective(id = ApplicationConfiguration.ANALYSIS_PERSPECTIVE,
         name = "analysisPerspective",
         components = {
-                BasicConfig.COMPONENT_LEFT,
-                BasicConfig.COMPONENT_RIGHT,
-                BasicConfig.STATELESS_CALLBACK},
+                ApplicationConfiguration.COMPONENT_LEFT,
+                ApplicationConfiguration.COMPONENT_RIGHT,
+                ApplicationConfiguration.STATELESS_CALLBACK},
         viewLocation = "/fxml/perspectiveTwo.fxml",
         resourceBundleLocation = "bundles.languageBundle")
 public class AnalysisPerspective implements FXPerspective {
@@ -116,15 +116,15 @@ public class AnalysisPerspective implements FXPerspective {
 
 
         Button pressMe = new Button(resourceBundle.getString("perspective.recording"));
-        pressMe.setOnAction((event) -> context.send(BasicConfig.RECORDING_PERSPECTIVE, "show"));
+        pressMe.setOnAction((event) -> context.send(ApplicationConfiguration.RECORDING_PERSPECTIVE, "show"));
         toolbar.addAllOnEnd(pressMe);
         toolbar.add(new Label(resourceBundle.getString("perspective.analysis")));
         // let them grow
         LayoutUtil.GridPaneUtil.setFullGrow(ALWAYS, mainLayout);
         // register left menu
-        perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_LEFT, leftMenu);
+        perspectiveLayout.registerTargetLayoutComponent(ApplicationConfiguration.TARGET_CONTAINER_LEFT, leftMenu);
         // register main content
-        perspectiveLayout.registerTargetLayoutComponent(BasicConfig.TARGET_CONTAINER_MAIN, mainContent);
+        perspectiveLayout.registerTargetLayoutComponent(ApplicationConfiguration.TARGET_CONTAINER_MAIN, mainContent);
         LOGGER.info("on PostConstruct of AnalysisPerspective");
     }
 

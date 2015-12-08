@@ -19,7 +19,7 @@
  ************************************************************************/
 package edu.crimpbit.anaylsis.component;
 
-import edu.crimpbit.anaylsis.config.BasicConfig;
+import edu.crimpbit.anaylsis.config.ApplicationConfiguration;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -42,11 +42,11 @@ import java.util.ResourceBundle;
  *
  * @author Andy Moncsek
  */
-@DeclarativeView(id = BasicConfig.TAB_VIEW, name = "TabView",
+@DeclarativeView(id = ApplicationConfiguration.TAB_VIEW, name = "TabView",
         active = true,
         viewLocation = "/fxml/TabView.fxml",
         resourceBundleLocation = "bundles.languageBundle",
-        initialTargetLayoutId = BasicConfig.TARGET_CONTAINER_MAIN)
+        initialTargetLayoutId = ApplicationConfiguration.TARGET_CONTAINER_MAIN)
 public class TabView implements FXComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TabView.class);
