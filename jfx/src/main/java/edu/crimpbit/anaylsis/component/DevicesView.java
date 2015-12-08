@@ -7,7 +7,6 @@ import edu.crimpbit.service.ConnectorService;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ResourceBundle;
-import java.util.concurrent.Executor;
 
 @DeclarativeView(id = ApplicationConfiguration.DEVICES_VIEW, name = "",
         resourceBundleLocation = "bundles.languageBundle",
@@ -34,16 +32,10 @@ public class DevicesView implements FXComponent {
     private static final Logger LOGGER = LoggerFactory.getLogger(DevicesView.class);
 
     @FXML
-    private ToggleButton refreshButton;
-
-    @FXML
     private ListView<Device> devicesList;
 
     @Autowired
     private ConnectorService connectorService;
-
-    @Autowired
-    private Executor executor;
 
     @Resource
     private Context context;
@@ -51,31 +43,12 @@ public class DevicesView implements FXComponent {
     @Resource
     private ResourceBundle bundle;
 
-    private void refresh() {
-        Task<Void> refreshTask = new Task<Void>() {
-
-            @Override
-            protected Void call() throws Exception {
-                connectorService.refresh();
-                refreshButton.setSelected(false);
-                return null;
-            }
-
-        };
-
-        executor.execute(refreshTask);
-    }
 
     @Override
     public Node postHandle(Node node, Message<Event, Object> message) throws Exception {
         if (message.getMessageBody().equals(FXUtil.MessageUtil.INIT)) {
             devicesList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
             devicesList.setItems(connectorService.getDevices());
-            refreshButton.selectedProperty().addListener(selected -> {
-                if (refreshButton.isSelected()) {
-                    refresh();
-                }
-            });
 
             devicesList.setContextMenu(createContextMenu());
             devicesList.setCellFactory(list -> new ListCell<Device>() {
@@ -116,7 +89,6 @@ public class DevicesView implements FXComponent {
 
             });
 
-            refresh();
         }
         return null;
     }
