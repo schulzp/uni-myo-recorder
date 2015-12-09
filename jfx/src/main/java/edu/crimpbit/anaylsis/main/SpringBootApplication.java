@@ -2,7 +2,6 @@ package edu.crimpbit.anaylsis.main;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.javafx.EnableFXMLComponents;
-import org.springframework.javafx.FXMLComponent;
 import org.springframework.stereotype.Service;
 
 public class SpringBootApplication extends Application {
@@ -85,7 +83,7 @@ class SceneService {
     private MainLayout mainLayout;
 
     public Scene getMainScene() {
-        return new Scene(mainLayout.getParent());
+        return new Scene(mainLayout.getRootNode());
     }
 }
 

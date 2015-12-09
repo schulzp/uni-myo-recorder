@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 
 /**
- * A wrapper for {@link FXMLLoader} utilizing spring.
+ * A spring based wrapper for {@link FXMLLoader}.
  */
 public class FXMLComponentLoader {
 
@@ -54,7 +54,7 @@ public class FXMLComponentLoader {
             ((Node) result).setId(beanName);
         }
 
-        if (bean instanceof FXMLComponent.ParentAware) {
+        if (bean instanceof FXMLComponent.RootNodeAware) {
             PropertyDescriptor parentPropertyDescriptor = BeanUtils.getPropertyDescriptor(bean.getClass(), "parent");
             MethodParameter parentMethodParameter = BeanUtils.getWriteMethodParameter(parentPropertyDescriptor);
             if (parentMethodParameter.getParameterType().isAssignableFrom(result.getClass())) {
