@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * A spring backed {@link BuilderFactory}.
  */
-public class FXMLComponentBuilderFactory implements BuilderFactory, BeanFactoryAware {
+public class FXMLComponentBuilderFactory implements BuilderFactory {
 
     private static final Builder<Void> NULL_BUILDER = new Builder<Void>() {
 
@@ -29,14 +29,18 @@ public class FXMLComponentBuilderFactory implements BuilderFactory, BeanFactoryA
 
     };
 
-    private BeanFactory beanFactory;
+    private final ListableBeanFactory beanFactory;
 
     private final Map<Class<?>, Builder<?>> builders = new HashMap<>();
+
+    public FXMLComponentBuilderFactory(ListableBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
 
     @Override
     public Builder<?> getBuilder(Class<?> type) {
         Builder<?> builder = builders.computeIfAbsent(type, t -> {
-            Map<String, ?> beansOfType = ((ListableBeanFactory) beanFactory).getBeansOfType(type, true, false);
+            Map<String, ?> beansOfType = beanFactory.getBeansOfType(type, true, false);
             if (beansOfType.isEmpty()) {
                 return NULL_BUILDER;
             }
@@ -44,11 +48,6 @@ public class FXMLComponentBuilderFactory implements BuilderFactory, BeanFactoryA
         });
 
         return builder == NULL_BUILDER ? null : builder;
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
     }
 
 }

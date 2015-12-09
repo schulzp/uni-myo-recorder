@@ -1,5 +1,9 @@
 package org.springframework.javafx;
 
+import javafx.util.BuilderFactory;
+import javafx.util.Callback;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -22,16 +26,23 @@ public class FXMLComponentConfiguration {
     }
 
     @Bean
-    public FXMLComponentBuilderFactory fxmlComponentBuilderFactory() {
-        return new FXMLComponentBuilderFactory();
+    public FXMLComponentControllerFactory fxmlComponentControllerFactory(BeanFactory beanFactory) {
+        return new FXMLComponentControllerFactory(beanFactory);
+    }
+
+    @Bean
+    public FXMLComponentBuilderFactory fxmlComponentBuilderFactory(ListableBeanFactory beanFactory) {
+        return new FXMLComponentBuilderFactory(beanFactory);
     }
 
     @Bean
     public FXMLComponentLoader fxmlComponentLoader(ResourceLoader resourceLoader,
-                                                   FXMLComponentBuilderFactory fxmlComponentBuilderFactory,
+                                                   @Qualifier("fxmlComponentControllerFactory") Callback<Class<?>, Object> controllerFactory,
+                                                   @Qualifier("fxmlComponentBuilderFactory") BuilderFactory builderFactory,
                                                    @Qualifier("fxmlComponentResourceBundle") ResourceBundle resourceBundle) {
         FXMLComponentLoader fxmlComponentLoader = new FXMLComponentLoader(resourceLoader);
-        fxmlComponentLoader.setBuilderFactory(fxmlComponentBuilderFactory);
+        fxmlComponentLoader.setControllerFactory(controllerFactory);
+        fxmlComponentLoader.setBuilderFactory(builderFactory);
         fxmlComponentLoader.setResourceBundle(resourceBundle);
         return fxmlComponentLoader;
     }

@@ -55,6 +55,11 @@ public class SpringBootApplication extends Application {
 class SpringBootApplicationConfiguration {
 
     @Bean
+    public SidebarController sidebarController() {
+        return new SidebarController();
+    }
+
+    @Bean
     public SceneService sceneService() {
         return new SceneService();
     }
@@ -82,22 +87,5 @@ class SceneService {
     public Scene getMainScene() {
         return new Scene(mainLayout.getParent());
     }
-}
-
-@FXMLComponent
-class MainLayout implements FXMLComponent.ParentAware<SplitPane> {
-
-    private SplitPane parent;
-
-    @Override
-    public SplitPane getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(SplitPane parent) {
-        this.parent = parent;
-    }
-
 }
 

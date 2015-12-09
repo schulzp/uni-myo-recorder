@@ -3,6 +3,7 @@ package org.springframework.javafx;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.util.BuilderFactory;
+import javafx.util.Callback;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.core.MethodParameter;
@@ -19,8 +20,9 @@ public class FXMLComponentLoader {
 
     public final ResourceLoader resourceLoader;
 
-    public BuilderFactory builderFactory;
-    public ResourceBundle resourceBundle;
+    private BuilderFactory builderFactory;
+    private ResourceBundle resourceBundle;
+    private Callback<Class<?>, Object> controllerFactory;
 
     public FXMLComponentLoader(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
@@ -34,9 +36,14 @@ public class FXMLComponentLoader {
         this.builderFactory = builderFactory;
     }
 
+    public void setControllerFactory(Callback<Class<?>, Object> controllerFactory) {
+        this.controllerFactory = controllerFactory;
+    }
+
     public void load(Object bean, String beanName, String location) throws IOException, ReflectiveOperationException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(resourceLoader.getResource(location).getURL());
+        loader.setControllerFactory(controllerFactory);
         loader.setBuilderFactory(builderFactory);
         loader.setResources(resourceBundle);
         loader.setController(bean);
@@ -58,4 +65,5 @@ public class FXMLComponentLoader {
             }
         }
     }
+
 }
