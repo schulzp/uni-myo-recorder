@@ -4,7 +4,7 @@ import javafx.util.Callback;
 import org.springframework.beans.factory.BeanFactory;
 
 /**
- * A spring based controller factory.
+ * A {@link BeanFactory} backed controller factory.
  */
 public class FXMLComponentControllerFactory implements Callback<Class<?>, Object> {
 

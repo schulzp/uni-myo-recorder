@@ -15,7 +15,7 @@ import org.springframework.core.io.ResourceLoader;
 import java.util.ResourceBundle;
 
 /**
- * Default configuration
+ * {@link FXMLComponent} support configuration.
  */
 @Configuration
 public class FXMLComponentConfiguration {
@@ -36,11 +36,10 @@ public class FXMLComponentConfiguration {
     }
 
     @Bean
-    public FXMLComponentLoader fxmlComponentLoader(ResourceLoader resourceLoader,
-                                                   @Qualifier("fxmlComponentControllerFactory") Callback<Class<?>, Object> controllerFactory,
+    public FXMLComponentLoader fxmlComponentLoader(@Qualifier("fxmlComponentControllerFactory") Callback<Class<?>, Object> controllerFactory,
                                                    @Qualifier("fxmlComponentBuilderFactory") BuilderFactory builderFactory,
                                                    @Qualifier("fxmlComponentResourceBundle") ResourceBundle resourceBundle) {
-        FXMLComponentLoader fxmlComponentLoader = new FXMLComponentLoader(resourceLoader);
+        FXMLComponentLoader fxmlComponentLoader = new FXMLComponentLoader();
         fxmlComponentLoader.setControllerFactory(controllerFactory);
         fxmlComponentLoader.setBuilderFactory(builderFactory);
         fxmlComponentLoader.setResourceBundle(resourceBundle);
@@ -48,8 +47,8 @@ public class FXMLComponentConfiguration {
     }
 
     @Bean
-    public FXMLComponentPostProcessor fxmlComponentPostProcessor(FXMLComponentLoader fxmlComponentLoader) {
-        return new FXMLComponentPostProcessor(fxmlComponentLoader);
+    public FXMLComponentPostProcessor fxmlComponentPostProcessor(FXMLComponentLoader fxmlComponentLoader, ResourceLoader resourceLoader) {
+        return new FXMLComponentPostProcessor(fxmlComponentLoader, resourceLoader);
     }
 
 }

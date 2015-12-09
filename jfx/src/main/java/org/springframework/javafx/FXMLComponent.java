@@ -76,13 +76,13 @@ public @interface FXMLComponent {
      * }
      * </pre>
      *
-     * @param <T> parent type
+     * @param <R> parent type
      */
-    interface RootNodeAware<T extends Node> {
+    interface RootNodeAware<R extends Node> {
 
-        void setRootNode(T parent);
+        void setRootNode(R rootNode);
 
-        T getRootNode();
+        R getRootNode();
 
     }
 

@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A spring backed {@link BuilderFactory}.
+ * A {@link ListableBeanFactory} backed {@link BuilderFactory}.
  */
 public class FXMLComponentBuilderFactory implements BuilderFactory {
 

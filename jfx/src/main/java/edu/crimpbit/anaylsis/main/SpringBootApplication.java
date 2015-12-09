@@ -85,5 +85,6 @@ class SceneService {
     public Scene getMainScene() {
         return new Scene(mainLayout.getRootNode());
     }
+
 }
 

@@ -1,16 +1,12 @@
 package org.springframework.javafx;
 
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.util.BuilderFactory;
 import javafx.util.Callback;
-import org.springframework.beans.BeanUtils;
-import org.springframework.context.NoSuchMessageException;
-import org.springframework.core.MethodParameter;
 import org.springframework.core.io.ResourceLoader;
 
-import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
@@ -18,15 +14,23 @@ import java.util.ResourceBundle;
  */
 public class FXMLComponentLoader {
 
-    public final ResourceLoader resourceLoader;
-
-    private BuilderFactory builderFactory;
+    /**
+     * ResourceBundle used for i18n.
+     * @see FXMLLoader#setResources(ResourceBundle)
+     */
     private ResourceBundle resourceBundle;
-    private Callback<Class<?>, Object> controllerFactory;
 
-    public FXMLComponentLoader(ResourceLoader resourceLoader) {
-        this.resourceLoader = resourceLoader;
-    }
+    /**
+     * BuilderFactory for mapping nodes to instances.
+     * @see FXMLLoader#setBuilderFactory(BuilderFactory)
+     */
+    private BuilderFactory builderFactory;
+
+    /**
+     * Callback for mapping controller classes to instances.
+     * @see FXMLLoader#setControllerFactory(Callback)
+     */
+    private Callback<Class<?>, Object> controllerFactory;
 
     public void setResourceBundle(ResourceBundle resourceBundle) {
         this.resourceBundle = resourceBundle;
@@ -40,30 +44,21 @@ public class FXMLComponentLoader {
         this.controllerFactory = controllerFactory;
     }
 
-    public void load(Object bean, String beanName, String location) throws IOException, ReflectiveOperationException {
+    /**
+     * Loads the specified {@code location} controlled by {@code controller}.
+     * @param location the resource location, see {@link FXMLLoader#setLocation(URL)}
+     * @param controller the root node controller, see {@link FXMLLoader#setController(Object)}
+     * @return the loaded root node
+     * @throws IOException see see {@link FXMLLoader#load()}
+     */
+    public Object load(URL location, Object controller) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(resourceLoader.getResource(location).getURL());
+        loader.setLocation(location);
         loader.setControllerFactory(controllerFactory);
         loader.setBuilderFactory(builderFactory);
         loader.setResources(resourceBundle);
-        loader.setController(bean);
-
-        Object result = loader.load();
-
-        if (result instanceof  Node) {
-            ((Node) result).setId(beanName);
-        }
-
-        if (bean instanceof FXMLComponent.RootNodeAware) {
-            PropertyDescriptor parentPropertyDescriptor = BeanUtils.getPropertyDescriptor(bean.getClass(), "parent");
-            MethodParameter parentMethodParameter = BeanUtils.getWriteMethodParameter(parentPropertyDescriptor);
-            if (parentMethodParameter.getParameterType().isAssignableFrom(result.getClass())) {
-                parentPropertyDescriptor.getWriteMethod().invoke(bean, result);
-            } else {
-                throw new NoSuchMessageException("Unexpected type of parent. Loaded parent is of type "
-                        + result.getClass() + " which cannot be passed to " + parentMethodParameter.getMethod());
-            }
-        }
+        loader.setController(controller);
+        return loader.load();
     }
 
 }

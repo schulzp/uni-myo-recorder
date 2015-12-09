@@ -17,8 +17,8 @@ public class MainLayout implements FXMLComponent.RootNodeAware<SplitPane> {
     }
 
     @Override
-    public void setRootNode(SplitPane parent) {
-        this.parent = parent;
+    public void setRootNode(SplitPane rootNode) {
+        this.parent = rootNode;
     }
 
 }
