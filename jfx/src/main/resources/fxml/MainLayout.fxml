@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.layout.GridPane?>
-<SplitPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-           dividerPositions="0.02f" minWidth="800" minHeight="400"
-           orientation="HORIZONTAL">
-    <items>
-        <GridPane fx:id="left">
-            <fx:include source="Sidebar.fxml" />
-        </GridPane>
-        <GridPane fx:id="main"/>
-    </items>
-</SplitPane>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            minWidth="800" minHeight="400">
+    <top>
+        <MenuBar fx:id="menuBar" />
+    </top>
+    <center>
+        <TabPane fx:id="tabPane" />
+    </center>
+</BorderPane>
