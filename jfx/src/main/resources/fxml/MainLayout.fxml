@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.BorderPane?>
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            minWidth="800" minHeight="400">
+            minWidth="1000" minHeight="800">
     <top>
         <MenuBar fx:id="menuBar" />
     </top>
+    <left>
+        <Accordion fx:id="accordion" />
+    </left>
     <center>
         <TabPane fx:id="tabPane" />
     </center>
