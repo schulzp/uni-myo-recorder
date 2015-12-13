@@ -12,16 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.javafx.FXMLController;
+import org.springframework.stereotype.Controller;
 
-import javax.annotation.PostConstruct;
-
-@FXMLController
-public class DevicesView implements FXMLController.RootNodeAware<TitledPane> {
+@Controller
+public class DevicesView {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DevicesView.class);
-
-    private TitledPane rootNode;
 
     @FXML
     private ListView<Device> devicesList;
@@ -32,17 +28,7 @@ public class DevicesView implements FXMLController.RootNodeAware<TitledPane> {
     @Autowired
     private MessageSourceAccessor messageSourceAccessor;
 
-    @Override
-    public void setRootNode(TitledPane rootNode) {
-        this.rootNode = rootNode;
-    }
-
-    @Override
-    public TitledPane getRootNode() {
-        return rootNode;
-    }
-
-    @PostConstruct
+    @FXML
     private void initialize() {
         devicesList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         devicesList.setItems(connectorService.getDevices());

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<MenuBar xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="edu.crimpbit.anaylsis.view.MainMenu" useSystemMenuBar="true">
+    <Menu text="%menu.file">
+        <MenuItem fx:id="fileNew" text="%file.new.command" onAction="#handle">
+            <accelerator>
+                <KeyCodeCombination alt="UP" code="N" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+            </accelerator>
+        </MenuItem>
+        <MenuItem fx:id="fileSave" text="%file.save.command" onAction="#handle">
+            <accelerator>
+                <KeyCodeCombination alt="UP" code="S" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+            </accelerator>
+        </MenuItem>
+    </Menu>
+</MenuBar>

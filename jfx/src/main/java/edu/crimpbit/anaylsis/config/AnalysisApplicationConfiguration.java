@@ -25,6 +25,8 @@
 
 package edu.crimpbit.anaylsis.config;
 
+import edu.crimpbit.anaylsis.command.CommandService;
+import edu.crimpbit.anaylsis.command.FileNewCommand;
 import edu.crimpbit.config.CoreConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -70,6 +72,18 @@ public class AnalysisApplicationConfiguration {
     @Bean
     public MessageSourceAccessor messageSourceAccessor(@Qualifier("i18n") MessageSource messageSource) {
         return new MessageSourceAccessor(messageSource);
+    }
+
+    @Bean
+    public CommandService commandService() {
+        return new CommandService();
+    }
+
+    @Bean
+    public FileNewCommand fileNewCommand(CommandService commandService) {
+        FileNewCommand command = new FileNewCommand();
+        commandService.registerCommand(command);
+        return command;
     }
 
     private static ConfigurableApplicationContext context;

@@ -2,10 +2,9 @@ package edu.crimpbit.anaylsis.view;
 
 import edu.crimpbit.anaylsis.event.OpenInNewTab;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.control.Accordion;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,9 +32,6 @@ public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
     @FXML
     private TabPane tabPane;
 
-    @FXML
-    private MenuBar menuBar;
-
     @Autowired
     private MessageSourceAccessor messageSourceAccessor;
 
@@ -52,38 +48,14 @@ public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
     @EventListener
     public void openInNewTab(OpenInNewTab event) {
         Tab tab = new Tab();
-        tab.setText("New Recording");
+        tab.textProperty().bind(event.textProperty());
         tab.setContent(event.getNode());
         tabPane.getTabs().add(tab);
     }
 
     @PostConstruct
     private void initialize() {
-        createMenus();
-
-        DevicesView devicesView = (DevicesView) itemFactory.call(DevicesView.class);
-        accordion.getPanes().add(devicesView.getRootNode());
-    }
-
-    private void createMenus() {
-        final String os = System.getProperty ("os.name");
-        if (os != null && os.startsWith ("Mac")) {
-            menuBar.setUseSystemMenuBar(true);
-        }
-
-        final Menu menuFile = new Menu("File");
-        menuFile.getItems().add(createNewItem());
-        menuBar.getMenus().addAll(menuFile);
-    }
-
-    private MenuItem createNewItem() {
-        final MenuItem itemNew = new MenuItem("New");
-        itemNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.META_DOWN));
-        itemNew.setOnAction((event) -> {
-            RecorderFragment recorderFragment = (RecorderFragment) itemFactory.call(RecorderFragment.class);
-            openInNewTab(new OpenInNewTab(itemNew, recorderFragment.getRootNode()));
-        });
-        return itemNew;
+        accordion.setExpandedPane(accordion.getPanes().get(0));
     }
 
 }

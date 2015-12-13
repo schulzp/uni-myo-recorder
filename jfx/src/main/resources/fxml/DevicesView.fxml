@@ -3,6 +3,7 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.text.Text?>
 <TitledPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="edu.crimpbit.anaylsis.view.DevicesView"
             text="%devices.view.title">
     <ListView fx:id="devicesList">
         <placeholder>
