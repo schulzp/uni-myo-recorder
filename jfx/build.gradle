@@ -103,7 +103,7 @@ ext {
     vJacp = '2.0.2'
     vFontAwesome = '8.7'
     vJfxtras = '8.0-r4'
-    vSpringBootJavaFx = '1.0.0-SNAPSHOT'
+    vSpringBootJavaFx = '0.5.7'
 }
 
 dependencies {
@@ -111,4 +111,10 @@ dependencies {
             'de.jensd:fontawesomefx:' + vFontAwesome,
             project(':core')
 
+}
+
+repositories {
+    maven {
+        url 'https://dl.bintray.com/schulzp/maven/'
+    }
 }
