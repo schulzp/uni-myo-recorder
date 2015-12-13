@@ -1,15 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.collections.FXCollections ?>
+<?import java.lang.String?>
+<?import java.lang.Integer?>
+<?import javafx.geometry.Insets?>
 <VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       minHeight="-Infinity" minWidth="-Infinity">
-    <ButtonBar>
-        <buttons>
-            <ToggleButton fx:id="recordButton" text="%recorder.record" ButtonBar.buttonData="LEFT" />
-        </buttons>
-    </ButtonBar>
+    <HBox alignment="CENTER_LEFT" spacing="5">
+        <padding>
+            <Insets left="8" top="8" right="8" bottom="8" />
+        </padding>
+        <ComboBox fx:id="subjectSelect">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="peter" />
+                </FXCollections>
+            </items>
+        </ComboBox>
+        <ComboBox fx:id="exerciseSelect">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="index-finger" />
+                    <String fx:value="index-finger+middle-finger" />
+                    <String fx:value="index-finger+middle-finger+ring-finger" />
+                </FXCollections>
+            </items>
+        </ComboBox>
+        <ComboBox fx:id="durationSelect">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <Integer fx:value="1" />
+                    <Integer fx:value="2" />
+                    <Integer fx:value="4" />
+                </FXCollections>
+            </items>
+        </ComboBox>
+        <ToggleButton fx:id="recordButton" text="%recorder.record" ButtonBar.buttonData="LEFT" />
+    </HBox>
     <TilePane fx:id="emgCharts" hgap="10" vgap="10" prefColumns="2" />
 </VBox>

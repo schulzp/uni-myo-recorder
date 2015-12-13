@@ -32,7 +32,12 @@ import edu.crimpbit.Recorder;
 import edu.crimpbit.Recording;
 import edu.crimpbit.service.ConnectorService;
 import edu.crimpbit.service.RecordingService;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -41,9 +46,11 @@ import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.javafx.FXMLController;
@@ -68,6 +75,15 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox> {
 
     @FXML
     private ToggleButton recordButton;
+
+    @FXML
+    private ComboBox<String> exerciseSelect;
+
+    @FXML
+    private ComboBox<String> subjectSelect;
+
+    @FXML
+    private ComboBox<Integer> durationSelect;
 
     @FXML
     private TilePane emgCharts;
@@ -113,18 +129,32 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox> {
     @PostConstruct
     private void initialize() {
         createCharts();
+        recordButton.textProperty().bind(
+                Bindings.when(recordButton.selectedProperty())
+                        .then(bundle.getString("recorder.recording"))
+                        .otherwise(bundle.getString("recorder.record")));
+
         recordButton.selectedProperty().addListener(observable -> {
             ObservableList<Device> devices = connectorService.getDevices();
             if (recordButton.isSelected()) {
                 devices.stream().filter(Device::isSelected).findFirst().ifPresent(device -> {
                     recorder = recordingService.createRecorder(device);
+                    bindRecording(recorder.getRecording());
                     recorder.addListener(listener, MoreExecutors.directExecutor());
                     recorder.startAsync();
                 });
-            } else if (recorder != null) {
+            } else if (recorder != null && recorder.isRunning()) {
                 recorder.stopAsync().awaitTerminated();
             }
         });
+
+        subjectSelect.disableProperty().bind(recordButton.selectedProperty());
+        exerciseSelect.disableProperty().bind(recordButton.selectedProperty());
+    }
+
+    private void bindRecording(Recording recording) {
+        recording.setExercise(exerciseSelect.getSelectionModel().getSelectedItem());
+        recording.setSubject(subjectSelect.getSelectionModel().getSelectedItem());
     }
 
     private void createCharts() {
@@ -156,9 +186,13 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox> {
     }
 
     private void handleRecordingStarted() {
+        Integer duration = durationSelect.getSelectionModel().getSelectedItem();
+        if (duration != null && duration > 0) {
+            new Timeline(new KeyFrame(Duration.seconds(duration), reached -> recorder.stopAsync())).play();
+        }
+
         int overrideIndex = numberOfOverrides++ % MAX_OVERRIDES;
 
-        Platform.runLater(() -> recordButton.setText(bundle.getString("recorder.recording")));
         ObservableList<Recording.EmgRecord> records = recorder.getRecords();
         records.addListener(new ListChangeListener<Recording.EmgRecord>() {
 
@@ -194,7 +228,9 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox> {
     }
 
     private void handleRecordingStopped() {
-        Platform.runLater(() -> recordButton.setText(bundle.getString("recorder.record")));
+        Platform.runLater(() -> {
+            recordButton.setSelected(false);
+        });
     }
 
 }

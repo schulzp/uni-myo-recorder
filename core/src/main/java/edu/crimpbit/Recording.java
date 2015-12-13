@@ -25,9 +25,9 @@ public class Recording {
 
     private final LocalTime createdAt = LocalTime.now();
 
-    private String title;
+    private String exercise;
 
-    private String person;
+    private String subject;
 
     private List<EmgRecord> emgRecords = new LinkedList<>();
 
@@ -35,6 +35,14 @@ public class Recording {
         this.arm = arm;
         this.xDirection = xDirection;
         this.rotation = rotation;
+    }
+
+    public void setExercise(String exercise) {
+        this.exercise = exercise;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public List<EmgRecord> getEmgRecords() {
