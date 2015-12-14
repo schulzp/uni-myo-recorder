@@ -37,16 +37,32 @@ public class Recording {
         this.rotation = rotation;
     }
 
+    public Arm getArm() {
+        return arm;
+    }
+
     public void setExercise(String exercise) {
         this.exercise = exercise;
+    }
+
+    public String getExercise() {
+        return exercise;
     }
 
     public void setSubject(String subject) {
         this.subject = subject;
     }
 
+    public String getSubject() {
+        return subject;
+    }
+
     public List<EmgRecord> getEmgRecords() {
         return emgRecords;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public static class EmgRecord extends Record<byte[]> {
@@ -67,6 +83,7 @@ public class Recording {
         public String toString() {
             return "EMG at " + timestamp + ": " + Arrays.toString(data);
         }
+
     }
 
 }

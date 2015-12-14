@@ -1,6 +1,9 @@
 package edu.crimpbit.anaylsis.view;
 
+import edu.crimpbit.Recorder;
+import edu.crimpbit.Recording;
 import edu.crimpbit.anaylsis.command.FileSaveCommand;
+import edu.crimpbit.anaylsis.command.OpenCommand;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Tab;
@@ -26,6 +29,9 @@ public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Autowired
+    private FXMLControllerFactory controllerFactory;
+
     @FXML
     private Accordion accordion;
 
@@ -46,8 +52,16 @@ public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
     }
 
     @EventListener
-    public void open(Persistable<?> element) {
-        tabPane.getTabs().add(bindTab(new Tab(), element));
+    public void open(OpenCommand command) {
+        Object element = command.getElement();
+
+        if (element instanceof Recorder) {
+            RecorderFragment fragment = (RecorderFragment) controllerFactory.call(RecorderFragment.class);
+            fragment.setRecorder((Recorder) element);
+            tabPane.getTabs().add(bindTab(new Tab(), fragment));
+        } if (element instanceof Recording) {
+            // TODO open tab for recording
+        }
     }
 
     @EventListener(classes = FileSaveCommand.class)

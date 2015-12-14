@@ -28,16 +28,16 @@ package edu.crimpbit.anaylsis.config;
 import edu.crimpbit.anaylsis.command.CommandService;
 import edu.crimpbit.anaylsis.command.FileNewCommand;
 import edu.crimpbit.anaylsis.command.FileSaveCommand;
+import edu.crimpbit.anaylsis.command.OpenCommand;
 import edu.crimpbit.config.CoreConfiguration;
 import javafx.concurrent.Task;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -93,8 +93,8 @@ public class AnalysisApplicationConfiguration {
     }
 
     @Bean
-    public CommandService commandService() {
-        return new CommandService();
+    public CommandService commandService(BeanFactory beanFactory) {
+        return new CommandService(beanFactory);
     }
 
     @Bean
@@ -102,6 +102,12 @@ public class AnalysisApplicationConfiguration {
         FileNewCommand command = new FileNewCommand();
         commandService.registerCommand(command);
         return command;
+    }
+
+    @Bean
+    @Scope("prototype")
+    public OpenCommand openCommand(ApplicationEventPublisher applicationEventPublisher) {
+        return new OpenCommand<>(applicationEventPublisher);
     }
 
     @Bean

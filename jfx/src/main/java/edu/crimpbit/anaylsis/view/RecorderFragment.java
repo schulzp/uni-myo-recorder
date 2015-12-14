@@ -156,6 +156,11 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Per
         return recordName;
     }
 
+    public void setRecorder(Recorder recorder) {
+        this.recorder = recorder;
+        bindRecording(recorder.getRecording());
+    }
+
     @PostConstruct
     private void initialize() {
         createCharts();
@@ -168,8 +173,6 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Per
             ObservableList<Device> devices = connectorService.getDevices();
             if (recordButton.isSelected()) {
                 devices.stream().filter(Device::isSelected).findFirst().ifPresent(device -> {
-                    recorder = recordingService.createRecorder(device);
-                    bindRecording(recorder.getRecording());
                     recorder.addListener(listener, MoreExecutors.directExecutor());
                     recorder.startAsync();
                 });
@@ -251,7 +254,7 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Per
             }
 
             private int filter(byte b) {
-                return b < 0 ? -b : b;
+                return b;
             }
 
         });

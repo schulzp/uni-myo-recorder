@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
- * New {@link Recording} command.
+ * Global save command.
  */
 public class FileSaveCommand implements Command<Recording> {
 

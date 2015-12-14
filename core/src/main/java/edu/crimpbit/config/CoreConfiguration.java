@@ -3,6 +3,7 @@ package edu.crimpbit.config;
 import edu.crimpbit.repository.RecordingRepository;
 import edu.crimpbit.service.ConnectorService;
 import edu.crimpbit.service.RecordingService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -18,8 +19,8 @@ public class CoreConfiguration {
     }
 
     @Bean
-    public RecordingService recordingService(ConnectorService connectorService, RecordingRepository recordingRepository) {
-        return new RecordingService(connectorService, recordingRepository);
+    public RecordingService recordingService(ConnectorService connectorService, RecordingRepository recordingRepository, ApplicationEventPublisher applicationEventPublisher) {
+        return new RecordingService(connectorService, recordingRepository, applicationEventPublisher);
     }
 
 }

@@ -21,9 +21,13 @@ public class Recorder extends AbstractIdleService {
 
     private final DeviceListener listener = new AbstractDeviceListener() {
 
+        int count = 0;
+
         @Override
         public void onEmgData(Myo myo, long timestamp, byte[] emg) {
-            emgRecords.add(new Recording.EmgRecord(timestamp, emg));
+            if (count++ % 2 == 0) {
+                emgRecords.add(new Recording.EmgRecord(timestamp, emg));
+            }
         }
 
     };
