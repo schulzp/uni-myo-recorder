@@ -36,11 +36,13 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
@@ -52,6 +54,7 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
 import org.springframework.javafx.FXMLController;
 
@@ -65,7 +68,7 @@ import java.util.ResourceBundle;
  */
 @FXMLController
 @Scope("prototype")
-public class RecorderFragment implements FXMLController.RootNodeAware<VBox> {
+public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Persistable<Recording> {
 
     public static final int MAX_OVERRIDES = 3;
     public static final int CHART_UPDATE_CHUNK_SIZE = 20;
@@ -94,6 +97,9 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox> {
     @Autowired
     private ConnectorService connectorService;
 
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
     private List<List<LineChart.Series<Number, Number>>> emgData = new ArrayList<>(8);
 
     private Recorder recorder;
@@ -116,6 +122,10 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox> {
 
     private VBox rootNode;
 
+    private ReadOnlyStringWrapper recordName = new ReadOnlyStringWrapper("New Recording");
+
+    private ReadOnlyObjectWrapper<Task<Recording>> saveTask = new ReadOnlyObjectWrapper<>();
+
     @Override
     public void setRootNode(VBox rootNode) {
         this.rootNode = rootNode;
@@ -124,6 +134,25 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox> {
     @Override
     public VBox getRootNode() {
         return rootNode;
+    }
+
+    @Override
+    public void save() {
+        applicationEventPublisher.publishEvent(new Task<Recording>() {
+
+            @Override
+            protected Recording call() throws Exception {
+                Recording recording = recorder.getRecording();
+                recordingService.save(recording);
+                return recording;
+            }
+
+        });
+    }
+
+    @Override
+    public ReadOnlyStringProperty nameProperty() {
+        return recordName;
     }
 
     @PostConstruct

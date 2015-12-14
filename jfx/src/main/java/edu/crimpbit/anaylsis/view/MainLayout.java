@@ -1,6 +1,6 @@
 package edu.crimpbit.anaylsis.view;
 
-import edu.crimpbit.anaylsis.event.OpenInNewTab;
+import edu.crimpbit.anaylsis.command.FileSaveCommand;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Tab;
@@ -46,11 +46,30 @@ public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
     }
 
     @EventListener
-    public void openInNewTab(OpenInNewTab event) {
-        Tab tab = new Tab();
-        tab.textProperty().bind(event.textProperty());
-        tab.setContent(event.getNode());
-        tabPane.getTabs().add(tab);
+    public void open(Persistable<?> element) {
+        tabPane.getTabs().add(bindTab(new Tab(), element));
+    }
+
+    @EventListener(classes = FileSaveCommand.class)
+    public void save() {
+        Tab tab = tabPane.getSelectionModel().getSelectedItem();
+        if (tab != null) {
+            Object element = tab.getUserData();
+            if (element instanceof Persistable) {
+                ((Persistable) element).save();
+            }
+        }
+    }
+
+    private Tab bindTab(Tab tab, Persistable<?> element) {
+        if (element instanceof FXMLController.RootNodeAware) {
+            tab.setContent(((FXMLController.RootNodeAware) element).getRootNode());
+        }
+        if (element != null) {
+            tab.textProperty().bind(((Persistable) element).nameProperty());
+        }
+        tab.setUserData(element);
+        return tab;
     }
 
     @PostConstruct

@@ -39,8 +39,8 @@ public class RecordingService {
         return recorder;
     }
 
-    public void save() {
-        recordingRepository.save(recorder.getRecording());
+    public void save(Recording recording) {
+        recordingRepository.save(recording);
     }
 
     public void save(String fileName, BiConsumer<Integer, Integer> progressListener) throws IOException {

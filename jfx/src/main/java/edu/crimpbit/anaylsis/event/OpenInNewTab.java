@@ -1,26 +1,18 @@
 package edu.crimpbit.anaylsis.event;
 
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.scene.Node;
 import org.springframework.context.ApplicationEvent;
 
 public class OpenInNewTab extends ApplicationEvent {
 
-    private final Node node;
-    private final ReadOnlyStringProperty text;
+    private final Object element;
 
-    public OpenInNewTab(Object source, Node node, ReadOnlyStringProperty text) {
+    public OpenInNewTab(Object source, Object element) {
         super(source);
-        this.node = node;
-        this.text = text;
+        this.element = element;
     }
 
-    public Node getNode() {
-        return node;
-    }
-
-    public ReadOnlyStringProperty textProperty() {
-        return text;
+    public Object getElement() {
+        return element;
     }
 
 }

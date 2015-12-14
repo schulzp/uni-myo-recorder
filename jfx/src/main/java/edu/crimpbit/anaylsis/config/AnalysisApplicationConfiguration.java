@@ -27,7 +27,9 @@ package edu.crimpbit.anaylsis.config;
 
 import edu.crimpbit.anaylsis.command.CommandService;
 import edu.crimpbit.anaylsis.command.FileNewCommand;
+import edu.crimpbit.anaylsis.command.FileSaveCommand;
 import edu.crimpbit.config.CoreConfiguration;
+import javafx.concurrent.Task;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -36,13 +38,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.event.EventListener;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.javafx.EnableFXMLControllers;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.Function;
 
 @Configuration
 @EnableFXMLControllers
@@ -51,14 +56,27 @@ import java.util.concurrent.Executors;
 public class AnalysisApplicationConfiguration {
 
     @Bean(destroyMethod = "shutdown")
-    public Executor executor() {
+    public ExecutorService executorService() {
         ExecutorService executor = Executors.newSingleThreadExecutor(runnable -> {
             Thread thread = new Thread(runnable);
-            thread.setName("Background Tasks");
+            thread.setName("Background Task");
             return thread;
         });
 
         return executor;
+    }
+
+    @Bean
+    public <T> Function<Task<T>, Future<T>> taskConsumer(ExecutorService executorService) {
+        return new Function<Task<T>, Future<T>>() {
+
+            @Override
+            @EventListener(condition = "!#task.done")
+            public Future<T> apply(Task<T> task) {
+                return executorService.submit((Callable<T>) task);
+            }
+
+        };
     }
 
     @Bean(name = "i18n")
@@ -82,6 +100,13 @@ public class AnalysisApplicationConfiguration {
     @Bean
     public FileNewCommand fileNewCommand(CommandService commandService) {
         FileNewCommand command = new FileNewCommand();
+        commandService.registerCommand(command);
+        return command;
+    }
+
+    @Bean
+    public FileSaveCommand fileSaveCommand(CommandService commandService) {
+        FileSaveCommand command = new FileSaveCommand();
         commandService.registerCommand(command);
         return command;
     }
