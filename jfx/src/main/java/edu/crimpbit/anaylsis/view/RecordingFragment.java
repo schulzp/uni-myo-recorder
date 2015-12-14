@@ -68,7 +68,7 @@ import java.util.ResourceBundle;
  */
 @FXMLController
 @Scope("prototype")
-public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Persistable<Recording> {
+public class RecordingFragment implements FXMLController.RootNodeAware<VBox>, Persistable<Recording> {
 
     public static final int MAX_OVERRIDES = 3;
     public static final int CHART_UPDATE_CHUNK_SIZE = 20;
@@ -126,6 +126,8 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Per
 
     private ReadOnlyObjectWrapper<Task<Recording>> saveTask = new ReadOnlyObjectWrapper<>();
 
+    private Recording recording;
+
     @Override
     public void setRootNode(VBox rootNode) {
         this.rootNode = rootNode;
@@ -138,17 +140,7 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Per
 
     @Override
     public void save() {
-        applicationEventPublisher.publishEvent(new Task<Recording>() {
 
-            @Override
-            protected Recording call() throws Exception {
-                Recording recording = recorder.getRecording();
-                recordingService.save(recording);
-                recordingService.save("recording.csv", this::updateProgress);
-                return recording;
-            }
-
-        });
     }
 
     @Override
@@ -180,6 +172,10 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Per
 
         subjectSelect.disableProperty().bind(recordButton.selectedProperty());
         exerciseSelect.disableProperty().bind(recordButton.selectedProperty());
+    }
+
+    public void setRecording(Recording recording) {
+        this.recording = recording;
     }
 
     private void bindRecording(Recording recording) {
