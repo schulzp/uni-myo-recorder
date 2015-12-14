@@ -11,7 +11,8 @@
     <left>
         <Accordion fx:id="accordion">
             <panes>
-                <fx:include source="DevicesView.fxml" expanded="true" />
+                <fx:include source="DevicesView.fxml" />
+                <fx:include source="RecordingsView.fxml" />
             </panes>
         </Accordion>
     </left>

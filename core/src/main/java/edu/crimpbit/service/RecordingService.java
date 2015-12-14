@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -41,6 +42,10 @@ public class RecordingService {
 
     public void save(Recording recording) {
         recordingRepository.save(recording);
+    }
+
+    public List<Recording> findAll() {
+        return recordingRepository.findAll();
     }
 
     public void save(String fileName, BiConsumer<Integer, Integer> progressListener) throws IOException {

@@ -43,7 +43,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.javafx.EnableFXMLControllers;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -71,9 +70,10 @@ public class AnalysisApplicationConfiguration {
         return new Function<Task<T>, Future<T>>() {
 
             @Override
-            @EventListener(condition = "!#task.done")
+            @EventListener(condition = "!#task.done && !#task.running")
             public Future<T> apply(Task<T> task) {
-                return executorService.submit((Callable<T>) task);
+                executorService.submit(task);
+                return null;
             }
 
         };
