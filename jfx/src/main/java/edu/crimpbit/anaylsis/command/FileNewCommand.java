@@ -1,13 +1,14 @@
 package edu.crimpbit.anaylsis.command;
 
+import edu.crimpbit.Device;
 import edu.crimpbit.Recording;
-import edu.crimpbit.anaylsis.view.RecorderFragment;
+import edu.crimpbit.service.ConnectorService;
+import edu.crimpbit.service.RecordingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.javafx.FXMLControllerFactory;
 
 /**
- * New {@link Recording} command.
+ * Global new command.
  */
 public class FileNewCommand implements Command<Recording> {
 
@@ -15,12 +16,18 @@ public class FileNewCommand implements Command<Recording> {
     private ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    private FXMLControllerFactory controllerFactory;
+    private RecordingService recordingService;
+
+    @Autowired
+    private ConnectorService connectorService;
 
     @Override
     public void run() {
-        RecorderFragment recorderFragment = (RecorderFragment) controllerFactory.call(RecorderFragment.class);
-        eventPublisher.publishEvent(recorderFragment);
+        connectorService.getDevices().stream().filter(Device::isSelected).findFirst().ifPresent(device -> {
+            OpenCommand<Object> openCommand = new OpenCommand<>(eventPublisher);
+            openCommand.setElement(recordingService.createRecorder(device));
+            eventPublisher.publishEvent(openCommand);
+        });
     }
 
 }

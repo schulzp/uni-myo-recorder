@@ -7,6 +7,7 @@ import edu.crimpbit.Recording;
 import edu.crimpbit.repository.RecordingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,11 +24,14 @@ public class RecordingService {
     private final ConnectorService connectorService;
     private final RecordingRepository recordingRepository;
 
+    private final ApplicationEventPublisher applicationEventPublisher;
+
     private Recorder recorder;
 
-    public RecordingService(ConnectorService connectorService, RecordingRepository recordingRepository) {
+    public RecordingService(ConnectorService connectorService, RecordingRepository recordingRepository, ApplicationEventPublisher applicationEventPublisher) {
         this.connectorService = connectorService;
         this.recordingRepository = recordingRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     public Recorder createRecorder(Device device) {
@@ -42,6 +46,7 @@ public class RecordingService {
 
     public void save(Recording recording) {
         recordingRepository.save(recording);
+        applicationEventPublisher.publishEvent(recording);
     }
 
     public List<Recording> findAll() {

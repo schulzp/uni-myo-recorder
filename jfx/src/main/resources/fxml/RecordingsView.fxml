@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.text.Text?>
 <TitledPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="edu.crimpbit.anaylsis.view.RecordingsView"
             text="%recordings.view.title">
-    <ListView fx:id="recordingsList">
+    <TableView fx:id="recordingsTable">
+        <columns>
+            <TableColumn text="%recording.subject">
+                <cellValueFactory>
+                    <PropertyValueFactory property="subject" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="%recording.exercise">
+                <cellValueFactory>
+                    <PropertyValueFactory property="exercise" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="%recording.createdAt">
+                <cellValueFactory>
+                    <PropertyValueFactory property="createdAt" />
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
         <placeholder>
             <Text text="%recordings.view.empty" styleClass="view-placeholder" />
         </placeholder>
-    </ListView>
+    </TableView>
 </TitledPane>
