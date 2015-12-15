@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <top>
+        <HBox spacing="8">
+            <padding>
+                <Insets left="8" top="8" right="8" bottom="8" />
+            </padding>
+            <fx:include fx:id="recordingFormFragment" source="RecordingFormFragment.fxml" />
+            <fx:include fx:id="recorderFragment" source="RecorderFragment.fxml" />
+        </HBox>
+    </top>
+    <center>
+        <fx:include fx:id="recordingChartsFragment" source="RecordingChartsFragment.fxml" />
+    </center>
+</BorderPane>

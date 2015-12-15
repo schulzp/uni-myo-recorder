@@ -1,26 +1,22 @@
 package edu.crimpbit.config;
 
-import edu.crimpbit.repository.RecordingRepository;
-import edu.crimpbit.service.ConnectorService;
-import edu.crimpbit.service.RecordingService;
-import org.springframework.context.ApplicationEventPublisher;
+import com.thalmic.myo.Hub;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 
 @Configuration
 @Import({ MongoConfiguration.class })
+@ComponentScan({ "edu.crimpbit.service" })
 public class CoreConfiguration {
 
-    @Bean
-    public ConnectorService connectorService() {
-        return new ConnectorService();
-    }
+    private static final String HUB_ID = "edu.crimpbit.analysis";
 
     @Bean
-    public RecordingService recordingService(ConnectorService connectorService, RecordingRepository recordingRepository, ApplicationEventPublisher applicationEventPublisher) {
-        return new RecordingService(connectorService, recordingRepository, applicationEventPublisher);
+    public Hub hub() {
+        return new Hub(HUB_ID);
     }
 
 }

@@ -4,7 +4,7 @@ import javafx.beans.property.ReadOnlyStringProperty;
 
 public interface Persistable<T> {
 
-    ReadOnlyStringProperty nameProperty();
+    ReadOnlyStringProperty textProperty();
 
     void save();
 

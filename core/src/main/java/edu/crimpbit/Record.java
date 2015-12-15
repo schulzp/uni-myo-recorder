@@ -4,7 +4,7 @@ package edu.crimpbit;
  * Base class for a record of data at a certain point of time.
  * @param <T> data type
  */
-public abstract  class Record<T> {
+public abstract class Record<T> {
 
     protected final long timestamp;
 

@@ -1,6 +1,5 @@
 package edu.crimpbit.anaylsis.view;
 
-import edu.crimpbit.Recorder;
 import edu.crimpbit.Recording;
 import edu.crimpbit.anaylsis.command.FileSaveCommand;
 import edu.crimpbit.anaylsis.command.OpenCommand;
@@ -12,7 +11,6 @@ import javafx.scene.layout.BorderPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.javafx.FXMLController;
 import org.springframework.javafx.FXMLControllerFactory;
 
@@ -20,11 +18,6 @@ import javax.annotation.PostConstruct;
 
 @FXMLController
 public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
-
-    private BorderPane parent;
-
-    @Autowired
-    private FXMLControllerFactory itemFactory;
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
@@ -38,8 +31,7 @@ public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
     @FXML
     private TabPane tabPane;
 
-    @Autowired
-    private MessageSourceAccessor messageSourceAccessor;
+    private BorderPane parent;
 
     @Override
     public BorderPane getRootNode() {
@@ -53,15 +45,23 @@ public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
 
     @EventListener
     public void open(OpenCommand command) {
-        Object element = command.getElement();
+        Tab tab = new Tab();
+        tabPane.getTabs().add(bindTab(tab, getContent(command)));
+        tabPane.getSelectionModel().select(tab);
+    }
 
-        if (element instanceof Recorder) {
-            RecorderFragment fragment = (RecorderFragment) controllerFactory.call(RecorderFragment.class);
-            fragment.setRecorder((Recorder) element);
-            tabPane.getTabs().add(bindTab(new Tab(), fragment));
-        } if (element instanceof Recording) {
-            // TODO open tab for recording
+    private Object getContent(OpenCommand command) {
+        Object content = command.getContent();
+        if (content instanceof Class) {
+            if (Recording.class.isAssignableFrom((Class<?>) content)) {
+                content = controllerFactory.call(RecordingEditor.class);
+            }
+        } else if (content instanceof Recording) {
+            Recording recording = (Recording) content;
+            content = controllerFactory.call(RecordingEditor.class);
+            ((RecordingEditor) content).setRecording(recording);
         }
+        return content;
     }
 
     @EventListener(classes = FileSaveCommand.class)
@@ -75,12 +75,12 @@ public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
         }
     }
 
-    private Tab bindTab(Tab tab, Persistable<?> element) {
+    private Tab bindTab(Tab tab, Object element) {
         if (element instanceof FXMLController.RootNodeAware) {
             tab.setContent(((FXMLController.RootNodeAware) element).getRootNode());
         }
-        if (element != null) {
-            tab.textProperty().bind(((Persistable) element).nameProperty());
+        if (element instanceof Persistable) {
+            tab.textProperty().bind(((Persistable) element).textProperty());
         }
         tab.setUserData(element);
         return tab;
@@ -88,7 +88,7 @@ public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
 
     @PostConstruct
     private void initialize() {
-        accordion.setExpandedPane(accordion.getPanes().get(0));
+        accordion.setExpandedPane(accordion.getPanes().get(1));
     }
 
 }

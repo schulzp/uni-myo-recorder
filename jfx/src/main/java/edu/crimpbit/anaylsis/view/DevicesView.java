@@ -4,7 +4,6 @@ import com.thalmic.myo.enums.Arm;
 import edu.crimpbit.Device;
 import edu.crimpbit.service.ConnectorService;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -36,8 +35,6 @@ public class DevicesView {
         devicesList.setContextMenu(createContextMenu());
         devicesList.setCellFactory(list -> new ListCell<Device>() {
 
-            private CheckBox checkBox = new CheckBox();
-            private BooleanProperty checkedProperty;
             private ChangeListener<Arm> armListener;
 
             @Override
@@ -45,13 +42,8 @@ public class DevicesView {
                 super.updateItem(device, empty);
 
                 textProperty().unbind();
-                if (checkedProperty != null) {
-                    checkBox.selectedProperty().unbindBidirectional(checkedProperty);
-                }
 
                 if (!empty) {
-                    setGraphic(checkBox);
-
                     if (armListener != null) {
                         device.armProperty().removeListener(armListener);
                     }
@@ -61,9 +53,6 @@ public class DevicesView {
 
                     device.armProperty().addListener(armListener);
                     setText(device.getArm().name());
-
-                    checkedProperty = device.selectedProperty();
-                    checkBox.selectedProperty().bindBidirectional(checkedProperty);
                 } else {
                     setGraphic(null);
                     setText(null);

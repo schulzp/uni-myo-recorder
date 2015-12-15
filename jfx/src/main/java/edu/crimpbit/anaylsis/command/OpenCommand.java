@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
  * @param <T> type of the element to be opened
  */
 @Scope("prototype")
-public class OpenCommand<T> implements Command<T> {
+public class OpenCommand<T> implements Command {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
@@ -29,7 +29,7 @@ public class OpenCommand<T> implements Command<T> {
         applicationEventPublisher.publishEvent(this);
     }
 
-    public T getElement() {
+    public T getContent() {
         return element;
     }
 }

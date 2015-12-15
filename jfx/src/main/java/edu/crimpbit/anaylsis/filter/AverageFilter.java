@@ -1,7 +1,6 @@
 package edu.crimpbit.anaylsis.filter;
 
 import edu.crimpbit.Recording;
-import sun.security.x509.AVA;
 
 import java.util.List;
 

@@ -36,75 +36,29 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.geometry.Side;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
-import org.springframework.javafx.FXMLController;
+import org.springframework.stereotype.Controller;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 /**
  * Recorder UI.
  */
-@FXMLController
+@Controller
 @Scope("prototype")
-public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Persistable<Recording> {
+public class RecorderFragment {
 
-    public static final int MAX_OVERRIDES = 3;
-    public static final int CHART_UPDATE_CHUNK_SIZE = 20;
+    private final ReadOnlyObjectWrapper<Recording> recording = new ReadOnlyObjectWrapper<>();
 
-    @Autowired
-    private ResourceBundle bundle;
-
-    @FXML
-    private ToggleButton recordButton;
-
-    @FXML
-    private ComboBox<String> exerciseSelect;
-
-    @FXML
-    private ComboBox<String> subjectSelect;
-
-    @FXML
-    private ComboBox<Integer> durationSelect;
-
-    @FXML
-    private TilePane emgCharts;
-
-    @Autowired
-    private RecordingService recordingService;
-
-    @Autowired
-    private ConnectorService connectorService;
-
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
-
-    private List<List<LineChart.Series<Number, Number>>> emgData = new ArrayList<>(8);
-
-    private Recorder recorder;
-
-    private int numberOfOverrides;
+    private final ReadOnlyBooleanWrapper currentlyRecording = new ReadOnlyBooleanWrapper(false);
 
     private final Service.Listener listener = new Service.Listener() {
 
@@ -120,102 +74,62 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Per
 
     };
 
-    private VBox rootNode;
+    @FXML
+    private ToggleButton recordButton;
 
-    private ReadOnlyStringWrapper recordName = new ReadOnlyStringWrapper("New Recording");
+    @FXML
+    private ComboBox<Integer> durationSelect;
 
-    private ReadOnlyObjectWrapper<Task<Recording>> saveTask = new ReadOnlyObjectWrapper<>();
+    @FXML
+    private ComboBox<Device> deviceSelect;
 
-    @Override
-    public void setRootNode(VBox rootNode) {
-        this.rootNode = rootNode;
+    @Autowired
+    private ConnectorService connectorService;
+
+    @Autowired
+    private RecordingService recordingService;
+
+    @Autowired
+    private ResourceBundle bundle;
+
+    private Recorder recorder;
+
+    public ReadOnlyObjectProperty<Recording> recordingProperty() {
+        return recording;
     }
 
-    @Override
-    public VBox getRootNode() {
-        return rootNode;
+    public ReadOnlyBooleanWrapper currentlyRecordingProperty() {
+        return currentlyRecording;
     }
 
-    @Override
-    public void save() {
-        applicationEventPublisher.publishEvent(new Task<Recording>() {
-
-            @Override
-            protected Recording call() throws Exception {
-                Recording recording = recorder.getRecording();
-                recordingService.save(recording);
-                recordingService.save("recording.csv", this::updateProgress);
-                return recording;
-            }
-
-        });
-    }
-
-    @Override
-    public ReadOnlyStringProperty nameProperty() {
-        return recordName;
-    }
-
-    public void setRecorder(Recorder recorder) {
-        this.recorder = recorder;
-        bindRecording(recorder.getRecording());
-    }
-
-    @PostConstruct
+    @FXML
     private void initialize() {
-        createCharts();
+        deviceSelect.setItems(connectorService.getDevices());
+
+        recordButton.disableProperty().bind(
+                Bindings.or(
+                        Bindings.isNotNull(deviceSelect.getSelectionModel().selectedItemProperty()),
+                        Bindings.size(deviceSelect.getItems()).isEqualTo(0)));
+
         recordButton.textProperty().bind(
                 Bindings.when(recordButton.selectedProperty())
                         .then(bundle.getString("recorder.recording"))
                         .otherwise(bundle.getString("recorder.record")));
 
+        deviceSelect.disableProperty().bind(recordButton.selectedProperty());
+        durationSelect.disableProperty().bind(recordButton.selectedProperty());
+
         recordButton.selectedProperty().addListener(observable -> {
-            ObservableList<Device> devices = connectorService.getDevices();
             if (recordButton.isSelected()) {
-                devices.stream().filter(Device::isSelected).findFirst().ifPresent(device -> {
-                    recorder.addListener(listener, MoreExecutors.directExecutor());
-                    recorder.startAsync();
-                });
+                Device device = deviceSelect.getSelectionModel().getSelectedItem();
+                recorder = recordingService.createRecorder(device);
+                recording.set(recorder.getRecording());
+                recorder.addListener(listener, MoreExecutors.directExecutor());
+                recorder.startAsync();
             } else if (recorder != null && recorder.isRunning()) {
                 recorder.stopAsync().awaitTerminated();
             }
         });
-
-        subjectSelect.disableProperty().bind(recordButton.selectedProperty());
-        exerciseSelect.disableProperty().bind(recordButton.selectedProperty());
-    }
-
-    private void bindRecording(Recording recording) {
-        recording.setExercise(exerciseSelect.getSelectionModel().getSelectedItem());
-        recording.setSubject(subjectSelect.getSelectionModel().getSelectedItem());
-    }
-
-    private void createCharts() {
-        for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
-            ObservableList overrideSeries = FXCollections.observableArrayList();
-            for (int overrideIndex = 0; overrideIndex < MAX_OVERRIDES; ++overrideIndex) {
-                XYChart.Series<Number, Number> series = new LineChart.Series<>();
-                series.setName("Override " + overrideIndex);
-                overrideSeries.add(series);
-            }
-
-            emgData.add(overrideSeries);
-
-            NumberAxis xAxis = new NumberAxis();
-            NumberAxis yAxis = new NumberAxis(-150, 150, 50);
-            yAxis.setAutoRanging(false);
-
-            LineChart<Number, Number> emgChart = new LineChart<>(xAxis,  yAxis);
-            emgChart.setAnimated(false);
-            emgChart.setMaxSize(300, 150);
-            emgChart.setTitle("EMG " + emgIndex);
-            emgChart.setTitleSide(Side.TOP);
-            emgChart.getStyleClass().add("emg-chart");
-            emgChart.setData(overrideSeries);
-            emgChart.applyCss();
-
-            emgCharts.getChildren().add(emgChart);
-        }
     }
 
     private void handleRecordingStarted() {
@@ -223,47 +137,14 @@ public class RecorderFragment implements FXMLController.RootNodeAware<VBox>, Per
         if (duration != null && duration > 0) {
             new Timeline(new KeyFrame(Duration.seconds(duration), reached -> recorder.stopAsync())).play();
         }
-
-        int overrideIndex = numberOfOverrides++ % MAX_OVERRIDES;
-
-        ObservableList<Recording.EmgRecord> records = recorder.getRecords();
-        records.addListener(new ListChangeListener<Recording.EmgRecord>() {
-
-            private int emgDataRangeBegin = 0;
-            private int emgDataRangeEnd = 0;
-
-            @Override
-            public void onChanged(Change<? extends Recording.EmgRecord> c) {
-                while (c.next()) {
-                    emgDataRangeEnd += c.getAddedSize();
-                    if (emgDataRangeEnd - emgDataRangeBegin > CHART_UPDATE_CHUNK_SIZE) {
-                        int begin = emgDataRangeBegin;
-                        int end = emgDataRangeEnd;
-                        Platform.runLater(() -> {
-                            for (int emgDataOffset = begin; emgDataOffset < end; ++emgDataOffset) {
-                                Recording.EmgRecord record = records.get(emgDataOffset);
-                                for (int emgIndex = 0; emgIndex < 8; ++emgIndex) {
-                                    XYChart.Data<Number, Number> data = new XYChart.Data<>(emgDataOffset, filter(record.getData()[emgIndex]));
-                                    emgData.get(emgIndex).get(overrideIndex).getData().add(data);
-                                }
-                            }
-                        });
-                        emgDataRangeBegin = emgDataRangeEnd;
-                    }
-                }
-            }
-
-            private int filter(byte b) {
-                return b;
-            }
-
-        });
+        currentlyRecording.set(true);
     }
 
     private void handleRecordingStopped() {
         Platform.runLater(() -> {
             recordButton.setSelected(false);
         });
+        currentlyRecording.set(false);
     }
 
 }

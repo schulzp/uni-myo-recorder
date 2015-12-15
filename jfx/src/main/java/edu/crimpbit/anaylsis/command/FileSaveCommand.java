@@ -1,13 +1,12 @@
 package edu.crimpbit.anaylsis.command;
 
-import edu.crimpbit.Recording;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * Global save command.
  */
-public class FileSaveCommand implements Command<Recording> {
+public class FileSaveCommand implements Command {
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;

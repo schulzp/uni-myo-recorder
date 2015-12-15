@@ -1,6 +1,7 @@
 package edu.crimpbit;
 
 import com.google.common.base.MoreObjects;
+import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 import com.thalmic.myo.enums.Arm;
 import com.thalmic.myo.enums.XDirection;
@@ -14,9 +15,12 @@ public class Device {
     public enum Status {
 
         UNPAIRED, PAIRED, DISCONNECTED, CONNECTED, IN_SYNC, OUT_OF_SYNC
+
     }
 
     private final Myo myo;
+
+    private final Hub hub;
 
     private final StringProperty name = new SimpleStringProperty();
 
@@ -24,16 +28,15 @@ public class Device {
 
     private final ReadOnlyBooleanWrapper locked = new ReadOnlyBooleanWrapper();
 
-    private final BooleanProperty selected = new SimpleBooleanProperty();
-
     private final ReadOnlyObjectWrapper<Arm> arm = new ReadOnlyObjectWrapper<>(Arm.ARM_UNKNOWN);
 
     private final ReadOnlyObjectWrapper<XDirection> xDirection = new ReadOnlyObjectWrapper<>(XDirection.X_DIRECTION_UNKNOWN);
 
     private final ReadOnlyFloatWrapper rotation = new ReadOnlyFloatWrapper();
 
-    public Device(Myo myo) {
+    public Device(Myo myo, Hub hub) {
         this.myo = myo;
+        this.hub = hub;
     }
 
     public String getName() {
@@ -58,14 +61,6 @@ public class Device {
 
     public void setLocked(boolean locked) {
         this.locked.set(locked);
-    }
-
-    public boolean isSelected() {
-        return selected.get();
-    }
-
-    public void setSelected(boolean selected) {
-        this.selected.set(selected);
     }
 
     public Arm getArm() {
@@ -104,10 +99,6 @@ public class Device {
         return locked;
     }
 
-    public BooleanProperty selectedProperty() {
-        return selected;
-    }
-
     public ReadOnlyObjectProperty<Arm> armProperty() {
         return arm;
     }
@@ -124,6 +115,10 @@ public class Device {
         return myo;
     }
 
+    public Hub getHub() {
+        return hub;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).addValue(name.getValue())
@@ -132,7 +127,6 @@ public class Device {
                 .add("rotation", rotation)
                 .add("status", status)
                 .add("locked", locked.getValue())
-                .add("selected", selected.getValue())
                 .toString();
     }
 }

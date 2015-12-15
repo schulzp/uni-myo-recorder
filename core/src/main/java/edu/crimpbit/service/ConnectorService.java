@@ -8,6 +8,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -16,14 +18,12 @@ import java.util.Optional;
 /**
  * Service wrapper for connector/hub.
  */
+@Service
 public class ConnectorService extends AbstractExecutionThreadService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectorService.class);
 
-    private static final String HUB_ID = "edu.crimpbit.analysis";
-
     private final ObservableList<Device> devices = FXCollections.observableArrayList();
-    private final Hub hub = new Hub(HUB_ID);
 
     private final DeviceListener listener = new AbstractDeviceListener() {
 
@@ -95,6 +95,13 @@ public class ConnectorService extends AbstractExecutionThreadService {
         }
 
     };
+
+    private final Hub hub;
+
+    @Autowired
+    public ConnectorService(Hub hub) {
+        this.hub = hub;
+    }
 
     public void ping(Device device) {
         device.getMyo().vibrate(VibrationType.VIBRATION_SHORT);
@@ -168,7 +175,7 @@ public class ConnectorService extends AbstractExecutionThreadService {
     }
 
     private Device bind(Myo myo) {
-        Device device = new Device(myo);
+        Device device = new Device(myo, hub);
         device.setName(Integer.toString(devices.size()));
         return device;
     }

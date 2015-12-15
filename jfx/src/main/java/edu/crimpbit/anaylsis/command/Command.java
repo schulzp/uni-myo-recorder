@@ -5,7 +5,7 @@ import com.google.common.base.CaseFormat;
 /**
  * Command representation.
  */
-public interface Command<T> extends Runnable {
+public interface Command extends Runnable {
 
     default String getId() {
         return CaseFormat.UPPER_CAMEL.to(

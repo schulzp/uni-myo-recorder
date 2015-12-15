@@ -1,44 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.collections.FXCollections?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.TilePane?>
-<?import javafx.scene.layout.VBox?>
-<?import java.lang.*?>
-<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-      minHeight="-Infinity" minWidth="-Infinity">
-    <HBox alignment="CENTER_LEFT" spacing="5">
-        <padding>
-            <Insets left="8" top="8" right="8" bottom="8" />
-        </padding>
-        <ComboBox fx:id="subjectSelect">
-            <items>
-                <FXCollections fx:factory="observableArrayList">
-                    <String fx:value="peter" />
-                </FXCollections>
-            </items>
-        </ComboBox>
-        <ComboBox fx:id="exerciseSelect">
-            <items>
-                <FXCollections fx:factory="observableArrayList">
-                    <String fx:value="index-finger" />
-                    <String fx:value="index-finger+middle-finger" />
-                    <String fx:value="index-finger+middle-finger+ring-finger" />
-                </FXCollections>
-            </items>
-        </ComboBox>
-        <ComboBox fx:id="durationSelect">
-            <items>
-                <FXCollections fx:factory="observableArrayList">
-                    <Integer fx:value="1" />
-                    <Integer fx:value="2" />
-                    <Integer fx:value="4" />
-                </FXCollections>
-            </items>
-        </ComboBox>
-        <ToggleButton fx:id="recordButton" text="%recorder.record" ButtonBar.buttonData="LEFT" />
-    </HBox>
-    <TilePane fx:id="emgCharts" hgap="10" vgap="10" prefColumns="2" />
-</VBox>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import java.lang.Integer?>
+<GridPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="edu.crimpbit.anaylsis.view.RecorderFragment" hgap="4" vgap="4">
+
+    <Text text="%recorder.device" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2" />
+    <ComboBox fx:id="deviceSelect" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="2">
+        <placeholder>
+            <Text text="%devices.view.empty" styleClass="view-placeholder" />
+        </placeholder>
+    </ComboBox>
+
+    <Text text="%recorder.duration" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+    <ComboBox fx:id="durationSelect" GridPane.columnIndex="1" GridPane.rowIndex="1">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <Integer fx:value="1" />
+                <Integer fx:value="2" />
+                <Integer fx:value="4" />
+            </FXCollections>
+        </items>
+    </ComboBox>
+
+    <ToggleButton fx:id="recordButton" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+
+</GridPane>
