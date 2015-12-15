@@ -1,6 +1,8 @@
 package edu.crimpbit.anaylsis.view;
 
 import edu.crimpbit.Recording;
+import edu.crimpbit.filter.AverageFilter;
+import edu.crimpbit.filter.SensorFilter;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -13,6 +15,7 @@ import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.TilePane;
 import javafx.util.Duration;
 import org.springframework.context.annotation.Scope;
@@ -25,7 +28,7 @@ import java.util.List;
 @Scope("prototype")
 public class RecordingChartsFragment {
 
-    private static final int MAX_OVERRIDES = 3;
+    private static final int MAX_LAYERS = 3;
     private static final int EMG_SENSOR_COUNT = 8;
     private static final int CHART_UPDATE_CHUNK_SIZE = 20;
     private static final int LIVE_UPDATE_RATE = 10;
@@ -34,6 +37,9 @@ public class RecordingChartsFragment {
 
     @FXML
     private TilePane emgCharts;
+
+    @FXML
+    private ComboBox<SensorFilter> emgFilters;
 
     private int numberOfOverrides;
 
@@ -46,11 +52,9 @@ public class RecordingChartsFragment {
     public void setRecords(List<Recording.EmgRecord> records) {
         this.records = records;
 
-        for (int i = 0; i < records.size(); ++i) {
-            addRecord(i);
-        }
+        addRecords(0, records.size());
 
-        layerIndex = numberOfOverrides++ % MAX_OVERRIDES;
+        layerIndex = numberOfOverrides++ % MAX_LAYERS;
     }
 
     public void startLiveUpdate() {
@@ -67,11 +71,7 @@ public class RecordingChartsFragment {
                 if (emgDataRangeEnd - emgDataRangeBegin > CHART_UPDATE_CHUNK_SIZE) {
                     int begin = emgDataRangeBegin;
                     int end = emgDataRangeEnd;
-                    Platform.runLater(() -> {
-                        for (int emgDataOffset = begin; emgDataOffset < end; ++emgDataOffset) {
-                            addRecord(emgDataOffset);
-                        }
-                    });
+                    Platform.runLater(() -> addRecords(begin, end));
                     emgDataRangeBegin = emgDataRangeEnd;
                 }
             }
@@ -80,9 +80,14 @@ public class RecordingChartsFragment {
         liveUpdate.setCycleCount(Timeline.INDEFINITE);
         liveUpdate.play();
     }
-
     public void stopLiveUpdate() {
         liveUpdate.stop();
+    }
+
+    private void addRecords(int begin, int end) {
+        for (int emgDataOffset = begin; emgDataOffset < end; ++emgDataOffset) {
+            addRecord(emgDataOffset);
+        }
     }
 
     private void addRecord(int recordIndex) {
@@ -100,12 +105,22 @@ public class RecordingChartsFragment {
     @FXML
     private void initialize() {
         createCharts();
+        createFilters();
+    }
+
+    private void createFilters() {
+        emgFilters.getItems().addAll(new AverageFilter());
+        emgFilters.getSelectionModel().selectedItemProperty().addListener(((observable, oldValue, newValue) -> applyFilter(newValue)));
+    }
+
+    private void applyFilter(SensorFilter filter) {
+
     }
 
     private void createCharts() {
         for (int emgIndex = 0; emgIndex < EMG_SENSOR_COUNT; ++emgIndex) {
             ObservableList layerSeries = FXCollections.observableArrayList();
-            for (int layerIndex = 0; layerIndex < MAX_OVERRIDES; ++layerIndex) {
+            for (int layerIndex = 0; layerIndex < MAX_LAYERS; ++layerIndex) {
                 XYChart.Series<Number, Number> series = new LineChart.Series<>();
                 series.setName("Layer " + layerIndex);
                 layerSeries.add(series);

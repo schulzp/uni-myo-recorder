@@ -2,9 +2,13 @@
 
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.control.ComboBox?>
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="edu.crimpbit.anaylsis.view.RecordingChartsFragment">
     <center>
         <TilePane fx:id="emgCharts" prefColumns="2" />
     </center>
+    <right>
+        <ComboBox fx:id="emgFilters" />
+    </right>
 </BorderPane>
