@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by peter on 15/12/15.
  */
-public class AvgEmgFilter implements EmgFilter {
+public class AvgEmgFilter {
 
     private int chunkSize = 5;
 
