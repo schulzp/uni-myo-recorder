@@ -1,7 +1,5 @@
 package edu.crimpbit.filter;
 
-import javafx.scene.chart.XYChart;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,18 +10,17 @@ public class AvgEmgFilter {
 
     private int chunkSize = 5;
 
-    public List<XYChart.Data<Integer, Integer>> apply(List<XYChart.Data<Integer, Integer>> data) {
-        List<XYChart.Data<Integer, Integer>> result = new LinkedList<>();
+    public List<int[]> apply(List<int[]> data) {
+        List<int[]> result = new LinkedList<>();
         for (int begin = 0, end, size; begin < data.size(); begin = end) {
             end = Math.min(begin + chunkSize, data.size());
             final int offset = begin + (end - begin) / 2;
             data.subList(begin, end).stream()
-                    .mapToInt(XYChart.Data::getXValue)
+                    .mapToInt(point -> point[1])
                     .average()
                     .ifPresent(average -> {
-                        result.add(new XYChart.Data<>(offset, (int) average));
+                        result.add(new int[]{offset, (int) average});
                     });
-            ;
         }
         return result;
     }
