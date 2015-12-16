@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalTime;
 import java.util.Arrays;
 
@@ -18,16 +19,22 @@ public class Recording {
     @Id
     private String id;
 
+    @NotNull
     private final Arm arm;
 
+    @NotNull
     private final XDirection xDirection;
 
+    @NotNull
     private final float rotation;
 
+    @NotNull
     private final LocalTime createdAt = LocalTime.now();
 
+    @NotNull
     private String exercise;
 
+    @NotNull
     private String subject;
 
     @DBRef

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
 
 
 @Configuration
-@Import({ MongoConfiguration.class })
+@Import({ MongoConfiguration.class, ValidationConfiguration.class })
 @ComponentScan({ "edu.crimpbit.service" })
 public class CoreConfiguration {
 

@@ -2,6 +2,7 @@ ext {
     vOpenCsv = '3.6'
     vSpringDataMongo = '1.8.1.RELEASE'
     vJSR305 = '3.0.1'
+    vHibernateValidator = '5.2.2.Final'
     vMyo = '0.9.1'
 }
 
@@ -10,5 +11,6 @@ dependencies {
             'org.springframework:spring-core:' + vSpring,
             'org.springframework.data:spring-data-mongodb:' + vSpringDataMongo,
             'com.google.code.findbugs:jsr305:' + vJSR305,
+            'org.hibernate:hibernate-validator:' + vHibernateValidator,
             'com.opencsv:opencsv:' + vOpenCsv
 }

@@ -8,6 +8,7 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import org.springframework.javafx.FXMLController;
 public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>, Persistable<Recording> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordingEditor.class);
+    private static final String STYLE_CLASS_VALIDATION_FAILED = "validation-failed";
 
     private final ReadOnlyStringWrapper text = new ReadOnlyStringWrapper("New Recording");
 
@@ -74,8 +76,17 @@ public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>
             }
 
             @Override
+            protected void succeeded() {
+                rootNode.getStyleClass().remove(STYLE_CLASS_VALIDATION_FAILED);
+            }
+
+            @Override
             protected void failed() {
-                LOGGER.error("failed to save", getException());
+                Throwable exception = getException();
+                rootNode.getStyleClass().add(STYLE_CLASS_VALIDATION_FAILED);
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle(exception.getLocalizedMessage());
+                alert.show();
             }
 
         });

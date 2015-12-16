@@ -1,19 +1,27 @@
 package edu.crimpbit.anaylsis.view;
 
 import edu.crimpbit.Recording;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.control.Tooltip;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
-import java.util.Optional;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Path;
+import java.util.Iterator;
 
 @Controller
 @Scope("prototype")
 public class RecordingFormFragment {
+
+    private static final String STYLE_CLASS_CONSTRAINT_VIOLATION = "constraint-violation";
 
     @FXML
     private ComboBox<String> exerciseSelect;
@@ -59,4 +67,32 @@ public class RecordingFormFragment {
         subjectSelect.getSelectionModel().selectedItemProperty().addListener(subjectListener);
     }
 
+    public void handleException(ConstraintViolationException exception) {
+        ((ConstraintViolationException) exception).getConstraintViolations().stream()
+                .forEach(this::handleViolation);
+    }
+
+    private void handleViolation(ConstraintViolation<?> violation) {
+        Iterator<Path.Node> pathIterator = violation.getPropertyPath().iterator();
+        String name = null;
+        while (pathIterator.hasNext()) {
+            name = pathIterator.next().getName();
+        }
+        markConstraintViolation(subjectSelect, null);
+        markConstraintViolation(exerciseSelect, null);
+        if ("subject".equals(name)) {
+            markConstraintViolation(subjectSelect, violation);
+        } else if ("exercise".equals(name)) {
+            markConstraintViolation(exerciseSelect, violation);
+        }
+
+    }
+
+    private void markConstraintViolation(Node node, ConstraintViolation<?> violation) {
+        ObservableList<String> styleClass = node.getStyleClass();
+        styleClass.remove(STYLE_CLASS_CONSTRAINT_VIOLATION);
+        if (violation != null) {
+            styleClass.add(STYLE_CLASS_CONSTRAINT_VIOLATION);
+        }
+    }
 }
