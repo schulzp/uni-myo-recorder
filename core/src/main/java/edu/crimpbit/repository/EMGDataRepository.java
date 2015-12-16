@@ -1,7 +1,6 @@
 package edu.crimpbit.repository;
 
 import edu.crimpbit.EMGData;
-import edu.crimpbit.Recording;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

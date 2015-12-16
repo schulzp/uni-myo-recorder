@@ -4,11 +4,9 @@ import edu.crimpbit.Recording;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SingleSelectionModel;
-import javafx.scene.control.Tooltip;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
