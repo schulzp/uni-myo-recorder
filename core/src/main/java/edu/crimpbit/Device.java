@@ -14,12 +14,6 @@ import java.util.stream.IntStream;
  */
 public class Device {
 
-    public static final int NUM_EMG_PADS = 8;
-
-    public static IntStream createEmgPadIndexStream() {
-        return IntStream.range(0, NUM_EMG_PADS);
-    }
-
     public enum Status {
 
         UNPAIRED, PAIRED, DISCONNECTED, CONNECTED, IN_SYNC, OUT_OF_SYNC

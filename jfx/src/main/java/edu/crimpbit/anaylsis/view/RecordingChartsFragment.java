@@ -1,6 +1,5 @@
 package edu.crimpbit.anaylsis.view;
 
-import edu.crimpbit.Device;
 import edu.crimpbit.EMGData;
 import edu.crimpbit.filter.EnvelopeFollowerFilter;
 import javafx.animation.KeyFrame;
@@ -18,22 +17,25 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.TilePane;
 import javafx.util.Duration;
+import one.util.streamex.EntryStream;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 @Controller
 @Scope("prototype")
 public class RecordingChartsFragment {
 
-    private static final int MAX_LAYERS = 3;
     private static final int CHART_UPDATE_CHUNK_SIZE = 20;
     private static final int LIVE_UPDATE_RATE = 50;
 
-    private final List<List<LineChart.Series<Number, Number>>> emgChartData = new ArrayList<>(Device.NUM_EMG_PADS);
+    private final List<List<LineChart.Series<Number, Number>>> emgChartData = new ArrayList<>(EMGData.NUM_EMG_PADS);
 
     @FXML
     private TilePane emgCharts;
@@ -41,9 +43,7 @@ public class RecordingChartsFragment {
     @FXML
     private ComboBox<Function<Double, Double>> emgFilters;
 
-    private int numberOfOverrides;
-
-    private int layerIndex;
+    private int seriesIndex;
 
     private EMGData emgData;
 
@@ -54,7 +54,7 @@ public class RecordingChartsFragment {
 
         addRecords(0, emgData.size());
 
-        layerIndex = numberOfOverrides++ % MAX_LAYERS;
+        seriesIndex++;
     }
 
     public void startLiveUpdate() {
@@ -84,28 +84,24 @@ public class RecordingChartsFragment {
         liveUpdate.stop();
     }
 
-    private void addRecords(int begin, int end) {
-        System.err.println("adding " + begin + " - " + end + " of " + emgData.size());
-        for (int emgDataOffset = begin; emgDataOffset < end; ++emgDataOffset) {
-            addRecord(emgDataOffset);
-        }
-    }
-
-    private void addRecord(int recordIndex) {
-        Device.createEmgPadIndexStream().forEach(emgPadIndex -> {
-            XYChart.Data<Number, Number> data = new XYChart.Data<>(recordIndex, filter(emgData.getData(emgPadIndex).get(recordIndex)));
-            emgChartData.get(emgPadIndex).get(layerIndex).getData().add(data);
-        });
-    }
-
-    private int filter(byte b) {
-        return b;
-    }
-
     @FXML
     private void initialize() {
         createCharts();
         createFilters();
+    }
+
+    private void addRecords(int begin, int end) {
+        System.err.println("adding " + begin + " - " + end + " of " + emgData.size());
+        Supplier<XYChart.Series<Number, Number>> seriesSupplier = () -> createSeries("Data");
+
+        emgData.stream().parallel()
+                .mapValues(rawData -> EntryStream.of(rawData).skip(begin).map(entry -> createChartData(entry, null)).toList())
+                .mapKeyValue((chartIndex, seriesData) -> createChartUpdater(chartIndex, seriesIndex, seriesData, seriesSupplier))
+                .forEach(Platform::runLater);
+    }
+
+    private Runnable createChartUpdater(int chartIndex, int seriesIndex, List<XYChart.Data<Number, Number>> seriesData, Supplier<XYChart.Series<Number, Number>> seriesSupplier) {
+        return () -> getSeries(chartIndex, seriesIndex, seriesSupplier).getData().addAll(seriesData);
     }
 
     private void createFilters() {
@@ -114,42 +110,60 @@ public class RecordingChartsFragment {
     }
 
     private void applyFilter(Function<Double, Double> filter) {
-        layerIndex++;
-        Device.createEmgPadIndexStream().forEach(emgPadIndex -> {
-            XYChart.Series<Number, Number> layerSeries = emgChartData.get(emgPadIndex).get(layerIndex);
-            List<Byte> data = emgData.getData(emgPadIndex);
-            for (int i = 0; i < data.size(); ++i) {
-                layerSeries.getData().add(new XYChart.Data<>(i, filter.apply(data.get(i).doubleValue())));
-            }
-        });
+        seriesIndex++;
+        Supplier<XYChart.Series<Number, Number>> seriesSupplier = () -> createSeries("Filter " + filter);
+        emgData.stream().parallel()
+                .mapValues(rawData -> EntryStream.of(rawData).map(entry -> createChartData(entry, filter)).toList())
+                .mapKeyValue((chartIndex, seriesData) -> createChartUpdater(chartIndex, seriesIndex, seriesData, seriesSupplier))
+                .forEach(Platform::runLater);
+    }
+
+    private XYChart.Data<Number, Number> createChartData(Map.Entry<Integer, Byte> entry, Function<Double, Double> filter) {
+        Number x = entry.getKey();
+        Number y = filter != null ? filter.apply(entry.getValue().doubleValue()) : entry.getValue();
+        return new XYChart.Data<>(x, y);
+    }
+
+    private XYChart.Series<Number, Number> getSeries(int padIndex, int seriesIndex, Supplier<XYChart.Series<Number, Number>> supplier) {
+        List<XYChart.Series<Number, Number>> padSeries = emgChartData.get(padIndex);
+        if (seriesIndex == padSeries.size()) {
+            padSeries.add(supplier.get());
+        }
+        return padSeries.get(seriesIndex);
+    }
+
+    private XYChart.Series<Number, Number> createSeries(String name) {
+        XYChart.Series<Number, Number> series = new LineChart.Series<>();
+        series.setName(name);
+        return series;
     }
 
     private void createCharts() {
-        Device.createEmgPadIndexStream().forEach(emgPadIndex -> {
-            ObservableList layerSeries = FXCollections.observableArrayList();
-            for (int layerIndex = 0; layerIndex < MAX_LAYERS; ++layerIndex) {
-                XYChart.Series<Number, Number> series = new LineChart.Series<>();
-                series.setName("Layer " + layerIndex);
-                layerSeries.add(series);
-            }
+        IntStream.range(0, EMGData.NUM_EMG_PADS)
+                .mapToObj(emgPadIndex -> createChart("EMG " + emgPadIndex))
+                .forEach(emgCharts.getChildren()::add);
+    }
 
-            emgChartData.add(layerSeries);
+    private LineChart<Number, Number> createChart(String title) {
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis(-150, 150, 50);
+        yAxis.setAutoRanging(false);
 
-            NumberAxis xAxis = new NumberAxis();
-            NumberAxis yAxis = new NumberAxis(-150, 150, 50);
-            yAxis.setAutoRanging(false);
+        LineChart<Number, Number> emgChart = new LineChart<>(xAxis,  yAxis);
+        emgChart.setAnimated(false);
+        emgChart.setMaxSize(300, 150);
+        emgChart.setTitle(title);
+        emgChart.setTitleSide(Side.LEFT);
+        emgChart.getStyleClass().add("emg-chart");
+        emgChart.setData(createChartData());
+        emgChart.applyCss();
+        return emgChart;
+    }
 
-            LineChart<Number, Number> emgChart = new LineChart<>(xAxis,  yAxis);
-            emgChart.setAnimated(false);
-            emgChart.setMaxSize(300, 150);
-            emgChart.setTitle("EMG " + emgPadIndex);
-            emgChart.setTitleSide(Side.TOP);
-            emgChart.getStyleClass().add("emg-chart");
-            emgChart.setData(layerSeries);
-            emgChart.applyCss();
-
-            emgCharts.getChildren().add(emgChart);
-        });
+    private ObservableList createChartData() {
+        ObservableList layerSeries = FXCollections.observableArrayList();
+        emgChartData.add(layerSeries);
+        return layerSeries;
     }
 
 }

@@ -1,5 +1,6 @@
 package edu.crimpbit;
 
+import one.util.streamex.EntryStream;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,14 +15,15 @@ import java.util.List;
 @Document(collection = "emg-data")
 public class EMGData {
 
+    public static final int NUM_EMG_PADS = 8;
+
     @Id
     private String id;
 
     private final List<Long> timestamps = new LinkedList<>();
-
-    private final List<List<Byte>> data = Collections.unmodifiableList(new ArrayList<List<Byte>>(Device.NUM_EMG_PADS) {
+    private final List<List<Byte>> data = Collections.unmodifiableList(new ArrayList<List<Byte>>(NUM_EMG_PADS) {
         {
-            for (int i = 0; i < Device.NUM_EMG_PADS; ++i) {
+            for (int i = 0; i < NUM_EMG_PADS; ++i) {
                 add(new LinkedList<>());
             }
         }
@@ -29,9 +31,13 @@ public class EMGData {
 
     public synchronized void add(long timestamp, byte[] data) {
         timestamps.add(timestamp);
-        for (int i = 0; i < Device.NUM_EMG_PADS; ++i) {
+        for (int i = 0; i < NUM_EMG_PADS; ++i) {
             getData(i).add(data[i]);
         }
+    }
+
+    public EntryStream<Integer, List<Byte>> stream() {
+        return EntryStream.of(data);
     }
 
     public synchronized List<Byte> getData(int index) {
