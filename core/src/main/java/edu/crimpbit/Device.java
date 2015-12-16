@@ -7,12 +7,18 @@ import com.thalmic.myo.enums.Arm;
 import com.thalmic.myo.enums.XDirection;
 import javafx.beans.property.*;
 
+import java.util.stream.IntStream;
+
 /**
  * Device representation.
  */
 public class Device {
 
     public static final int NUM_EMG_PADS = 8;
+
+    public static IntStream createEmgPadIndexStream() {
+        return IntStream.range(0, NUM_EMG_PADS);
+    }
 
     public enum Status {
 

@@ -17,6 +17,7 @@ subprojects {
         vLog4j = '2.4.1'
         vJunit = '4.12'
         vGuava = '18.0'
+        vHamcrest = '1.3'
     }
 
     repositories {
@@ -46,6 +47,8 @@ subprojects {
         runtime 'org.apache.logging.log4j:log4j-core:' + vLog4j,
                 'org.apache.logging.log4j:log4j-slf4j-impl:' + vLog4j
 
-        testCompile 'junit:junit:' + vJunit
+        testCompile 'junit:junit:' + vJunit,
+                'org.hamcrest:hamcrest-library:' + vHamcrest
+
     }
 }

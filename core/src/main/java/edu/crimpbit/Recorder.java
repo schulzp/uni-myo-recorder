@@ -21,9 +21,7 @@ public class Recorder extends AbstractIdleService {
 
         @Override
         public void onEmgData(Myo myo, long timestamp, byte[] emg) {
-            if (count++ % 2 == 0) {
-                recording.getEmgData().add(timestamp, emg);
-            }
+            recording.getEmgData().add(timestamp, emg);
         }
 
     };

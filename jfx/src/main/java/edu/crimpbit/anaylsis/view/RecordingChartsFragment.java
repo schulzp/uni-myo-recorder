@@ -2,8 +2,7 @@ package edu.crimpbit.anaylsis.view;
 
 import edu.crimpbit.Device;
 import edu.crimpbit.EMGData;
-import edu.crimpbit.filter.AverageFilter;
-import edu.crimpbit.filter.SensorFilter;
+import edu.crimpbit.filter.EnvelopeFollowerFilter;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -24,6 +23,7 @@ import org.springframework.stereotype.Controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @Controller
 @Scope("prototype")
@@ -39,7 +39,7 @@ public class RecordingChartsFragment {
     private TilePane emgCharts;
 
     @FXML
-    private ComboBox<SensorFilter> emgFilters;
+    private ComboBox<Function<Double, Double>> emgFilters;
 
     private int numberOfOverrides;
 
@@ -92,10 +92,10 @@ public class RecordingChartsFragment {
     }
 
     private void addRecord(int recordIndex) {
-        for (int emgIndex = 0; emgIndex < Device.NUM_EMG_PADS; ++emgIndex) {
-            XYChart.Data<Number, Number> data = new XYChart.Data<>(recordIndex, filter(emgData.getData(emgIndex).get(recordIndex)));
-            emgChartData.get(emgIndex).get(layerIndex).getData().add(data);
-        }
+        Device.createEmgPadIndexStream().forEach(emgPadIndex -> {
+            XYChart.Data<Number, Number> data = new XYChart.Data<>(recordIndex, filter(emgData.getData(emgPadIndex).get(recordIndex)));
+            emgChartData.get(emgPadIndex).get(layerIndex).getData().add(data);
+        });
     }
 
     private int filter(byte b) {
@@ -109,16 +109,23 @@ public class RecordingChartsFragment {
     }
 
     private void createFilters() {
-        emgFilters.getItems().addAll(new AverageFilter());
+        emgFilters.getItems().addAll(new EnvelopeFollowerFilter(0.1, 0.8));
         emgFilters.getSelectionModel().selectedItemProperty().addListener(((observable, oldValue, newValue) -> applyFilter(newValue)));
     }
 
-    private void applyFilter(SensorFilter filter) {
-
+    private void applyFilter(Function<Double, Double> filter) {
+        layerIndex++;
+        Device.createEmgPadIndexStream().forEach(emgPadIndex -> {
+            XYChart.Series<Number, Number> layerSeries = emgChartData.get(emgPadIndex).get(layerIndex);
+            List<Byte> data = emgData.getData(emgPadIndex);
+            for (int i = 0; i < data.size(); ++i) {
+                layerSeries.getData().add(new XYChart.Data<>(i, filter.apply(data.get(i).doubleValue())));
+            }
+        });
     }
 
     private void createCharts() {
-        for (int emgIndex = 0; emgIndex < Device.NUM_EMG_PADS; ++emgIndex) {
+        Device.createEmgPadIndexStream().forEach(emgPadIndex -> {
             ObservableList layerSeries = FXCollections.observableArrayList();
             for (int layerIndex = 0; layerIndex < MAX_LAYERS; ++layerIndex) {
                 XYChart.Series<Number, Number> series = new LineChart.Series<>();
@@ -135,14 +142,14 @@ public class RecordingChartsFragment {
             LineChart<Number, Number> emgChart = new LineChart<>(xAxis,  yAxis);
             emgChart.setAnimated(false);
             emgChart.setMaxSize(300, 150);
-            emgChart.setTitle("EMG " + emgIndex);
+            emgChart.setTitle("EMG " + emgPadIndex);
             emgChart.setTitleSide(Side.TOP);
             emgChart.getStyleClass().add("emg-chart");
             emgChart.setData(layerSeries);
             emgChart.applyCss();
 
             emgCharts.getChildren().add(emgChart);
-        }
+        });
     }
 
 }
