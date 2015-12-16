@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.Service;
 import edu.crimpbit.Device;
 import edu.crimpbit.Recorder;
 import edu.crimpbit.Recording;
+import edu.crimpbit.anaylsis.util.DeviceStringConverter;
 import edu.crimpbit.service.ConnectorService;
 import edu.crimpbit.service.RecordingService;
 import javafx.animation.KeyFrame;
@@ -90,6 +91,9 @@ public class RecorderFragment {
     private RecordingService recordingService;
 
     @Autowired
+    private DeviceStringConverter deviceStringConverter;
+
+    @Autowired
     private ResourceBundle bundle;
 
     private Recorder recorder;
@@ -105,10 +109,11 @@ public class RecorderFragment {
     @FXML
     private void initialize() {
         deviceSelect.setItems(connectorService.getDevices());
+        deviceSelect.setConverter(deviceStringConverter);
 
         recordButton.disableProperty().bind(
                 Bindings.or(
-                        Bindings.isNotNull(deviceSelect.getSelectionModel().selectedItemProperty()),
+                        Bindings.isNull(deviceSelect.getSelectionModel().selectedItemProperty()),
                         Bindings.size(deviceSelect.getItems()).isEqualTo(0)));
 
         recordButton.textProperty().bind(

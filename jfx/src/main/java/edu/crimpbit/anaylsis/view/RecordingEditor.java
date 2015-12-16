@@ -9,6 +9,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
@@ -17,6 +19,8 @@ import org.springframework.javafx.FXMLController;
 @FXMLController
 @Scope("prototype")
 public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>, Persistable<Recording> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecordingEditor.class);
 
     private final ReadOnlyStringWrapper text = new ReadOnlyStringWrapper("New Recording");
 
@@ -69,6 +73,11 @@ public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>
                 return recording;
             }
 
+            @Override
+            protected void failed() {
+                LOGGER.error("failed to save", getException());
+            }
+
         });
     }
 
@@ -89,7 +98,7 @@ public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>
         recording.bind(recorderFragmentController.recordingProperty());
         recording.addListener(((observable, oldValue, newValue) -> {
             recordingFormFragmentController.setRecording(newValue);
-            recordingChartsFragmentController.setRecords(newValue.getEmgRecords());
+            recordingChartsFragmentController.setEmgData(newValue.getEmgData());
         }));
     }
 

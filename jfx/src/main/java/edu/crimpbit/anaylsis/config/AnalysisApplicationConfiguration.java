@@ -29,7 +29,10 @@ import edu.crimpbit.anaylsis.command.CommandService;
 import edu.crimpbit.anaylsis.command.FileNewCommand;
 import edu.crimpbit.anaylsis.command.FileSaveCommand;
 import edu.crimpbit.anaylsis.command.OpenCommand;
+import edu.crimpbit.anaylsis.util.ArmStringConverter;
+import edu.crimpbit.anaylsis.util.DeviceStringConverter;
 import edu.crimpbit.config.CoreConfiguration;
+import edu.crimpbit.service.ConnectorService;
 import javafx.concurrent.Task;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,6 +46,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.javafx.EnableFXMLControllers;
 
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -115,6 +119,16 @@ public class AnalysisApplicationConfiguration {
         FileSaveCommand command = new FileSaveCommand();
         commandService.registerCommand(command);
         return command;
+    }
+
+    @Bean
+    public DeviceStringConverter deviceStringConverter(ConnectorService connectorService, ArmStringConverter armStringConverter) {
+        return new DeviceStringConverter(connectorService, armStringConverter);
+    }
+
+    @Bean
+    public ArmStringConverter armStringConverter(ResourceBundle resourceBundle) {
+        return new ArmStringConverter(resourceBundle);
     }
 
     private static ConfigurableApplicationContext context;

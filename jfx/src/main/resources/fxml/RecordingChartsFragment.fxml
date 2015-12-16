@@ -8,7 +8,7 @@
     <center>
         <TilePane fx:id="emgCharts" prefColumns="2" />
     </center>
-    <right>
+    <bottom>
         <ComboBox fx:id="emgFilters" />
-    </right>
+    </bottom>
 </BorderPane>

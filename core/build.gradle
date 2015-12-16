@@ -1,11 +1,14 @@
 ext {
     vOpenCsv = '3.6'
+    vSpringDataMongo = '1.8.1.RELEASE'
+    vJSR305 = '3.0.1'
     vMyo = '0.9.1'
 }
 
 dependencies {
     compile 'com.github.nicholasastuart:myo-java:' + vMyo,
             'org.springframework:spring-core:' + vSpring,
-            'org.springframework.data:spring-data-mongodb:1.8.1.RELEASE',
+            'org.springframework.data:spring-data-mongodb:' + vSpringDataMongo,
+            'com.google.code.findbugs:jsr305:' + vJSR305,
             'com.opencsv:opencsv:' + vOpenCsv
 }

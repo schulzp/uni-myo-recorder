@@ -2,6 +2,7 @@ package edu.crimpbit.anaylsis.view;
 
 import com.thalmic.myo.enums.Arm;
 import edu.crimpbit.Device;
+import edu.crimpbit.anaylsis.util.ArmStringConverter;
 import edu.crimpbit.service.ConnectorService;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -10,8 +11,9 @@ import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Controller;
+
+import java.util.ResourceBundle;
 
 @Controller
 public class DevicesView {
@@ -25,7 +27,10 @@ public class DevicesView {
     private ConnectorService connectorService;
 
     @Autowired
-    private MessageSourceAccessor messageSourceAccessor;
+    private ResourceBundle resourceBundle;
+
+    @Autowired
+    private ArmStringConverter armStringConverter;
 
     @FXML
     private void initialize() {
@@ -48,11 +53,11 @@ public class DevicesView {
                         device.armProperty().removeListener(armListener);
                     }
                     armListener = (property, oldValue, newValue) -> {
-                        Platform.runLater(() -> setText(newValue.name()));
+                        Platform.runLater(() -> setText(armStringConverter.toString(newValue)));
                     };
 
                     device.armProperty().addListener(armListener);
-                    setText(device.getArm().name());
+                    setText(armStringConverter.toString(device.getArm()));
                 } else {
                     setGraphic(null);
                     setText(null);
@@ -66,10 +71,10 @@ public class DevicesView {
         MultipleSelectionModel<Device> selectionModel = devicesList.getSelectionModel();
         ContextMenu contextMenu = new ContextMenu();
         MenuItem pingMenuItem = new MenuItem();
-        pingMenuItem.setText(messageSourceAccessor.getMessage("devices.view.ping"));
+        pingMenuItem.setText(resourceBundle.getString("devices.view.ping"));
         pingMenuItem.setOnAction(event -> connectorService.ping(selectionModel.getSelectedItem()));
         MenuItem armMenuItem = new MenuItem();
-        armMenuItem.setText(messageSourceAccessor.getMessage("devices.view.switch.arm"));
+        armMenuItem.setText(resourceBundle.getString("devices.view.switch.arm"));
         armMenuItem.setOnAction(event -> {
             Device device = selectionModel.getSelectedItem();
             device.setArm(device.getArm() == Arm.ARM_LEFT ? Arm.ARM_RIGHT : Arm.ARM_LEFT);

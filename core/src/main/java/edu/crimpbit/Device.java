@@ -12,6 +12,8 @@ import javafx.beans.property.*;
  */
 public class Device {
 
+    public static final int NUM_EMG_PADS = 8;
+
     public enum Status {
 
         UNPAIRED, PAIRED, DISCONNECTED, CONNECTED, IN_SYNC, OUT_OF_SYNC

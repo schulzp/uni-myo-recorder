@@ -3,15 +3,16 @@ package edu.crimpbit;
 import com.thalmic.myo.enums.Arm;
 import com.thalmic.myo.enums.XDirection;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Data with meta information.
  */
+@Document(collection = "recording")
 public class Recording {
 
     @Id
@@ -29,7 +30,8 @@ public class Recording {
 
     private String subject;
 
-    private List<EmgRecord> emgRecords = new LinkedList<>();
+    @DBRef
+    private final EMGData emgData = new EMGData();
 
     public Recording(Arm arm, XDirection xDirection, float rotation) {
         this.arm = arm;
@@ -53,12 +55,12 @@ public class Recording {
         this.subject = subject;
     }
 
-    public String getSubject() {
-        return subject;
+    public EMGData getEmgData() {
+        return emgData;
     }
 
-    public List<EmgRecord> getEmgRecords() {
-        return emgRecords;
+    public String getSubject() {
+        return subject;
     }
 
     public String getId() {
