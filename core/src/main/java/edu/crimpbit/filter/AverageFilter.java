@@ -18,7 +18,7 @@ public class AverageFilter implements SensorFilter {
         if (size <= 0) {
             size = STD_VALUE;
         }
-        int[][] filteredRecords = new int[emgRecords.size() / size][EMG_SENSORS];
+        int[][] filteredRecords = new int[EMG_SENSORS][emgRecords.size()/size];
         int[] sums = new int[EMG_SENSORS];
         for (int i = 0; i < emgRecords.size(); i++) {
             filteredRecords[i] = average(emgRecords.get(i).getData(),size);
@@ -32,12 +32,18 @@ public class AverageFilter implements SensorFilter {
     }
 
     private int[] average(byte[] emgRecord, int size) {
-        int[] filteredRecords = new int[emgRecord.length / size];
+        int avgLength = emgRecord.length / size;
+        int[] filteredRecords = new int[avgLength];
         int sum = 0;
-        for (int i = 0; i < emgRecord.length; i++) {
-            sum += emgRecord[i];
+        for (int i = 1; i <= emgRecord.length; i++) {
+            sum += emgRecord[i-1];
             if (i % size == 0) {
-                filteredRecords[i / size] = sum / size;
+                int avg = i / size;
+                /*System.out.println("i mod size = 0:" + i);
+                System.out.println("avg:" + avg);
+                System.out.println("sum:" + sum);
+                System.out.println("size:" + size);*/
+                filteredRecords[avg - 1] = sum / size;
                 sum = 0;
             }
         }
