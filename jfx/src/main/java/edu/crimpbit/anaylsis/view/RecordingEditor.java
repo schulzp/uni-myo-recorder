@@ -109,7 +109,7 @@ public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>
         recording.bind(recorderFragmentController.recordingProperty());
         recording.addListener(((observable, oldValue, newValue) -> {
             recordingFormFragmentController.setRecording(newValue);
-            recordingChartsFragmentController.setEmgData(newValue.getEmgData());
+            recordingChartsFragmentController.addEmgData(newValue.getEmgData());
         }));
     }
 

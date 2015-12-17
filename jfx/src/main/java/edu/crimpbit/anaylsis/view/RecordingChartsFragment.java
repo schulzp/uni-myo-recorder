@@ -24,6 +24,8 @@ import org.springframework.stereotype.Controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.RunnableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -41,20 +43,18 @@ public class RecordingChartsFragment {
     private TilePane emgCharts;
 
     @FXML
-    private ComboBox<Function<Double, Double>> emgFilters;
+    private ComboBox<Supplier<Function<Double, Double>>> emgFilters;
 
-    private int seriesIndex;
+    private int seriesIndex = -1;
 
     private EMGData emgData;
 
     private Timeline liveUpdate;
 
-    public void setEmgData(EMGData emgData) {
-        this.emgData = emgData;
-
-        addRecords(0, emgData.size());
-
+    public void addEmgData(EMGData emgData) {
         seriesIndex++;
+        this.emgData = emgData;
+        addRecords(0, emgData.size());
     }
 
     public void startLiveUpdate() {
@@ -105,15 +105,34 @@ public class RecordingChartsFragment {
     }
 
     private void createFilters() {
-        emgFilters.getItems().addAll(new EnvelopeFollowerFilter(0.1, 0.8));
+        emgFilters.getItems().addAll(createFilterSupplier("Envelope", () -> new EnvelopeFollowerFilter(0.3, 0.8)));
         emgFilters.getSelectionModel().selectedItemProperty().addListener(((observable, oldValue, newValue) -> applyFilter(newValue)));
     }
 
-    private void applyFilter(Function<Double, Double> filter) {
+    private <I, O, F extends  Function<I, O>> Supplier<F> createFilterSupplier(String name, Supplier<F> supplier) {
+        return new Supplier<F>() {
+
+            @Override
+            public F get() {
+                return supplier.get();
+            }
+
+            @Override
+            public String toString() {
+                return name;
+            }
+
+        };
+    }
+
+    private void applyFilter(Supplier<Function<Double, Double>> filterSupplier) {
         seriesIndex++;
-        Supplier<XYChart.Series<Number, Number>> seriesSupplier = () -> createSeries("Filter " + filter);
+        Supplier<XYChart.Series<Number, Number>> seriesSupplier = () -> createSeries("Filter " + filterSupplier);
         emgData.stream().parallel()
-                .mapValues(rawData -> EntryStream.of(rawData).map(entry -> createChartData(entry, filter)).toList())
+                .mapValues(rawData -> {
+                    Function<Double, Double> filter = filterSupplier.get();
+                    return EntryStream.of(rawData).map(entry -> createChartData(entry, filter)).toList();
+                })
                 .mapKeyValue((chartIndex, seriesData) -> createChartUpdater(chartIndex, seriesIndex, seriesData, seriesSupplier))
                 .forEach(Platform::runLater);
     }

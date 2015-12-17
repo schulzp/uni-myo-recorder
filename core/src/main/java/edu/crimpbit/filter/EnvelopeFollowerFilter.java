@@ -7,7 +7,7 @@ import java.util.function.Function;
 /**
  * Simple envelope follower filter.
  */
-public class EnvelopeFollowerFilter implements Function<Double, Double> {
+public class EnvelopeFollowerFilter implements Function<Double, Double>, Cloneable {
 
     /**
      * Coefficient moderating the adoption of higher signals.
@@ -43,4 +43,10 @@ public class EnvelopeFollowerFilter implements Function<Double, Double> {
     public String toString() {
         return MoreObjects.toStringHelper(this).add("attack", attack).add("release", release).toString();
     }
+
+    @Override
+    public EnvelopeFollowerFilter clone() throws CloneNotSupportedException {
+        return new EnvelopeFollowerFilter(attack, release);
+    }
+
 }
