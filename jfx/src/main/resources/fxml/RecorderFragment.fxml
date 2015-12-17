@@ -10,7 +10,7 @@
           fx:controller="edu.crimpbit.anaylsis.view.RecorderFragment" hgap="4" vgap="4">
 
     <Text text="%recorder.device" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2" />
-    <ComboBox fx:id="deviceSelect" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="2">
+    <ComboBox fx:id="deviceSelect" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="2" maxWidth="Infinity">
         <placeholder>
             <Text text="%devices.view.empty" styleClass="view-placeholder" />
         </placeholder>
@@ -29,4 +29,9 @@
 
     <ToggleButton fx:id="recordButton" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
 
+    <columnConstraints>
+        <ColumnConstraints />
+        <ColumnConstraints fillWidth="true" />
+        <ColumnConstraints fillWidth="true" />
+    </columnConstraints>
 </GridPane>

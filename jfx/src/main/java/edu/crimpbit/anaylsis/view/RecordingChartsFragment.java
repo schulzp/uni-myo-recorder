@@ -170,9 +170,9 @@ public class RecordingChartsFragment {
 
         LineChart<Number, Number> emgChart = new LineChart<>(xAxis,  yAxis);
         emgChart.setAnimated(false);
-        emgChart.setMaxSize(300, 150);
+        emgChart.setMaxSize(350, 150);
         emgChart.setTitle(title);
-        emgChart.setTitleSide(Side.LEFT);
+        emgChart.setTitleSide(Side.TOP);
         emgChart.getStyleClass().add("emg-chart");
         emgChart.setData(createChartData());
         emgChart.applyCss();

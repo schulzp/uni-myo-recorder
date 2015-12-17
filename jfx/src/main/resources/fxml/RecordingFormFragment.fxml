@@ -9,7 +9,7 @@
           fx:controller="edu.crimpbit.anaylsis.view.RecordingFormFragment" hgap="4" vgap="4">
 
     <Text text="%recording.subject" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-    <ComboBox fx:id="subjectSelect" GridPane.columnIndex="0" GridPane.rowIndex="1">
+    <ComboBox fx:id="subjectSelect" GridPane.columnIndex="1" GridPane.rowIndex="0" maxWidth="Infinity">
         <items>
             <FXCollections fx:factory="observableArrayList">
                 <String fx:value="peter" />
@@ -17,8 +17,8 @@
         </items>
     </ComboBox>
 
-    <Text text="%recording.exercise" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-    <ComboBox fx:id="exerciseSelect" GridPane.columnIndex="1" GridPane.rowIndex="1" >
+    <Text text="%recording.exercise" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+    <ComboBox fx:id="exerciseSelect" GridPane.columnIndex="1" GridPane.rowIndex="1">
         <items>
             <FXCollections fx:factory="observableArrayList">
                 <String fx:value="index-finger" />
@@ -28,4 +28,8 @@
         </items>
     </ComboBox>
 
+    <columnConstraints>
+        <ColumnConstraints />
+        <ColumnConstraints fillWidth="true" />
+    </columnConstraints>
 </GridPane>

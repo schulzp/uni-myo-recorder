@@ -10,6 +10,7 @@
                 <Insets left="8" top="8" right="8" bottom="8" />
             </padding>
             <fx:include fx:id="recordingFormFragment" source="RecordingFormFragment.fxml" />
+            <HBox HBox.hgrow="SOMETIMES" />
             <fx:include fx:id="recorderFragment" source="RecorderFragment.fxml" />
         </HBox>
     </top>
