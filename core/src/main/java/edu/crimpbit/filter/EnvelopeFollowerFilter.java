@@ -1,13 +1,14 @@
 package edu.crimpbit.filter;
 
 import com.google.common.base.MoreObjects;
+import one.util.streamex.EntryStream;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Simple envelope follower filter.
  */
-public class EnvelopeFollowerFilter implements Function<Double, Double>, Cloneable {
+public class EnvelopeFollowerFilter implements UnaryOperator<EntryStream<Integer, Double>>, Cloneable {
 
     /**
      * Coefficient moderating the adoption of higher signals.
@@ -21,7 +22,7 @@ public class EnvelopeFollowerFilter implements Function<Double, Double>, Cloneab
      */
     private final double release;
 
-    private double envelope = 0;
+    private double envelope;
 
     public EnvelopeFollowerFilter(double attack, double release) {
         this.attack = attack;
@@ -29,14 +30,12 @@ public class EnvelopeFollowerFilter implements Function<Double, Double>, Cloneab
     }
 
     @Override
-    public Double apply(Double value) {
-        value = Math.abs(value);
-        if (value > envelope) {
-            envelope = value + (envelope - value) * attack;
-        } else {
-            envelope = value + (envelope - value) * release;
+    public EntryStream<Integer, Double> apply(EntryStream<Integer, Double> values) {
+        if (values.isParallel()) {
+            throw new IllegalArgumentException("Unable to calculate envelope on parallel stream of values");
         }
-        return envelope;
+
+        return values.mapValues(this::follow);
     }
 
     @Override
@@ -47,6 +46,17 @@ public class EnvelopeFollowerFilter implements Function<Double, Double>, Cloneab
     @Override
     public EnvelopeFollowerFilter clone() throws CloneNotSupportedException {
         return new EnvelopeFollowerFilter(attack, release);
+    }
+
+    private Double follow(Double value) {
+        value = Math.abs(value);
+
+        if (value > envelope) {
+            envelope = value + (envelope - value) * attack;
+        } else {
+            envelope = value + (envelope - value) * release;
+        }
+        return envelope;
     }
 
 }

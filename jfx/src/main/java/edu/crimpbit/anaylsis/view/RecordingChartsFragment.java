@@ -24,10 +24,9 @@ import org.springframework.stereotype.Controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.RunnableFuture;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 
 @Controller
@@ -43,7 +42,7 @@ public class RecordingChartsFragment {
     private TilePane emgCharts;
 
     @FXML
-    private ComboBox<Supplier<Function<Double, Double>>> emgFilters;
+    private ComboBox<Supplier<UnaryOperator<EntryStream<Integer, Double>>>> emgFilters;
 
     private int seriesIndex = -1;
 
@@ -95,7 +94,7 @@ public class RecordingChartsFragment {
         Supplier<XYChart.Series<Number, Number>> seriesSupplier = () -> createSeries("Data");
 
         emgData.stream().parallel()
-                .mapValues(rawData -> EntryStream.of(rawData).skip(begin).map(entry -> createChartData(entry, null)).toList())
+                .mapValues(rawData -> EntryStream.of(rawData).skip(begin).map(entry -> createChartData(entry)).toList())
                 .mapKeyValue((chartIndex, seriesData) -> createChartUpdater(chartIndex, seriesIndex, seriesData, seriesSupplier))
                 .forEach(Platform::runLater);
     }
@@ -125,22 +124,20 @@ public class RecordingChartsFragment {
         };
     }
 
-    private void applyFilter(Supplier<Function<Double, Double>> filterSupplier) {
+    private void applyFilter(Supplier<UnaryOperator<EntryStream<Integer, Double>>> filterSupplier) {
         seriesIndex++;
         Supplier<XYChart.Series<Number, Number>> seriesSupplier = () -> createSeries("Filter " + filterSupplier);
         emgData.stream().parallel()
                 .mapValues(rawData -> {
-                    Function<Double, Double> filter = filterSupplier.get();
-                    return EntryStream.of(rawData).map(entry -> createChartData(entry, filter)).toList();
+                    UnaryOperator<EntryStream<Integer, Double>> filter = filterSupplier.get();
+                    return filter.apply(EntryStream.of(rawData).mapToValue((i, v) -> v.doubleValue())).map(entry -> createChartData(entry)).toList();
                 })
                 .mapKeyValue((chartIndex, seriesData) -> createChartUpdater(chartIndex, seriesIndex, seriesData, seriesSupplier))
                 .forEach(Platform::runLater);
     }
 
-    private XYChart.Data<Number, Number> createChartData(Map.Entry<Integer, Byte> entry, Function<Double, Double> filter) {
-        Number x = entry.getKey();
-        Number y = filter != null ? filter.apply(entry.getValue().doubleValue()) : entry.getValue();
-        return new XYChart.Data<>(x, y);
+    private XYChart.Data<Number, Number> createChartData(Map.Entry<? extends Number, ? extends Number> entry) {
+        return new XYChart.Data<>(entry.getKey(), entry.getValue());
     }
 
     private XYChart.Series<Number, Number> getSeries(int padIndex, int seriesIndex, Supplier<XYChart.Series<Number, Number>> supplier) {

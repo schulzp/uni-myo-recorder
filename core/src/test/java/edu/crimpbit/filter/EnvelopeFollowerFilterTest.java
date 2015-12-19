@@ -1,11 +1,14 @@
 package edu.crimpbit.filter;
 
+import one.util.streamex.EntryStream;
 import org.hamcrest.Matcher;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
@@ -19,8 +22,8 @@ public class EnvelopeFollowerFilterTest {
 
         RoughlyMatcherBuilder is = new RoughlyMatcherBuilder(0.1);
 
-        List<Double> result = DoubleStream.of(1.0, -0.9, 0.8, -0.7, 0.6)
-                .map(filter::apply).boxed().collect(Collectors.toList());
+        EntryStream<Integer, Double> entries = EntryStream.of(Arrays.asList(1.0, -0.9, 0.8, -0.7, 0.6));
+        List<Double> result = filter.apply(entries).values().collect(Collectors.toList());
 
         assertThat(result, contains(
                 is.roughly(0.9),
@@ -51,5 +54,6 @@ public class EnvelopeFollowerFilterTest {
         }
 
     }
+
 
 }
