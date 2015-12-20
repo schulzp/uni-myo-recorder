@@ -1,59 +1,65 @@
 package edu.crimpbit.filter;
 
-import edu.crimpbit.Recording;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * Created by peter on 15/12/15.
  */
 public class AverageFilterTest {
 
-    private AverageFilter filter = new AverageFilter();
 
     @Test
-    public void filterSingleRecord() {
-        filter.setValue(1);
-        byte[] bytes = new byte[]{0, 1, 2, 3, 4, 5, 6, 7};
-        Recording.EmgRecord emgRecord = new Recording.EmgRecord(0, bytes);
-        List<Recording.EmgRecord> list = Collections.singletonList(emgRecord);
-        int[][] result = this.filter.filter(list);
-        for(int emg = 0; emg < list.size(); emg++) {
-            //System.out.println("emg: " + emg);
-            for (int value = 0; value < result[emg].length; value ++)
-            {
-                assert(result[emg][value] == bytes[value]);
-            }
+    public void filterTest1() {
+        AverageFilter filter = new AverageFilter(1);
+        List<Byte> bytes = new ArrayList<>();
+        bytes.addAll(Arrays.asList(new Byte[]{0, 1, 2, 3, 4, 5, 6, 7}));
+        Stream<Double> result = filter.apply(bytes.stream());
+        List<Double> averagesList = result.collect(Collectors.toList());
+        for (int i = 0; i < averagesList.size(); i++) {
+            assertTrue(averagesList.get(i) == bytes.get(i).doubleValue());
         }
     }
 
     @Test
-    public void filterMultipleRecords() {
-        int size = 2;
-        byte stdValue = 2;
-        filter.setValue(size);
-        byte[] values1 = new byte[]{stdValue, stdValue, stdValue, stdValue, stdValue, stdValue, stdValue, stdValue};
-        byte[] values2 = new byte[]{stdValue, stdValue, stdValue, stdValue, stdValue, stdValue, stdValue, stdValue};
-        List<Recording.EmgRecord> emgRecords = Arrays.asList(
-                new Recording.EmgRecord(0, values1),
-                new Recording.EmgRecord(0, values2)
-        );
+    public void filterTest2() {
 
-        int[][] result = this.filter.filter(emgRecords);
-        //das assert klappt so im moment nicht, weil filter von 8 sensoren ausgeht und nicht von emgRecors.size vielen
-        //assert(result.length == emgRecords.size());
-        assert(result[0].length == (int) values1.length / size);
-        assert(result[1].length == (int) values2.length / size);
-        for(int emg = 0; emg < emgRecords.size(); emg++) {
-            //System.out.println("emg: " + emg);
-            for (int value = 0; value < result[emg].length; value ++)
-            {
-                assert(result[emg][value] == stdValue);
-            }
-        }
+        AverageFilter filter = new AverageFilter(2);
+        List<Byte> bytes = new ArrayList<>();
+        bytes.addAll(Arrays.asList(new Byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8}));
+        List<Double> expectedResult = new ArrayList<>(Arrays.asList(new Double[]{0.5, 2.5, 4.5, 6.5, 8.0}));
+        Stream<Double> result = filter.apply(bytes.stream());
+        List<Double> averagesList = result.collect(Collectors.toList());
+        assertEquals(averagesList, expectedResult);
     }
 
+    @Test
+    public void filterTest3() {
+        AverageFilter filter = new AverageFilter(9);
+        List<Byte> bytes = new ArrayList<>();
+        bytes.addAll(Arrays.asList(new Byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8}));
+        Stream<Double> result = filter.apply(bytes.stream());
+        List<Double> averagesList = result.collect(Collectors.toList());
+        assertEquals(averagesList.get(0), bytes.stream().mapToDouble(Byte::doubleValue).average().getAsDouble());
+
+    }
+
+    @Test
+    public void filterTest4() {
+        AverageFilter filter = new AverageFilter(10);
+        List<Byte> bytes = new ArrayList<>();
+        bytes.addAll(Arrays.asList(new Byte[]{0, 1}));
+        Stream<Double> result = filter.apply(bytes.stream());
+        List<Double> averagesList = result.collect(Collectors.toList());
+        assertEquals(averagesList.get(0), bytes.stream().mapToDouble(Byte::doubleValue).average().getAsDouble());
+
+    }
 }

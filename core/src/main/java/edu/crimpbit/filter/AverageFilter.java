@@ -1,52 +1,34 @@
 package edu.crimpbit.filter;
 
-import edu.crimpbit.Recording;
-
-import java.util.List;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
 
 /**
  * Created by dtm on 14-Dec-15.
  */
-public class AverageFilter implements SensorFilter {
+public class AverageFilter implements Function<Stream<Byte>, Stream<Double>> {
 
-    private int size;
-    private static final int STD_VALUE = 5;
+    private final int chunk;
 
-
-    @Override
-    public int[][] filter(List<Recording.EmgRecord> emgRecords) {
-        if (size <= 0) {
-            size = STD_VALUE;
-        }
-        int[][] filteredRecords = new int[EMG_SENSORS][emgRecords.size()/size];
-        int[] sums = new int[EMG_SENSORS];
-        for (int i = 0; i < emgRecords.size(); i++) {
-            filteredRecords[i] = average(emgRecords.get(i).getData(),size);
-        }
-        return filteredRecords;
+    public AverageFilter(int chunk) {
+        this.chunk = chunk;
     }
 
     @Override
-    public void setValue(int value) {
-        this.size = value;
+    public Stream<Double> apply(Stream<Byte> byteStream) {
+        if (chunk == 0)
+            throw new IllegalArgumentException();
+        return toChunkedStream(byteStream.collect(Collectors.toList()))
+                .map(doubleStream -> doubleStream.average().getAsDouble());
     }
 
-    private int[] average(byte[] emgRecord, int size) {
-        int avgLength = emgRecord.length / size;
-        int[] filteredRecords = new int[avgLength];
-        int sum = 0;
-        for (int i = 1; i <= emgRecord.length; i++) {
-            sum += emgRecord[i-1];
-            if (i % size == 0) {
-                int avg = i / size;
-                /*System.out.println("i mod size = 0:" + i);
-                System.out.println("avg:" + avg);
-                System.out.println("sum:" + sum);
-                System.out.println("size:" + size);*/
-                filteredRecords[avg - 1] = sum / size;
-                sum = 0;
-            }
+    private Stream<DoubleStream> toChunkedStream(List<Byte> bytes) {
+        List<DoubleStream> result = new ArrayList<>();
+        for (int begin = 0, end, size; begin < bytes.size(); begin = end) {
+            end = Math.min(begin + chunk, bytes.size());
+            result.add(bytes.subList(begin, end).stream().mapToDouble(Byte::doubleValue));
         }
-        return filteredRecords;
+        return result.stream();
     }
 }
