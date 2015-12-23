@@ -1,49 +1,50 @@
 package edu.crimpbit.filter;
 
-import edu.crimpbit.Recording;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Created by dtm on 14-Dec-15.
  */
-public class LabelFilter implements SensorFilter {
+public class LabelFilter implements Function<Stream<Byte>, Stream<Integer>>, Cloneable {
 
-    private static final int STD_VALUE = 5;
     private static final int EMG_VALUES = 255;
-    private static final int MAX_EMG = 125;
-    private static final int MIN_EMG = 130;
-    private int labelSteps;
+    private static final int MAX_EMG = 127;
+    private static final int MIN_EMG = -128;
+    private int numOfLabels;
+    private double labelInterval;
 
-
-    @Override
-    public int[][] filter(List<Recording.EmgRecord> emgRecords) {
-        if (labelSteps <= 0) {
-            labelSteps = STD_VALUE;
-        }
-        int labelInteval = EMG_VALUES / labelSteps;
-        int[][] filteredRecords = new int[emgRecords.size()][EMG_SENSORS];
-        for (int i = 0; i < emgRecords.size(); i++) {
-            filteredRecords[i] = label(emgRecords.get(i).getData(), labelInteval);
-        }
-        return filteredRecords;
+    public LabelFilter(int numOfLabels) {
+        this.numOfLabels = numOfLabels;
     }
 
     @Override
-    public void setValue(int value) {
-        this.labelSteps = value;
+    public Stream<Integer> apply(Stream<Byte> byteStream) {
+        if (numOfLabels <= 0)
+            throw new IllegalArgumentException();
+        labelInterval = EMG_VALUES / (double) numOfLabels;
+        List<Integer> res = byteStream.map(this::getLabel).collect(Collectors.toList());
+        int min = res.stream().min(Integer::compareTo).get();
+        return res.stream().map(emgValue -> normalize(emgValue, min));
     }
 
-    private int[] label(byte[] emgRecord, int labelInteval) {
-        int[] filteredRecords = new int[emgRecord.length];
-        for (int i = 0; i < emgRecord.length; i++) {
-            filteredRecords[i] = getLabel(emgRecord[i], labelInteval);
+    private int getLabel(byte emgValue) {
+        for (int i = 1; i <= numOfLabels; i++) {
+            if (emgValue <= (MIN_EMG + (labelInterval * i)))
+                return i;
         }
-
-        return filteredRecords;
+        return 0;
     }
 
-    private int getLabel(byte singleEmgRecord, int labelSteps) {
-        return (singleEmgRecord + MIN_EMG + 1) / labelSteps;
+    private int normalize(int emgValue, int normalizer) {
+        return (emgValue - normalizer) + 1;
     }
+
 }

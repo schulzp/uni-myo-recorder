@@ -3,12 +3,10 @@ package edu.crimpbit.filter;
 import one.util.streamex.EntryStream;
 import org.hamcrest.Matcher;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
