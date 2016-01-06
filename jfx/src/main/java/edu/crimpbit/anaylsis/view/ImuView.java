@@ -47,7 +47,6 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
     @FXML
     private Button reset;
 
-    private Rotate resetRotate = new Rotate();
     private Rotate imuRotate = new Rotate();
 
     private Rotate xRotate = new Rotate(0, Rotate.X_AXIS);
@@ -58,6 +57,8 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
 
     private final AtomicReference<Quaternion> rotation = new AtomicReference<>();
 
+    private Quaternion baseRotation = null;
+
     private final DeviceListener imuListener = new AbstractDeviceListener() {
 
         @Override
@@ -65,13 +66,6 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
             ImuView.this.rotation.lazySet(rotation);
         }
 
-        @Override
-        public void onGyroscopeData(Myo myo, long timestamp, Vector3 gyro) {
-//            if (counter++ == 200) {
-//                LOGGER.debug("gyro: x: {} y: {} z: {}", gyro.getX(), gyro.getY(), gyro.getZ());
-//                counter = 0;
-//            }
-        }
     };
 
     @PostConstruct
@@ -80,17 +74,13 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
         box.translateXProperty().bind(Bindings.multiply(0.5, scene.widthProperty()));
         box.translateYProperty().bind(Bindings.multiply(0.5, scene.heightProperty()));
         box.setMaterial(new PhongMaterial(Color.RED));
-        box.getTransforms().addAll(resetRotate, xRotate, yRotate, zRotate);
+        box.getTransforms().addAll(imuRotate);
+//        box.getTransforms().addAll(xRotate, yRotate, zRotate);
 
         reset.setOnAction(event -> {
-            Rotate rotate = new Rotate();
-            updateRotation(rotate);
-            try {
-                rotate = (Rotate) rotate.createInverse();
-                resetRotate.setAxis(rotate.getAxis());
-                resetRotate.setAngle(rotate.getAngle());
-            } catch (NonInvertibleTransformException e) {
-                LOGGER.warn("Failed to reset", e);
+            Quaternion rotation = this.rotation.get();
+            if (rotation != null) {
+                baseRotation =  rotation.conjugate();
             }
         });
 
@@ -115,15 +105,19 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
             return;
         }
 
+        if (baseRotation != null) {
+            rotation = baseRotation.multiply(rotation);
+        }
+
         double angle = Math.acos(rotation.getW()) * 2;
         double divisor = Math.sin(angle / 2);
-        rotate.setAngle(angle / Math.PI * 360);
+        rotate.setAngle(angle / Math.PI * 180);
         rotate.setAxis(new Point3D(
-                rotation.getX() / divisor,
                 rotation.getY() / divisor,
-                rotation.getZ() / divisor));
+                -rotation.getZ() / divisor,
+                -rotation.getX() / divisor));
 
-        if (counter++ == 10) {
+        if (counter == 10) {
 //            LOGGER.debug("Rotate: {} x: {} y: {} z: {}",
 //                    rotate.getAngle(),
 //                    rotate.getAxis().getX(),
@@ -142,10 +136,10 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
                     2.0f * (rotation.getW() * rotation.getZ() + rotation.getX() * rotation.getY()),
                     1.0f - 2.0f * (rotation.getY() * rotation.getY() + rotation.getZ() * rotation.getZ()));
 
-            //LOGGER.debug("roll: {} pitch: {} yaw: {}", roll, pitch, yaw);
+//            LOGGER.debug("roll: {} pitch: {} yaw: {}", roll, pitch, yaw);
 
             xRotate.setAngle(pitch / Math.PI * 180);
-            //yRotate.setAngle(yaw / Math.PI * 180);
+//            yRotate.setAngle(yaw / Math.PI * 180);
             zRotate.setAngle(-roll / Math.PI * 180);
 
             counter = 0;
