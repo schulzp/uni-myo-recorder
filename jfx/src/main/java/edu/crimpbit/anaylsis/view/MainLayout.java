@@ -15,6 +15,8 @@ import org.springframework.javafx.FXMLController;
 import org.springframework.javafx.FXMLControllerFactory;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.List;
 
 @FXMLController
 public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
@@ -50,12 +52,14 @@ public class MainLayout implements FXMLController.RootNodeAware<BorderPane> {
         tabPane.getSelectionModel().select(tab);
     }
 
+    private static final List<Class<?>> controllerClasses = Arrays.asList(
+        RecordingEditor.class, ImuView.class
+    );
+
     private Object getContent(OpenCommand command) {
         Object content = command.getContent();
-        if (content instanceof Class) {
-            if (Recording.class.isAssignableFrom((Class<?>) content)) {
-                content = controllerFactory.call(RecordingEditor.class);
-            }
+        if (content instanceof Class && controllerClasses.contains(content)) {
+            content = controllerFactory.call((Class<?>) content);
         } else if (content instanceof Recording) {
             Recording recording = (Recording) content;
             content = controllerFactory.call(RecordingEditor.class);

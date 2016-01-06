@@ -25,12 +25,10 @@
 
 package edu.crimpbit.anaylsis.config;
 
-import edu.crimpbit.anaylsis.command.CommandService;
-import edu.crimpbit.anaylsis.command.FileNewCommand;
-import edu.crimpbit.anaylsis.command.FileSaveCommand;
-import edu.crimpbit.anaylsis.command.OpenCommand;
+import edu.crimpbit.anaylsis.command.*;
 import edu.crimpbit.anaylsis.util.ArmStringConverter;
 import edu.crimpbit.anaylsis.util.DeviceStringConverter;
+import edu.crimpbit.anaylsis.view.ImuView;
 import edu.crimpbit.config.CoreConfiguration;
 import edu.crimpbit.service.ConnectorService;
 import javafx.concurrent.Task;
@@ -99,6 +97,13 @@ public class AnalysisApplicationConfiguration {
     @Bean
     public CommandService commandService(BeanFactory beanFactory) {
         return new CommandService(beanFactory);
+    }
+
+    @Bean
+    public OpenControllerCommand imuViewOpenCommand(CommandService commandService, ApplicationEventPublisher applicationEventPublisher) {
+        OpenControllerCommand openControllerCommand = new OpenControllerCommand(applicationEventPublisher, ImuView.class, "view.show.imu.command");
+        commandService.registerCommand(openControllerCommand);
+        return openControllerCommand;
     }
 
     @Bean
