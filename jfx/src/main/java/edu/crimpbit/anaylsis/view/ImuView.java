@@ -1,6 +1,8 @@
 package edu.crimpbit.anaylsis.view;
 
 import com.thalmic.myo.*;
+import edu.crimpbit.Device;
+import edu.crimpbit.anaylsis.view.control.DeviceComboBox;
 import edu.crimpbit.service.ConnectorService;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -15,7 +17,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
-import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
@@ -47,11 +48,10 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
     @FXML
     private Button reset;
 
-    private Rotate imuRotate = new Rotate();
+    @FXML
+    private DeviceComboBox deviceSelect;
 
-    private Rotate xRotate = new Rotate(0, Rotate.X_AXIS);
-    private Rotate yRotate = new Rotate(0, Rotate.Y_AXIS);
-    private Rotate zRotate = new Rotate(0, Rotate.Z_AXIS);
+    private Rotate imuRotate = new Rotate();
 
     private VBox rootNode;
 
@@ -63,10 +63,14 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
 
         @Override
         public void onOrientationData(Myo myo, long timestamp, Quaternion rotation) {
-            ImuView.this.rotation.lazySet(rotation);
+            if (selectedDevice != null) {
+                ImuView.this.rotation.lazySet(rotation);
+            }
         }
 
     };
+
+    private Device selectedDevice;
 
     @PostConstruct
     private void initialize() {
@@ -75,7 +79,6 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
         box.translateYProperty().bind(Bindings.multiply(0.5, scene.heightProperty()));
         box.setMaterial(new PhongMaterial(Color.RED));
         box.getTransforms().addAll(imuRotate);
-//        box.getTransforms().addAll(xRotate, yRotate, zRotate);
 
         reset.setOnAction(event -> {
             Quaternion rotation = this.rotation.get();
@@ -84,21 +87,23 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
             }
         });
 
+        deviceSelect.getSelectionModel().selectedItemProperty().addListener((prop, oldValue, newValue) -> {
+            selectedDevice = newValue;
+        });
+
+        deviceSelect.getSelectionModel().select(0);
+
         connectorService.getHub().addListener(imuListener);
 
-        imuRotate.setAxis(Rotate.Z_AXIS);
-
         Timeline animation = new Timeline(new KeyFrame(Duration.millis(2), event -> {
-            updateRotation(imuRotate);
+            updateRotation();
         }));
 
         animation.setCycleCount(Animation.INDEFINITE);
         animation.play();
     }
 
-    int counter = 0;
-
-    private void updateRotation(Rotate rotate) {
+    private void updateRotation() {
         Quaternion rotation = this.rotation.get();
 
         if (rotation == null) {
@@ -111,39 +116,11 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
 
         double angle = Math.acos(rotation.getW()) * 2;
         double divisor = Math.sin(angle / 2);
-        rotate.setAngle(angle / Math.PI * 180);
-        rotate.setAxis(new Point3D(
+        imuRotate.setAngle(angle / Math.PI * 180);
+        imuRotate.setAxis(new Point3D(
                 rotation.getY() / divisor,
                 -rotation.getZ() / divisor,
                 -rotation.getX() / divisor));
-
-        if (counter == 10) {
-//            LOGGER.debug("Rotate: {} x: {} y: {} z: {}",
-//                    rotate.getAngle(),
-//                    rotate.getAxis().getX(),
-//                    rotate.getAxis().getY(),
-//                    rotate.getAxis().getZ()
-//            );
-
-            // Calculate Euler angles (roll, pitch, and yaw) from the unit quaternion.
-            double roll = Math.atan2(
-                    2.0f * (rotation.getW() * rotation.getX() + rotation.getY() * rotation.getZ()),
-                    1.0f - 2.0f * (rotation.getX() * rotation.getX() + rotation.getY()) * rotation.getY());
-
-            double pitch = Math.asin(Math.max(-1.0f, Math.min(1.0f, 2.0f * (rotation.getW() * rotation.getY() - rotation.getZ() * rotation.getX()))));
-
-            double yaw = Math.atan2(
-                    2.0f * (rotation.getW() * rotation.getZ() + rotation.getX() * rotation.getY()),
-                    1.0f - 2.0f * (rotation.getY() * rotation.getY() + rotation.getZ() * rotation.getZ()));
-
-//            LOGGER.debug("roll: {} pitch: {} yaw: {}", roll, pitch, yaw);
-
-            xRotate.setAngle(pitch / Math.PI * 180);
-//            yRotate.setAngle(yaw / Math.PI * 180);
-            zRotate.setAngle(-roll / Math.PI * 180);
-
-            counter = 0;
-        }
     }
 
     @Override

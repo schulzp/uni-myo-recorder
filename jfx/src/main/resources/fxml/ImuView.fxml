@@ -9,6 +9,8 @@
 <?import javafx.scene.shape.Box?>
 <?import javafx.scene.shape.DrawMode?>
 <?import javafx.scene.SubScene?>
+<?import javafx.scene.layout.HBox?>
+<?import edu.crimpbit.anaylsis.view.control.DeviceComboBox?>
 <VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <fx:define>
         <Group fx:id="sceneRoot">
@@ -23,14 +25,13 @@
             </Box>
         </Group>
     </fx:define>
-    <ButtonBar>
-        <buttons>
-            <Button fx:id="reset" text="%imu.view.reset" ButtonBar.buttonData="LEFT" />
-        </buttons>
-    </ButtonBar>
+    <HBox>
+        <DeviceComboBox fx:id="deviceSelect" />
+        <Button fx:id="reset" text="%imu.view.reset" ButtonBar.buttonData="LEFT" />
+    </HBox>
     <SubScene fx:id="scene" root="$sceneRoot" width="300" height="300" camera="$camera">
         <fill>
-            <Color fx:constant="ALICEBLUE" />
+            <Color fx:constant="TRANSPARENT" />
         </fill>
     </SubScene>
 </VBox>

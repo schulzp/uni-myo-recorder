@@ -53,7 +53,7 @@ import java.util.function.Function;
 @Configuration
 @EnableFXMLControllers
 @ComponentScan(basePackages = { "edu.crimpbit.anaylsis.view" })
-@Import({ CoreConfiguration.class })
+@Import({ CoreConfiguration.class, ComponentsConfiguration.class })
 public class AnalysisApplicationConfiguration {
 
     @Bean(destroyMethod = "shutdown")
