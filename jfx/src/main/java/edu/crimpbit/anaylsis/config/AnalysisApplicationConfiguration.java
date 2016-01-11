@@ -29,6 +29,7 @@ import edu.crimpbit.anaylsis.command.*;
 import edu.crimpbit.anaylsis.util.ArmStringConverter;
 import edu.crimpbit.anaylsis.util.DeviceStringConverter;
 import edu.crimpbit.anaylsis.view.ImuView;
+import edu.crimpbit.anaylsis.view.RecordingEditor;
 import edu.crimpbit.anaylsis.view.control.ControlFactory;
 import edu.crimpbit.config.CoreConfiguration;
 import edu.crimpbit.service.ConnectorService;
@@ -108,10 +109,10 @@ public class AnalysisApplicationConfiguration {
     }
 
     @Bean
-    public FileNewCommand fileNewCommand(CommandService commandService) {
-        FileNewCommand command = new FileNewCommand();
-        commandService.registerCommand(command);
-        return command;
+    public OpenControllerCommand fileNewCommand(CommandService commandService, ApplicationEventPublisher applicationEventPublisher) {
+        OpenControllerCommand openControllerCommand = new OpenControllerCommand(applicationEventPublisher, RecordingEditor.class, "file.new.command");
+        commandService.registerCommand(openControllerCommand);
+        return openControllerCommand;
     }
 
     @Bean

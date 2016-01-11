@@ -104,17 +104,16 @@ public class RecorderFragment {
 
     @FXML
     private void initialize() {
+        controlFactory.initializeDeviceComboBox(deviceSelect);
+
         recordButton.disableProperty().bind(
-                Bindings.or(
-                        Bindings.isNull(deviceSelect.getSelectionModel().selectedItemProperty()),
-                        Bindings.size(deviceSelect.getItems()).isEqualTo(0)));
+                Bindings.isNull(deviceSelect.getSelectionModel().selectedItemProperty()));
 
         recordButton.textProperty().bind(
                 Bindings.when(recordButton.selectedProperty())
                         .then(bundle.getString("recorder.recording"))
                         .otherwise(bundle.getString("recorder.record")));
 
-        controlFactory.initializeDeviceComboBox(deviceSelect);
         deviceSelect.disableProperty().bind(recordButton.selectedProperty());
         durationSelect.disableProperty().bind(recordButton.selectedProperty());
 
