@@ -20,7 +20,8 @@ public class WekaTest {
         FastVector attInfo = new FastVector();
         attInfo.addElement(emg_0);
         attInfo.addElement(emg_1);
-        new Instances("emg-data", attInfo, 1);
+        Instances instances = new Instances("emg-data", attInfo, 1);
+        instances.add(row);
     }
 
 
