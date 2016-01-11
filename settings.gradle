@@ -1,4 +1,3 @@
-include 'core', 'jfx'
+include 'core', 'weka', 'jfx'
 
 rootProject.name = 'analysis'
-
