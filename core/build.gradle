@@ -4,6 +4,7 @@ ext {
     vJSR305 = '3.0.1'
     vHibernateValidator = '5.2.2.Final'
     vMyo = '0.9.1'
+    vWeka = '3.6.13'
 }
 
 dependencies {
@@ -12,5 +13,7 @@ dependencies {
             'org.springframework.data:spring-data-mongodb:' + vSpringDataMongo,
             'com.google.code.findbugs:jsr305:' + vJSR305,
             'org.hibernate:hibernate-validator:' + vHibernateValidator,
-            'com.opencsv:opencsv:' + vOpenCsv
+            'com.opencsv:opencsv:' + vOpenCsv,
+            'nz.ac.waikato.cms.weka:weka-stable:' + vWeka
+
 }
