@@ -3,6 +3,7 @@ package edu.crimpbit.anaylsis.view;
 import edu.crimpbit.Recording;
 import edu.crimpbit.anaylsis.command.CommandService;
 import edu.crimpbit.anaylsis.command.OpenCommand;
+import edu.crimpbit.anaylsis.command.OpenRecordingCommand;
 import edu.crimpbit.service.RecordingService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -33,7 +34,7 @@ public class RecordingsView {
         recordingsTable.setRowFactory(view -> {
             TableRow<Recording> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                OpenCommand command = commandService.getCommand(OpenCommand.class);
+                OpenCommand command = commandService.getCommand(OpenRecordingCommand.class);
                 command.setElement(row.getItem());
                 commandService.execute(command);
             });

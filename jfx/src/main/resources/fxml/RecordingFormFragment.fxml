@@ -9,7 +9,7 @@
           fx:controller="edu.crimpbit.anaylsis.view.RecordingFormFragment" hgap="4" vgap="4">
 
     <Text text="%recording.subject" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-    <ComboBox fx:id="subjectSelect" GridPane.columnIndex="1" GridPane.rowIndex="0" maxWidth="Infinity">
+    <ComboBox fx:id="subjectSelect" GridPane.columnIndex="1" GridPane.rowIndex="0">
         <items>
             <FXCollections fx:factory="observableArrayList">
                 <String fx:value="peter" />

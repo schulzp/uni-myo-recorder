@@ -29,6 +29,7 @@ import edu.crimpbit.anaylsis.command.*;
 import edu.crimpbit.anaylsis.util.ArmStringConverter;
 import edu.crimpbit.anaylsis.util.DeviceStringConverter;
 import edu.crimpbit.anaylsis.view.ImuView;
+import edu.crimpbit.anaylsis.view.control.ControlFactory;
 import edu.crimpbit.config.CoreConfiguration;
 import edu.crimpbit.service.ConnectorService;
 import javafx.concurrent.Task;
@@ -53,7 +54,7 @@ import java.util.function.Function;
 @Configuration
 @EnableFXMLControllers
 @ComponentScan(basePackages = { "edu.crimpbit.anaylsis.view" })
-@Import({ CoreConfiguration.class, ComponentsConfiguration.class })
+@Import({ CoreConfiguration.class })
 public class AnalysisApplicationConfiguration {
 
     @Bean(destroyMethod = "shutdown")
@@ -115,8 +116,8 @@ public class AnalysisApplicationConfiguration {
 
     @Bean
     @Scope("prototype")
-    public OpenCommand openCommand(ApplicationEventPublisher applicationEventPublisher) {
-        return new OpenCommand<>(applicationEventPublisher);
+    public OpenRecordingCommand openRecordingCommand(ApplicationEventPublisher applicationEventPublisher) {
+        return new OpenRecordingCommand(applicationEventPublisher);
     }
 
     @Bean
@@ -134,6 +135,11 @@ public class AnalysisApplicationConfiguration {
     @Bean
     public ArmStringConverter armStringConverter(ResourceBundle resourceBundle) {
         return new ArmStringConverter(resourceBundle);
+    }
+
+    @Bean
+    public ControlFactory controlFactory() {
+        return new ControlFactory();
     }
 
     private static ConfigurableApplicationContext context;

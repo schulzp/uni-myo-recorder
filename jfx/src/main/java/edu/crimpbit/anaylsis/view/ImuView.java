@@ -2,17 +2,20 @@ package edu.crimpbit.anaylsis.view;
 
 import com.thalmic.myo.*;
 import edu.crimpbit.Device;
-import edu.crimpbit.anaylsis.view.control.DeviceComboBox;
+import edu.crimpbit.anaylsis.view.control.ControlFactory;
 import edu.crimpbit.service.ConnectorService;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.geometry.Point3D;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -29,12 +32,15 @@ import javax.annotation.PostConstruct;
 import java.util.concurrent.atomic.AtomicReference;
 
 @FXMLController
-public class ImuView implements FXMLController.RootNodeAware<VBox> {
+public class ImuView implements FXMLController.RootNodeAware<VBox>, Persistable<Quaternion>  {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImuView.class);
 
     @Autowired
     private ConnectorService connectorService;
+
+    @Autowired
+    private ControlFactory controlFactory;
 
     @FXML
     private SubScene scene;
@@ -49,7 +55,7 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
     private Button reset;
 
     @FXML
-    private DeviceComboBox deviceSelect;
+    private ComboBox<Device> deviceSelect;
 
     private Rotate imuRotate = new Rotate();
 
@@ -87,6 +93,7 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
             }
         });
 
+        controlFactory.initializeDeviceComboBox(deviceSelect);
         deviceSelect.getSelectionModel().selectedItemProperty().addListener((prop, oldValue, newValue) -> {
             selectedDevice = newValue;
         });
@@ -132,4 +139,15 @@ public class ImuView implements FXMLController.RootNodeAware<VBox> {
     public VBox getRootNode() {
         return rootNode;
     }
+
+    @Override
+    public ReadOnlyStringProperty textProperty() {
+        return new ReadOnlyStringWrapper("IMU");
+    }
+
+    @Override
+    public void save() {
+
+    }
+
 }

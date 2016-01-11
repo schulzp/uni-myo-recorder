@@ -13,14 +13,10 @@ import java.util.List;
  * EMG data recording
  */
 @Document(collection = "emg-data")
-public class EMGData {
+public class EMGData extends RawData<byte[]> {
 
     public static final int NUM_EMG_PADS = 8;
 
-    @Id
-    private String id;
-
-    private final List<Long> timestamps = new LinkedList<>();
     private final List<List<Byte>> data = Collections.unmodifiableList(new ArrayList<List<Byte>>(NUM_EMG_PADS) {
         {
             for (int i = 0; i < NUM_EMG_PADS; ++i) {
@@ -42,14 +38,6 @@ public class EMGData {
 
     public synchronized List<Byte> getData(int index) {
         return data.get(index);
-    }
-
-    public synchronized int size() {
-        return timestamps.size();
-    }
-
-    public String getId() {
-        return id;
     }
 
 }

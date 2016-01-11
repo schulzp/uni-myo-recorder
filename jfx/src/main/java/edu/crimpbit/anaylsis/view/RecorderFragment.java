@@ -30,9 +30,7 @@ import com.google.common.util.concurrent.Service;
 import edu.crimpbit.Device;
 import edu.crimpbit.Recorder;
 import edu.crimpbit.Recording;
-import edu.crimpbit.anaylsis.util.DeviceStringConverter;
-import edu.crimpbit.anaylsis.view.control.DeviceComboBox;
-import edu.crimpbit.service.ConnectorService;
+import edu.crimpbit.anaylsis.view.control.ControlFactory;
 import edu.crimpbit.service.RecordingService;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -83,7 +81,10 @@ public class RecorderFragment {
     private ComboBox<Integer> durationSelect;
 
     @FXML
-    private DeviceComboBox deviceSelect;
+    private ComboBox<Device> deviceSelect;
+
+    @Autowired
+    private ControlFactory controlFactory;
 
     @Autowired
     private RecordingService recordingService;
@@ -113,6 +114,7 @@ public class RecorderFragment {
                         .then(bundle.getString("recorder.recording"))
                         .otherwise(bundle.getString("recorder.record")));
 
+        controlFactory.initializeDeviceComboBox(deviceSelect);
         deviceSelect.disableProperty().bind(recordButton.selectedProperty());
         durationSelect.disableProperty().bind(recordButton.selectedProperty());
 
