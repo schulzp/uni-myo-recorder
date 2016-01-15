@@ -1,0 +1,8 @@
+ext {
+    vWeka = '3.6.13'
+}
+
+dependencies {
+    compile 'nz.ac.waikato.cms.weka:weka-stable:' + vWeka
+
+}

@@ -1,3 +1,5 @@
 include 'core', 'weka', 'jfx'
 
 rootProject.name = 'analysis'
+rootProject.name = 'weka'
+
