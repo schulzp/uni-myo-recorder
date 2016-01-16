@@ -48,6 +48,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Recorder UI.
@@ -59,6 +62,8 @@ public class RecorderFragment {
     private final ReadOnlyObjectWrapper<Recording> recording = new ReadOnlyObjectWrapper<>();
 
     private final ReadOnlyBooleanWrapper currentlyRecording = new ReadOnlyBooleanWrapper(false);
+
+    private final Timer timer = new Timer(true);
 
     private final Service.Listener listener = new Service.Listener() {
 
@@ -119,11 +124,18 @@ public class RecorderFragment {
 
         recordButton.selectedProperty().addListener(observable -> {
             if (recordButton.isSelected()) {
-                Device device = deviceSelect.getSelectionModel().getSelectedItem();
-                recorder = recordingService.createRecorder(device);
-                recording.set(recorder.getRecording());
-                recorder.addListener(listener, MoreExecutors.directExecutor());
-                recorder.startAsync();
+                timer.schedule(new TimerTask() {
+
+                    @Override
+                    public void run() {
+                        Device device = deviceSelect.getSelectionModel().getSelectedItem();
+                        recorder = recordingService.createRecorder(device);
+                        recording.set(recorder.getRecording());
+                        recorder.addListener(listener, MoreExecutors.directExecutor());
+                        recorder.startAsync();
+                    }
+
+                }, TimeUnit.SECONDS.toMillis(3));
             } else if (recorder != null && recorder.isRunning()) {
                 recorder.stopAsync().awaitTerminated();
             }
