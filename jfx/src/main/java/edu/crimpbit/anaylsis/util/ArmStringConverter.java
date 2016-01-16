@@ -3,10 +3,7 @@ package edu.crimpbit.anaylsis.util;
 import com.thalmic.myo.enums.Arm;
 import javafx.util.StringConverter;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,10 +21,7 @@ public class ArmStringConverter extends StringConverter<Arm> {
     public ArmStringConverter(ResourceBundle resourceBundle) {
         this.resourceBundle = resourceBundle;
 
-        translations = Arrays.stream(Arm.values())
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        arm -> this.resourceBundle.getString(ArmStringConverter.RESOURCE_BUNDLE_PREFIX + arm.name())));
+        translations = new HashMap<>();
     }
 
     @Override
@@ -37,6 +31,10 @@ public class ArmStringConverter extends StringConverter<Arm> {
 
     @Override
     public Arm fromString(String string) {
+        if (translations.size() == 0) {
+            Arrays.stream(Arm.values()).forEach(arm -> translations.put(arm, resourceBundle.getString(RESOURCE_BUNDLE_PREFIX + arm.name())));
+        }
+
         return translations.entrySet().stream()
                 .filter(translation -> translation.getValue().equals(string)).findFirst()
                 .map(translation -> translation.getKey())
