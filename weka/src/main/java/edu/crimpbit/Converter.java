@@ -5,8 +5,6 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -15,7 +13,6 @@ public class Converter {
 
     public static Instances convert(Stream<Double> emgs, String classname) {
         List<Double> bytes = emgs.collect(Collectors.toList());
-        //bytes.addAll(Arrays.asList(new Byte[]{0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7}));
 
         FastVector attInfo = new FastVector();
 
@@ -32,7 +29,6 @@ public class Converter {
         fastVector.addElement("classname");
         Attribute classnameAttribute = new Attribute("classname", fastVector, 8);
 
-
         attInfo.addElement(emg_0);
         attInfo.addElement(emg_1);
         attInfo.addElement(emg_2);
@@ -42,9 +38,8 @@ public class Converter {
         attInfo.addElement(emg_6);
         attInfo.addElement(emg_7);
 
-        attInfo.addElement(classname);
+        attInfo.addElement(classnameAttribute);
 
-        //bytes.size()/8
         Instances instances = new Instances("emg-data", attInfo, bytes.size() / 8);
         for (int i = 0; i <= (bytes.size() - 8); i += 8) {
             Instance row = new Instance(attInfo.size());
@@ -59,6 +54,7 @@ public class Converter {
             row.setValue(classnameAttribute, classname);
             instances.add(row);
         }
+        instances.setClassIndex(instances.numAttributes() - 1);
         return instances;
     }
 
