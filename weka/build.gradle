@@ -4,5 +4,6 @@ ext {
 
 dependencies {
     compile 'nz.ac.waikato.cms.weka:weka-stable:' + vWeka
+    compile project(':core')
 
 }

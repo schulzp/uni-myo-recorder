@@ -21,7 +21,7 @@ buildscript {
             ext.jfxrtDir = "."
         }
 
-        ext.searchFile = {Map<String, Closure> places, List<String> searchPaths, String searchID ->
+        ext.searchFile = { Map<String, Closure> places, List<String> searchPaths, String searchID ->
             File result = null;
             places.each { k, v ->
                 if (result != null) return;
@@ -51,10 +51,10 @@ buildscript {
         }
         ext.findJFXJar = {
             return searchFile([
-                    'jfxrtDir in Gradle Properties': {jfxrtDir},
-                    'JFXRT_HOME in System Environment': {System.env['JFXRT_HOME']},
-                    'JAVA_HOME in System Environment': {System.env['JAVA_HOME']},
-                    'java.home in JVM properties': {System.properties['java.home']}
+                    'jfxrtDir in Gradle Properties'   : { jfxrtDir },
+                    'JFXRT_HOME in System Environment': { System.env['JFXRT_HOME'] },
+                    'JAVA_HOME in System Environment' : { System.env['JAVA_HOME'] },
+                    'java.home in JVM properties'     : { System.properties['java.home'] }
             ],
                     ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt.jar', 'jre/lib/jfxrt.jar', 'jre/lib/ext/jfxrt.jar'],
                     'JavaFX Runtime Jar')
@@ -62,10 +62,10 @@ buildscript {
 
         ext.findAntJavaFXJar = {
             return searchFile([
-                    'jfxrtDir in Gradle Properties': {jfxrtDir},
-                    'JFXRT_HOME in System Environment': {System.env['JFXRT_HOME']},
-                    'JAVA_HOME in System Environment': {System.env['JAVA_HOME']},
-                    'java.home in JVM properties': {System.properties['java.home']}
+                    'jfxrtDir in Gradle Properties'   : { jfxrtDir },
+                    'JFXRT_HOME in System Environment': { System.env['JFXRT_HOME'] },
+                    'JAVA_HOME in System Environment' : { System.env['JAVA_HOME'] },
+                    'java.home in JVM properties'     : { System.properties['java.home'] }
             ],
                     ['ant-javafx.jar', 'lib/ant-javafx.jar', '../lib/ant-javafx.jar'],
                     'JavaFX Packager Tools')
@@ -104,13 +104,16 @@ ext {
     vFontAwesome = '8.7'
     vJfxtras = '8.0-r4'
     vSpringBootJavaFx = '0.5.7'
+    vStringTest = '2.5'
 }
 
 dependencies {
     compile 'org.springframework.boot:spring-boot-javafx:' + vSpringBootJavaFx,
             'de.jensd:fontawesomefx:' + vFontAwesome,
-            project(':core')
+            project(':core'),
+            project(':weka')
 
+    testCompile 'org.springframework:spring-test:' + vStringTest
 }
 
 repositories {
