@@ -75,36 +75,41 @@ public class Converter {
      * @param recordings
      * @return Instances
      */
-//    public static Instances convert(@NotNull List<Recording> recordings) {
-//        Instances instances = null;
-//        for (Recording recording : recordings) {
-//            FastVector attInfo = new FastVector();
-//            for (int i = 0; i < 200; i++) {
-//                Attribute attribute = new Attribute("a" + i, i);
-//                attInfo.addElement(attribute);
-//            }
-//            FastVector fastVector = new FastVector();
-//            fastVector.addElement("index-finger");
-//            fastVector.addElement("index-finger+middle-finger");
-//            fastVector.addElement("index-finger+middle-finger+ring-finger");
-//            Attribute classnameAttribute = new Attribute("grip_type", fastVector, 200);
-//            attInfo.addElement(classnameAttribute);
-//            instances = new Instances(recording.getExercise(), attInfo, recording.getEmgData().size() / 8);
-//
-//            for (int i = 0; i < 200; i++) {
-//                Instance row = new Instance(attInfo.size());
-//                for (int j = 0; j < EMGData.NUM_EMG_PADS; j++) {
-//                    //recording.getEmgData().getData(j).
-//                    row.setValue(instances.attribute("a" + i), recording.getEmgData().getData(j).get(i));
-//                    instances.add(row);
-//                }
-//                row.setValue(classnameAttribute, recording.getExercise());
-//            }
-//
-//        }
-//        instances.setClassIndex(instances.numAttributes() - 1);
-//        return instances;
-//    }
+    public static Instances convert(@NotNull List<Recording> recordings) {
+
+        FastVector attInfo = new FastVector();
+        for (int i = 0; i < 174; i++) {
+            Attribute attribute = new Attribute("a" + i, i);
+            attInfo.addElement(attribute);
+        }
+        FastVector fastVector = new FastVector();
+        fastVector.addElement("index-finger");
+        fastVector.addElement("index-finger+middle-finger");
+        fastVector.addElement("index-finger+middle-finger+ring-finger");
+        Attribute classnameAttribute = new Attribute("grip_type", fastVector, 174);
+        attInfo.addElement(classnameAttribute);
+        Instances instances = new Instances("climbs", attInfo, 174 / 8);
+        for (Recording recording : recordings) {
+            System.out.println("Converting: " + recording.getExercise() + " recording.getEmgData().size(): " + recording.getEmgData().size());
+
+            Instance row = new Instance(attInfo.size());
+            for (int i = 0; i < 174; i++) {
+
+                for (int j = 0; j < EMGData.NUM_EMG_PADS; j++) {
+                    //recording.getEmgData().getData(j).
+                    row.setValue(instances.attribute("a" + i), recording.getEmgData().getData(j).get(i));
+
+                }
+
+            }
+            row.setValue(classnameAttribute, recording.getExercise());
+            instances.add(row);
+
+
+        }
+        instances.setClassIndex(instances.numAttributes() - 1);
+        return instances;
+    }
 
 //    public static Instances convert(@NotNull List<Recording> recordings) {
 //        Instances instances = null;
