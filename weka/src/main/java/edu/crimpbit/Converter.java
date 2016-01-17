@@ -1,5 +1,6 @@
 package edu.crimpbit;
 
+import com.sun.corba.se.impl.encoding.OSFCodeSetRegistry;
 import com.sun.istack.internal.NotNull;
 import com.sun.org.apache.regexp.internal.RE;
 import edu.crimpbit.filter.AverageFilter;
@@ -8,8 +9,11 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 public class Converter {
@@ -33,9 +37,9 @@ public class Converter {
         Attribute emg_7 = new Attribute("emg_7", 7);
 
         FastVector fastVector = new FastVector();
-        fastVector.addElement("none");
-        fastVector.addElement("weak");
-        fastVector.addElement("strong");
+        fastVector.addElement("index-finger");
+        fastVector.addElement("index-finger+middle-finger");
+        fastVector.addElement("index-finger+middle-finger+ring-finger");
         Attribute classnameAttribute = new Attribute("grip_type", fastVector, 8);
 
         attInfo.addElement(emg_0);
@@ -61,9 +65,88 @@ public class Converter {
             row.setValue(emg_5, recording.getEmgData().getData(5).get(i));
             row.setValue(emg_6, recording.getEmgData().getData(6).get(i));
             row.setValue(emg_7, recording.getEmgData().getData(7).get(i));
-            row.setValue(classnameAttribute, "none");
+            row.setValue(classnameAttribute, recording.getExercise());
             instances.add(row);
         }
+        instances.setClassIndex(instances.numAttributes() - 1);
+
+        return instances;
+    }
+
+    public static Instances convert2(@NotNull List<Recording> recordings) {
+        //System.out.println("Exercise: " + recording.getExercise());
+        //System.out.println("recording.getEmgData().getData(0): " + recording.getEmgData().getData(0));
+
+
+        //recording.getEmgData().stream().forEach(integerListEntry -> System.out.println(integerListEntry));
+
+        FastVector attInfo = new FastVector();
+
+        Attribute emg_0 = new Attribute("emg_0", 0);
+        Attribute emg_1 = new Attribute("emg_1", 1);
+        Attribute emg_2 = new Attribute("emg_2", 2);
+        Attribute emg_3 = new Attribute("emg_3", 3);
+        Attribute emg_4 = new Attribute("emg_4", 4);
+        Attribute emg_5 = new Attribute("emg_5", 5);
+        Attribute emg_6 = new Attribute("emg_6", 6);
+        Attribute emg_7 = new Attribute("emg_7", 7);
+
+        FastVector fastVector = new FastVector();
+        fastVector.addElement("index-finger");
+        fastVector.addElement("index-finger+middle-finger");
+        fastVector.addElement("index-finger+middle-finger+ring-finger");
+        Attribute classnameAttribute = new Attribute("grip_type", fastVector, 8);
+
+        attInfo.addElement(emg_0);
+        attInfo.addElement(emg_1);
+        attInfo.addElement(emg_2);
+        attInfo.addElement(emg_3);
+        attInfo.addElement(emg_4);
+        attInfo.addElement(emg_5);
+        attInfo.addElement(emg_6);
+        attInfo.addElement(emg_7);
+
+        attInfo.addElement(classnameAttribute);
+
+
+        int capacity = 0;
+        for (Recording recording : recordings) {
+            capacity += recording.getEmgData().size();
+        }
+
+        Instances instances = new Instances("emg-data", attInfo, capacity / 8);
+
+        int chunk = 1;
+        for (Recording recording : recordings) {
+            AverageFilter averageFilter = new AverageFilter(10);
+            List<List<Double>> averagesList = new ArrayList<>();
+            averagesList.add(averageFilter.apply(recording.getEmgData().getData(0).stream()).collect(Collectors.toList()));
+            averagesList.add(averageFilter.apply(recording.getEmgData().getData(1).stream()).collect(Collectors.toList()));
+            averagesList.add(averageFilter.apply(recording.getEmgData().getData(2).stream()).collect(Collectors.toList()));
+            averagesList.add(averageFilter.apply(recording.getEmgData().getData(3).stream()).collect(Collectors.toList()));
+            averagesList.add(averageFilter.apply(recording.getEmgData().getData(4).stream()).collect(Collectors.toList()));
+            averagesList.add(averageFilter.apply(recording.getEmgData().getData(5).stream()).collect(Collectors.toList()));
+            averagesList.add(averageFilter.apply(recording.getEmgData().getData(6).stream()).collect(Collectors.toList()));
+            averagesList.add(averageFilter.apply(recording.getEmgData().getData(7).stream()).collect(Collectors.toList()));
+
+            //recording.getEmgData().getData(0).subList().stream().mapToDouble(Byte::doubleValue).average();
+
+
+            for (int i = 0; i < averagesList.size(); i++) {
+                Instance row = new Instance(attInfo.size());
+                row.setValue(emg_0, averagesList.get(0).get(i));
+                row.setValue(emg_1, averagesList.get(1).get(i));
+                row.setValue(emg_2, averagesList.get(2).get(i));
+                row.setValue(emg_3, averagesList.get(3).get(i));
+                row.setValue(emg_4, averagesList.get(4).get(i));
+                row.setValue(emg_5, averagesList.get(5).get(i));
+                row.setValue(emg_6, averagesList.get(6).get(i));
+                row.setValue(emg_7, averagesList.get(7).get(i));
+                row.setValue(classnameAttribute, recording.getExercise());
+                instances.add(row);
+            }
+        }
+
         instances.setClassIndex(instances.numAttributes() - 1);
 
         return instances;

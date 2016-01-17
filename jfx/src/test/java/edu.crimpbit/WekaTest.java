@@ -103,6 +103,28 @@ public class WekaTest {
     }
 
     @Test
+    public void test5(){
+        List<Recording> recordings = recordingService.findAll();
+        Instances instances = Converter.convert2(recordings);
+        System.out.println(instances);
+    }
+
+    @Test
+    public void test6() throws Exception {
+        List<Recording> recordings = recordingService.findAll();
+        Instances instances = Converter.convert2(recordings);
+        System.out.println(instances);
+        //Logistic cls = new Logistic();
+        //MultilayerPerceptron cls = new MultilayerPerceptron();
+        J48 cls = new J48();
+        Evaluation eval = new Evaluation(instances);
+        eval.crossValidateModel(cls, instances, 10, new Random(1));
+        System.out.println(eval.toSummaryString("\nResults\n======\n", true));
+        System.out.println(eval.toClassDetailsString());
+        System.out.println(eval.toMatrixString());
+    }
+
+    @Test
     public void test10fold() throws Exception {
         List<Recording> recordings = recordingService.findAll();
         recordings = recordings.stream()
@@ -119,6 +141,9 @@ public class WekaTest {
         System.out.println(eval.toClassDetailsString());
         System.out.println(eval.toMatrixString());
     }
+
+
+
 
 
 //    @Test
