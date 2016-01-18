@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 /**
  * Created by dtm on 14-Dec-15.
  */
-public class LabelFilter implements Function<Stream<Byte>, Stream<Integer>>, Cloneable {
+public class LabelFilter implements Function<Stream<Byte>, Stream<Byte>>, Cloneable {
 
     private static final int EMG_VALUES = 255;
     private static final int MAX_EMG = 127;
@@ -21,25 +21,25 @@ public class LabelFilter implements Function<Stream<Byte>, Stream<Integer>>, Clo
     }
 
     @Override
-    public Stream<Integer> apply(Stream<Byte> byteStream) {
+    public Stream<Byte> apply(Stream<Byte> byteStream) {
         if (numOfLabels <= 0)
             throw new IllegalArgumentException();
         labelInterval = EMG_VALUES / (double) numOfLabels;
-        List<Integer> res = byteStream.map(this::getLabel).collect(Collectors.toList());
-        int min = res.stream().min(Integer::compareTo).get();
+        List<Byte> res = byteStream.map(this::getLabel).collect(Collectors.toList());
+        int min = res.stream().min(Byte::compareTo).get();
         return res.stream().map(emgValue -> normalize(emgValue, min));
     }
 
-    private int getLabel(byte emgValue) {
+    private byte getLabel(byte emgValue) {
         for (int i = 1; i <= numOfLabels; i++) {
             if (emgValue <= (MIN_EMG + (labelInterval * i)))
-                return i;
+                return (byte) i;
         }
         return 0;
     }
 
-    private int normalize(int emgValue, int normalizer) {
-        return (emgValue - normalizer) + 1;
+    private byte normalize(int emgValue, int normalizer) {
+        return (byte) ((emgValue - normalizer) + 1);
     }
 
 }

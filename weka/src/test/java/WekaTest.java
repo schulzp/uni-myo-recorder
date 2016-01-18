@@ -1,20 +1,8 @@
-import edu.crimpbit.Converter;
 import org.junit.Test;
-import weka.classifiers.functions.Logistic;
-import weka.classifiers.functions.MultilayerPerceptron;
-import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.converters.ConverterUtils;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Stream;
 
 /**
  * Created by peter on 11/01/16.
@@ -79,7 +67,7 @@ public class WekaTest {
 
 
         //Stream<Double> d = Stream.of(new Double[]{0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0});
-        //Instances instances = Converter.convert(new Random().doubles(16, 127, 255).boxed(), "classname");
+        //Instances instances = WekaTool.convert(new Random().doubles(16, 127, 255).boxed(), "classname");
 
         //System.out.println("unClassified");
         //System.out.println(instances);
