@@ -26,8 +26,8 @@ public class LabelFilter implements Function<Stream<Byte>, Stream<Byte>>, Clonea
             throw new IllegalArgumentException();
         labelInterval = EMG_VALUES / (double) numOfLabels;
         List<Byte> res = byteStream.map(this::getLabel).collect(Collectors.toList());
-        int min = res.stream().min(Byte::compareTo).get();
-        return res.stream().map(emgValue -> normalize(emgValue, min));
+        //int min = res.stream().min(Byte::compareTo).get();
+        return res.stream();
     }
 
     private byte getLabel(byte emgValue) {

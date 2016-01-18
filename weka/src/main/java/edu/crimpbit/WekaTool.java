@@ -1,9 +1,13 @@
 package edu.crimpbit;
 
 import edu.crimpbit.filter.AverageFilter;
+import edu.crimpbit.filter.EnvelopeFollowerFilter;
 import edu.crimpbit.filter.LabelFilter;
+import one.util.streamex.EntryStream;
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.Logistic;
+import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.FastVector;
@@ -12,6 +16,7 @@ import weka.core.Instances;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,18 +61,64 @@ public class WekaTool {
 
         int chunk = 1;
         for (Recording recording : recordings) {
-            LabelFilter labelFilter = new LabelFilter(100);
+            EnvelopeFollowerFilter envelopeFollowerFilter = new EnvelopeFollowerFilter(0.3, 0.8);
+            //envelopeFollowerFilter.apply(EntryStream.of(recording.getEmgData().getData(0).stream().map(Byte::doubleValue).collect(Collectors.toList())));
+            LabelFilter labelFilter = new LabelFilter(10);
             AverageFilter averageFilter = new AverageFilter(10);
             List<List<Byte>> averagesList = new ArrayList<>();
-            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(0).stream())).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(1).stream())).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(2).stream())).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(3).stream())).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(4).stream())).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(5).stream())).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(6).stream())).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(7).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(0).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(1).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(2).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(3).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(4).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(5).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(6).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(7).stream())).collect(Collectors.toList()));
+//
 
+            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(0).stream()))).collect(Collectors.toList()));
+            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(1).stream()))).collect(Collectors.toList()));
+            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(2).stream()))).collect(Collectors.toList()));
+            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(3).stream()))).collect(Collectors.toList()));
+            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(4).stream()))).collect(Collectors.toList()));
+            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(5).stream()))).collect(Collectors.toList()));
+            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(6).stream()))).collect(Collectors.toList()));
+            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(7).stream()))).collect(Collectors.toList()));
+
+//            averagesList.add(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(0).stream())).collect(Collectors.toList()));
+//            averagesList.add(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(1).stream())).collect(Collectors.toList()));
+//            averagesList.add(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(2).stream())).collect(Collectors.toList()));
+//            averagesList.add(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(3).stream())).collect(Collectors.toList()));
+//            averagesList.add(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(4).stream())).collect(Collectors.toList()));
+//            averagesList.add(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(5).stream())).collect(Collectors.toList()));
+//            averagesList.add(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(6).stream())).collect(Collectors.toList()));
+//            averagesList.add(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(7).stream())).collect(Collectors.toList()));
+
+//            averagesList.add(envelopeFollowerFilter.apply(recording.getEmgData().getData(0).stream()).collect(Collectors.toList()));
+//            averagesList.add(envelopeFollowerFilter.apply(recording.getEmgData().getData(1).stream()).collect(Collectors.toList()));
+//            averagesList.add(envelopeFollowerFilter.apply(recording.getEmgData().getData(2).stream()).collect(Collectors.toList()));
+//            averagesList.add(envelopeFollowerFilter.apply(recording.getEmgData().getData(3).stream()).collect(Collectors.toList()));
+//            averagesList.add(envelopeFollowerFilter.apply(recording.getEmgData().getData(4).stream()).collect(Collectors.toList()));
+//            averagesList.add(envelopeFollowerFilter.apply(recording.getEmgData().getData(5).stream()).collect(Collectors.toList()));
+//            averagesList.add(envelopeFollowerFilter.apply(recording.getEmgData().getData(6).stream()).collect(Collectors.toList()));
+//            averagesList.add(envelopeFollowerFilter.apply(recording.getEmgData().getData(7).stream()).collect(Collectors.toList()));
+//
+
+
+
+//            averagesList.add(
+//                    labelFilter.apply(averageFilter.apply(
+//                            envelopeFollowerFilter.apply(recording.getEmgData().getData(0).stream()
+//                                            .map(Byte::doubleValue)
+//                                            .collect(Collectors.toList())))
+//                                    .map(entry -> entry.getValue().byteValue()))))));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(1).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(2).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(3).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(4).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(5).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(6).stream())).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(7).stream())).collect(Collectors.toList()));
             for (int i = 0; i < averagesList.size(); i++) {
                 Instance row = new Instance(attInfo.size());
                 row.setValue(emg_0, averagesList.get(0).get(i));
@@ -78,14 +129,6 @@ public class WekaTool {
                 row.setValue(emg_5, averagesList.get(5).get(i));
                 row.setValue(emg_6, averagesList.get(6).get(i));
                 row.setValue(emg_7, averagesList.get(7).get(i));
-//                if (recording.getExercise().equals("index-finger")) {
-//                    row.setValue(classnameAttribute, "a");
-//                } else if (recording.getExercise().equals("index-finger+middle-finger")) {
-//                    row.setValue(classnameAttribute, "b");
-//                } else {
-//                    row.setValue(classnameAttribute, "c");
-//                }
-                //System.out.println(recording.getExercise());
                 row.setValue(classnameAttribute, recording.getExercise());
                 instances.add(row);
             }
@@ -96,35 +139,29 @@ public class WekaTool {
         return instances;
     }
 
-    public static String testAllClasses(Instances train, List<Instances> testList) {
+    public static String testAllClasses(Instances train, List<Instances> testList, Classifier cls) {
         String result = "";
         double biggestPctCorrect = -1;
         for (Instances testInstances : testList) {
-            double ptcCorrect = test(train, testInstances);
+            double ptcCorrect = test(train, testInstances, cls);
             if (ptcCorrect > biggestPctCorrect) {
                 biggestPctCorrect = ptcCorrect;
                 result = testInstances.instance(0).stringValue(8);
-                //System.out.println("Result: " + result);
             }
         }
         return result;
     }
 
-    private static double test(Instances train, Instances test) {
-        Logistic cls = new Logistic();
-        //J48 cls = new J48();
+    private static double test(Instances train, Instances test, Classifier cls) {
         try {
             cls.buildClassifier(train);
-
             Evaluation eval = new Evaluation(train);
             eval.crossValidateModel(cls, train, 10, new Random(1));
-
             eval.evaluateModel(cls, test);
-            //System.out.println("Class Name: " + test.instance(0) + " " + eval.pctCorrect() + "%");
             return eval.pctCorrect();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return 0;
+        return -1;
     }
 }

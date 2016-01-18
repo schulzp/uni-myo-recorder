@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.Logistic;
+import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
@@ -43,10 +44,17 @@ public class WekaTest {
     public void testAllRecordingsWithWeka() {
         List<Recording> trainList = recordingService.findAll();
 
+        int logisticCounter = 0;
+        int j48Counter = 0;
+        int multiCounter = 0;
         trainList.remove(0);
         trainList.remove(0);
-        for (Recording testRecordingA: trainList) {
+        for (int i = 0; i < trainList.size(); i++) {
+
+            Recording testRecordingA = trainList.remove(i);
+
             Instances train = WekaTool.convert(trainList);
+            System.out.println(train);
             List<Recording> testAList = new ArrayList<>();
             List<Recording> testBList = new ArrayList<>();
             List<Recording> testCList = new ArrayList<>();
@@ -67,9 +75,42 @@ public class WekaTest {
             testCList.add(testRecordingC);
             testList.add(WekaTool.convert(testCList));
 
-            String prediction = WekaTool.testAllClasses(train, testList);
+            System.out.println("Logistic: ");
+            Logistic cls = new Logistic();
+            String prediction = WekaTool.testAllClasses(train, testList, cls);
+            System.out.println("---------------------------------");
             System.out.println("Predicted Class: " + prediction + " Actual Class : " + actualClass);
             System.out.println("Prediction correct: " + prediction.equals(actualClass));
+            if (prediction.equals(actualClass))
+                logisticCounter++;
+
+            System.out.println();
+            System.out.println("J48: ");
+            J48 cls2 = new J48();
+            String prediction2 = WekaTool.testAllClasses(train, testList, cls2);
+            System.out.println("---------------------------------");
+            System.out.println("Predicted Class: " + prediction2 + " Actual Class : " + actualClass);
+            System.out.println("Prediction correct: " + prediction2.equals(actualClass));
+            if (prediction2.equals(actualClass))
+                j48Counter++;
+
+
+            System.out.println();
+            System.out.println("MultilayerPerceptron: ");
+            MultilayerPerceptron cls3 = new MultilayerPerceptron();
+            String prediction3 = WekaTool.testAllClasses(train, testList, cls3);
+            System.out.println("---------------------------------");
+            System.out.println("Predicted Class: " + prediction3 + " Actual Class : " + actualClass);
+            System.out.println("Prediction correct: " + prediction3.equals(actualClass));
+            if (prediction3.equals(actualClass))
+                multiCounter++;
+
+            trainList.add(i, testRecordingA);
         }
+        System.out.println("logisticCounter: " + logisticCounter);
+        System.out.println("j48Counter: " + j48Counter);
+        System.out.println("multiCounter: " + multiCounter);
+        System.out.println("total: " + trainList.size());
+
     }
 }
