@@ -25,7 +25,10 @@
 
 package edu.crimpbit.anaylsis.config;
 
-import edu.crimpbit.anaylsis.command.*;
+import edu.crimpbit.anaylsis.command.CommandService;
+import edu.crimpbit.anaylsis.command.FileSaveCommand;
+import edu.crimpbit.anaylsis.command.OpenControllerCommand;
+import edu.crimpbit.anaylsis.command.OpenRecordingCommand;
 import edu.crimpbit.anaylsis.util.ArmStringConverter;
 import edu.crimpbit.anaylsis.util.DeviceStringConverter;
 import edu.crimpbit.anaylsis.view.ImuView;
