@@ -26,19 +26,25 @@ public class ArmStringConverter extends StringConverter<Arm> {
 
     @Override
     public String toString(Arm arm) {
+        loadTranslations();
+
         return translations.get(arm);
     }
 
     @Override
     public Arm fromString(String string) {
-        if (translations.size() == 0) {
-            Arrays.stream(Arm.values()).forEach(arm -> translations.put(arm, resourceBundle.getString(RESOURCE_BUNDLE_PREFIX + arm.name())));
-        }
+        loadTranslations();
 
         return translations.entrySet().stream()
                 .filter(translation -> translation.getValue().equals(string)).findFirst()
                 .map(translation -> translation.getKey())
                 .orElseThrow(() -> new NoSuchElementException("Failed to map '" + string + "' to one of " + Arrays.toString(Arm.values())));
+    }
+
+    private void loadTranslations() {
+        if (translations.size() == 0) {
+            Arrays.stream(Arm.values()).forEach(arm -> translations.put(arm, resourceBundle.getString(RESOURCE_BUNDLE_PREFIX + arm.name())));
+        }
     }
 
 }
