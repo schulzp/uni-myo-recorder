@@ -2,8 +2,8 @@ package edu.crimpbit.anaylsis.view.control;
 
 import edu.crimpbit.Device;
 import edu.crimpbit.Subject;
-import edu.crimpbit.anaylsis.util.DeviceStringConverter;
-import edu.crimpbit.anaylsis.util.SubjectStringConverter;
+import edu.crimpbit.anaylsis.converter.DeviceStringConverter;
+import edu.crimpbit.anaylsis.converter.SubjectStringConverter;
 import edu.crimpbit.service.ConnectorService;
 import edu.crimpbit.service.SubjectService;
 import javafx.collections.FXCollections;

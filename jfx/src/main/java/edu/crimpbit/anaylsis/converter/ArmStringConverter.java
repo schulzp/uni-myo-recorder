@@ -1,4 +1,4 @@
-package edu.crimpbit.anaylsis.util;
+package edu.crimpbit.anaylsis.converter;
 
 import com.thalmic.myo.enums.Arm;
 import javafx.util.StringConverter;

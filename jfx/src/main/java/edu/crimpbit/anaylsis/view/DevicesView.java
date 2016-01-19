@@ -2,7 +2,7 @@ package edu.crimpbit.anaylsis.view;
 
 import com.thalmic.myo.enums.Arm;
 import edu.crimpbit.Device;
-import edu.crimpbit.anaylsis.util.ArmStringConverter;
+import edu.crimpbit.anaylsis.converter.ArmStringConverter;
 import edu.crimpbit.service.ConnectorService;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
