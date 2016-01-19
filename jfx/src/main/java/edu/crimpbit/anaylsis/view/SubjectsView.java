@@ -3,6 +3,7 @@ package edu.crimpbit.anaylsis.view;
 import edu.crimpbit.Subject;
 import edu.crimpbit.anaylsis.command.CommandService;
 import edu.crimpbit.anaylsis.command.OpenControllerCommandFactory;
+import edu.crimpbit.anaylsis.util.MouseEventUtils;
 import edu.crimpbit.service.SubjectService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -49,7 +50,7 @@ public class SubjectsView {
             };
 
             cell.setOnMouseClicked(event -> {
-                if (cell.getItem() != null && !cell.isEmpty()) {
+                if (MouseEventUtils.isDoubleClick(event) && cell.getItem() != null && !cell.isEmpty()) {
                     commandService.execute(openControllerCommandFactory.create(cell.getItem()));
                 }
             });
