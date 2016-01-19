@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 /**
  * Created by dtm on 14-Dec-15.
  */
-public class AverageFilter implements Function<Stream<Byte>, Stream<Double>> {
+public class AverageFilter implements Function<Stream<Byte>, Stream<Byte>> {
 
     private final int chunk;
 
@@ -19,11 +19,11 @@ public class AverageFilter implements Function<Stream<Byte>, Stream<Double>> {
     }
 
     @Override
-    public Stream<Double> apply(Stream<Byte> byteStream) {
+    public Stream<Byte> apply(Stream<Byte> byteStream) {
         if (chunk == 0)
             throw new IllegalArgumentException();
         return toChunkedStream(byteStream.collect(Collectors.toList()))
-                .map(doubleStream -> doubleStream.average().getAsDouble());
+                .map(doubleStream -> doubleStream.average().getAsDouble()).map(Double::byteValue);
     }
 
     private Stream<DoubleStream> toChunkedStream(List<Byte> bytes) {

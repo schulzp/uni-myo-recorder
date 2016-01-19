@@ -15,15 +15,15 @@ public class LabelFilterTest {
     @Test
     public void labelRecords1() {
         LabelFilter labelFilter = new LabelFilter(4);
-        Stream<Integer> stream = labelFilter.apply(Stream.of(new Byte[]{-128, -90, 0, 78, 127}));
-        assertEquals(stream.collect(Collectors.toList()), Stream.of(new Integer[]{1, 1, 3, 4, 4}).collect(Collectors.toList()));
+        Stream<Byte> stream = labelFilter.apply(Stream.of(new Byte[]{-128, -90, 0, 78, 127}));
+        assertEquals(stream.collect(Collectors.toList()), Stream.of(new Byte[]{1, 1, 3, 4, 4}).collect(Collectors.toList()));
     }
 
     @Test
     public void labelRecords2() {
         LabelFilter labelFilter = new LabelFilter(1);
-        Stream<Integer> stream = labelFilter.apply(Stream.of(new Byte[]{-128, -90, 0, 78, 127}));
-        assertEquals(stream.collect(Collectors.toList()), Stream.of(new Integer[]{1, 1, 1, 1, 1}).collect(Collectors.toList()));
+        Stream<Byte> stream = labelFilter.apply(Stream.of(new Byte[]{-128, -90, 0, 78, 127}));
+        assertEquals(stream.collect(Collectors.toList()), Stream.of(new Byte[]{1, 1, 1, 1, 1}).collect(Collectors.toList()));
     }
 
 }

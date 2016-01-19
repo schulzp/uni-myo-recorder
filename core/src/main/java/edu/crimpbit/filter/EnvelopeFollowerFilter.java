@@ -2,8 +2,10 @@ package edu.crimpbit.filter;
 
 import com.google.common.base.MoreObjects;
 import one.util.streamex.EntryStream;
+import one.util.streamex.StreamEx;
 
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 /**
  * Simple envelope follower filter.
@@ -36,6 +38,14 @@ public class EnvelopeFollowerFilter implements UnaryOperator<EntryStream<Integer
         }
 
         return values.mapValues(this::follow);
+    }
+
+    public Stream<Byte> apply(Stream<Byte> values) {
+        if (values.isParallel()) {
+            throw new IllegalArgumentException("Unable to calculate envelope on parallel stream of values");
+        }
+
+        return values.mapToDouble(Byte::doubleValue).map(this::follow).boxed().map(Double::byteValue);
     }
 
     @Override

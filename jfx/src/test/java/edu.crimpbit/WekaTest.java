@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.Logistic;
+import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
@@ -33,123 +34,84 @@ public class WekaTest {
     RecordingService recordingService;
 
     @Test
-    public void test1() throws Exception {
-        Instances instances = Converter.convert(recordingService.findAll().get(4));
-        System.out.println(instances);
-        //Logistic logistic = new Logistic();
-        //logistic.buildClassifier(instances);
-    }
-
-    @Test
-    public void test2() throws Exception {
+    public void testGetSizes() throws Exception {
         for (Recording r : recordingService.findAll()) {
             System.out.println(r.getEmgData().size());
         }
     }
 
     @Test
-    public void test3() throws Exception {
-        List<Recording> recordings = recordingService.findAll();
-        recordings = recordings.stream()
-                .filter(recording -> recording.getEmgData().size() >= 174).limit(recordings.size() - 1)
-                .collect(Collectors.toList());
+    public void testAllRecordingsWithWeka() {
+        List<Recording> trainList = recordingService.findAll();
 
-        List<Recording> testList = new ArrayList<>();
-        testList.add(recordings.get(recordings.size() - 1));
-        recordings.remove(recordings.size() - 1);
-        Instances train = Converter.convert(recordings);
-        Instances test = Converter.convert(testList);
-        System.out.println(train);
+        int logisticCounter = 0;
+        int j48Counter = 0;
+        int multiCounter = 0;
+        trainList.remove(0);
+        trainList.remove(0);
+        for (int i = 0; i < trainList.size(); i++) {
 
-        System.out.println("test instance: ");
-        System.out.println(test.instance(0));
-        Logistic cls = new Logistic();
-        cls.buildClassifier(train);
-        Evaluation eval = new Evaluation(train);
-        eval.evaluateModel(cls, test);
-        System.out.println(eval.toSummaryString("\nResults\n======\n", false));
-        System.out.println(eval.toClassDetailsString());
-        System.out.println(eval.toMatrixString());
+            Recording testRecordingA = trainList.remove(i);
+
+            Instances train = WekaTool.convert(trainList);
+            System.out.println(train);
+            List<Recording> testAList = new ArrayList<>();
+            List<Recording> testBList = new ArrayList<>();
+            List<Recording> testCList = new ArrayList<>();
+            List<Instances> testList = new ArrayList<>();
+            String actualClass = testRecordingA.getExercise();
+            Recording testRecordingB = testRecordingA;
+            Recording testRecordingC = testRecordingA;
+
+            testRecordingA.setExercise("index-finger");
+            testAList.add(testRecordingA);
+            testList.add(WekaTool.convert(testAList));
+
+            testRecordingB.setExercise("index-finger+middle-finger");
+            testBList.add(testRecordingB);
+            testList.add(WekaTool.convert(testBList));
+
+            testRecordingC.setExercise("index-finger+middle-finger+ring-finger");
+            testCList.add(testRecordingC);
+            testList.add(WekaTool.convert(testCList));
+
+            System.out.println("Logistic: ");
+            Logistic cls = new Logistic();
+            String prediction = WekaTool.testAllClasses(train, testList, cls);
+            System.out.println("---------------------------------");
+            System.out.println("Predicted Class: " + prediction + " Actual Class : " + actualClass);
+            System.out.println("Prediction correct: " + prediction.equals(actualClass));
+            if (prediction.equals(actualClass))
+                logisticCounter++;
+
+            System.out.println();
+            System.out.println("J48: ");
+            J48 cls2 = new J48();
+            String prediction2 = WekaTool.testAllClasses(train, testList, cls2);
+            System.out.println("---------------------------------");
+            System.out.println("Predicted Class: " + prediction2 + " Actual Class : " + actualClass);
+            System.out.println("Prediction correct: " + prediction2.equals(actualClass));
+            if (prediction2.equals(actualClass))
+                j48Counter++;
+
+
+            System.out.println();
+            System.out.println("MultilayerPerceptron: ");
+            MultilayerPerceptron cls3 = new MultilayerPerceptron();
+            String prediction3 = WekaTool.testAllClasses(train, testList, cls3);
+            System.out.println("---------------------------------");
+            System.out.println("Predicted Class: " + prediction3 + " Actual Class : " + actualClass);
+            System.out.println("Prediction correct: " + prediction3.equals(actualClass));
+            if (prediction3.equals(actualClass))
+                multiCounter++;
+
+            trainList.add(i, testRecordingA);
+        }
+        System.out.println("logisticCounter: " + logisticCounter);
+        System.out.println("j48Counter: " + j48Counter);
+        System.out.println("multiCounter: " + multiCounter);
+        System.out.println("total: " + trainList.size());
+
     }
 
-    @Test
-    public void test4() throws Exception {
-        List<Recording> recordings = recordingService.findAll();
-        recordings = recordings.stream()
-                .filter(recording -> recording.getEmgData().size() >= 174).limit(recordings.size() - 1)
-                .collect(Collectors.toList());
-
-        List<Recording> testList = new ArrayList<>();
-        testList.add(recordings.get(recordings.size() - 1));
-        recordings.remove(recordings.size() - 1);
-        Instances train = Converter.convert(recordings);
-        Instances test = Converter.convert(testList);
-        System.out.println(train);
-
-        System.out.println("test instance: ");
-        System.out.println(test.instance(0));
-        Logistic cls = new Logistic();
-        cls.buildClassifier(train);
-        Evaluation eval = new Evaluation(train);
-
-        eval.evaluateModel(cls, test);
-        System.out.println(eval.toSummaryString("\nResults\n======\n", false));
-        System.out.println(eval.toClassDetailsString());
-        System.out.println(eval.toMatrixString());
-
-        System.out.println("the probability of being positive:" + cls.distributionForInstance(test.instance(0))[0]);
-        System.out.println("the probability of being negative:" + cls.distributionForInstance(test.instance(0))[1]);
-    }
-
-    @Test
-    public void test5(){
-        List<Recording> recordings = recordingService.findAll();
-        Instances instances = Converter.convert2(recordings);
-        System.out.println(instances);
-    }
-
-    @Test
-    public void test6() throws Exception {
-        List<Recording> recordings = recordingService.findAll();
-        Instances instances = Converter.convert2(recordings);
-        System.out.println(instances);
-        //Logistic cls = new Logistic();
-        //MultilayerPerceptron cls = new MultilayerPerceptron();
-        J48 cls = new J48();
-        Evaluation eval = new Evaluation(instances);
-        eval.crossValidateModel(cls, instances, 10, new Random(1));
-        System.out.println(eval.toSummaryString("\nResults\n======\n", true));
-        System.out.println(eval.toClassDetailsString());
-        System.out.println(eval.toMatrixString());
-    }
-
-    @Test
-    public void test10fold() throws Exception {
-        List<Recording> recordings = recordingService.findAll();
-        recordings = recordings.stream()
-                .filter(recording -> recording.getEmgData().size() >= 174)
-                .collect(Collectors.toList());
-        Instances train = Converter.convert(recordings);
-        System.out.println(train);
-        Logistic cls = new Logistic();
-        //MultilayerPerceptron cls = new MultilayerPerceptron();
-        //J48 cls = new J48();
-        Evaluation eval = new Evaluation(train);
-        eval.crossValidateModel(cls, train, 10, new Random(1));
-        System.out.println(eval.toSummaryString("\nResults\n======\n", true));
-        System.out.println(eval.toClassDetailsString());
-        System.out.println(eval.toMatrixString());
-    }
-
-
-
-
-
-//    @Test
-//    public void test3() throws Exception {
-//        List<Recording> recordings = recordingService.findAll().stream().map(recording -> {
-//            return new NormalizeFilter().apply(recording);
-//        }).collect(Collectors.toList());
-//        System.out.println(Converter.converter(recordings));
-//    }
 }
