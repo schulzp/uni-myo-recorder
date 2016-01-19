@@ -2,26 +2,26 @@ package edu.crimpbit.anaylsis.command;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Scope;
+
+import java.util.Optional;
 
 /**
  * Prototype open command.
- * @param <T> type of the element to be opened
+ * @param <T> type of the content to be opened
  */
-@Scope("prototype")
 public class OpenCommand<T> implements Command {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    private T element;
+    private Optional<T> content = Optional.empty();
 
     @Autowired
     public OpenCommand(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
-    public void setElement(T element) {
-        this.element = element;
+    public void setContent(T content) {
+        this.content = Optional.ofNullable(content);
     }
 
     @Override
@@ -29,7 +29,8 @@ public class OpenCommand<T> implements Command {
         applicationEventPublisher.publishEvent(this);
     }
 
-    public T getContent() {
-        return element;
+    public Optional<T> getContent() {
+        return content;
     }
+
 }

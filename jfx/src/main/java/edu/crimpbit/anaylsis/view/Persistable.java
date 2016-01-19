@@ -1,10 +1,12 @@
 package edu.crimpbit.anaylsis.view;
 
-import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.value.ObservableBooleanValue;
 
 public interface Persistable<T> {
 
-    ReadOnlyStringProperty textProperty();
+    void setPersistable(T persitable);
+
+    ObservableBooleanValue dirtyValue();
 
     void save();
 

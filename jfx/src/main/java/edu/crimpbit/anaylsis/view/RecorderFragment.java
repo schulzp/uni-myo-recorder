@@ -107,6 +107,10 @@ public class RecorderFragment {
         return currentlyRecording;
     }
 
+    public RecorderFragment() {
+        System.out.print('F');
+    }
+
     @FXML
     private void initialize() {
         controlFactory.initializeDeviceComboBox(deviceSelect);

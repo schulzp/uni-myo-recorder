@@ -7,8 +7,6 @@ import com.thalmic.myo.enums.Arm;
 import com.thalmic.myo.enums.XDirection;
 import javafx.beans.property.*;
 
-import java.util.stream.IntStream;
-
 /**
  * Device representation.
  */

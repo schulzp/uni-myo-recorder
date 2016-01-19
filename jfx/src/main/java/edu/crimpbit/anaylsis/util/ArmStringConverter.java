@@ -4,8 +4,6 @@ import com.thalmic.myo.enums.Arm;
 import javafx.util.StringConverter;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * {@link StringConverter} implementation for {@link Arm} values.

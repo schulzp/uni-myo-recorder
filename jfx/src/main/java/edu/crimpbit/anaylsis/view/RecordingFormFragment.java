@@ -1,12 +1,15 @@
 package edu.crimpbit.anaylsis.view;
 
 import edu.crimpbit.Recording;
+import edu.crimpbit.Subject;
+import edu.crimpbit.anaylsis.view.control.ControlFactory;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SingleSelectionModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
@@ -25,7 +28,10 @@ public class RecordingFormFragment {
     private ComboBox<String> exerciseSelect;
 
     @FXML
-    private ComboBox<String> subjectSelect;
+    private ComboBox<Subject> subjectSelect;
+
+    @Autowired
+    private ControlFactory controlFactory;
 
     private Recording recording;
 
@@ -36,7 +42,7 @@ public class RecordingFormFragment {
                 }
             };
 
-    private final ChangeListener<String> subjectListener =
+    private final ChangeListener<Subject> subjectListener =
             (selection, oldSubject, newSubject) -> {
                 if (recording != null) {
                     recording.setSubject(newSubject);
@@ -48,7 +54,7 @@ public class RecordingFormFragment {
 
         if (recording != null) {
             SingleSelectionModel<String> exerciseSelectionModel = exerciseSelect.getSelectionModel();
-            SingleSelectionModel<String> subjectSelectionModel = subjectSelect.getSelectionModel();
+            SingleSelectionModel<Subject> subjectSelectionModel = subjectSelect.getSelectionModel();
             if (recording.getId() == null) {
                 recording.setExercise(exerciseSelectionModel.getSelectedItem());
                 recording.setSubject(subjectSelectionModel.getSelectedItem());
@@ -63,6 +69,7 @@ public class RecordingFormFragment {
     private void initialize() {
         exerciseSelect.getSelectionModel().selectedItemProperty().addListener(exerciseListener);
         subjectSelect.getSelectionModel().selectedItemProperty().addListener(subjectListener);
+        controlFactory.initializeSubjectComboBox(subjectSelect);
     }
 
     public void handleException(ConstraintViolationException exception) {

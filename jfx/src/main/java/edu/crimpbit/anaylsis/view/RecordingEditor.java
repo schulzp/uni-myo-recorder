@@ -2,10 +2,12 @@ package edu.crimpbit.anaylsis.view;
 
 import edu.crimpbit.Recording;
 import edu.crimpbit.service.RecordingService;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableStringValue;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -19,14 +21,16 @@ import org.springframework.javafx.FXMLController;
 
 @FXMLController
 @Scope("prototype")
-public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>, Persistable<Recording> {
+public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>, Persistable<Recording>, Named {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordingEditor.class);
     private static final String STYLE_CLASS_VALIDATION_FAILED = "validation-failed";
 
     private final ReadOnlyStringWrapper text = new ReadOnlyStringWrapper("New Recording");
 
-    private final ObjectProperty<Recording> recording = new SimpleObjectProperty<>();
+    private final ObjectProperty<Recording> recording = new SimpleObjectProperty<>(this, "recording");
+
+    private ObservableBooleanValue dirtyValue;
 
     private BorderPane rootNode;
 
@@ -59,7 +63,8 @@ public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>
         return recording;
     }
 
-    public void setRecording(Recording recording) {
+    @Override
+    public void setPersistable(Recording recording) {
         this.recording.unbind();
         this.recording.set(recording);
     }
@@ -93,8 +98,13 @@ public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>
     }
 
     @Override
-    public ReadOnlyStringProperty textProperty() {
+    public ObservableStringValue nameValue() {
         return text;
+    }
+
+    @Override
+    public ObservableBooleanValue dirtyValue() {
+        return dirtyValue;
     }
 
     @FXML
@@ -111,6 +121,8 @@ public class RecordingEditor implements FXMLController.RootNodeAware<BorderPane>
             recordingFormFragmentController.setRecording(newValue);
             recordingChartsFragmentController.addEmgData(newValue.getEmgData());
         }));
+
+        dirtyValue = Bindings.createBooleanBinding(() -> false);
     }
 
 }

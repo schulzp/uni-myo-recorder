@@ -194,7 +194,7 @@ public class Converter {
         return instances;
     }
 
-//    public static Instances convert(@NotNull List<Recording> recordings) {
+//    public static Instances converter(@NotNull List<Recording> recordings) {
 //        Instances instances = null;
 //        for (Recording recording : recordings) {
 //            FastVector attInfo = new FastVector();
@@ -221,7 +221,7 @@ public class Converter {
 //        return instances;
 //    }
 
-//    public static Instances convert(Stream<Double> emgs, String classname) {
+//    public static Instances converter(Stream<Double> emgs, String classname) {
 //        List<Double> bytes = emgs.collect(Collectors.toList());
 //
 //        FastVector attInfo = new FastVector();

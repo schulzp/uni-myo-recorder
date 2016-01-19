@@ -79,7 +79,7 @@ public class WekaTest {
 
 
         //Stream<Double> d = Stream.of(new Double[]{0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0});
-        //Instances instances = Converter.convert(new Random().doubles(16, 127, 255).boxed(), "classname");
+        //Instances instances = Converter.converter(new Random().doubles(16, 127, 255).boxed(), "classname");
 
         //System.out.println("unClassified");
         //System.out.println(instances);

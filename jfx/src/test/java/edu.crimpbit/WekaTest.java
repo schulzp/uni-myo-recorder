@@ -11,7 +11,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.Logistic;
-import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
@@ -151,6 +150,6 @@ public class WekaTest {
 //        List<Recording> recordings = recordingService.findAll().stream().map(recording -> {
 //            return new NormalizeFilter().apply(recording);
 //        }).collect(Collectors.toList());
-//        System.out.println(Converter.convert(recordings));
+//        System.out.println(Converter.converter(recordings));
 //    }
 }

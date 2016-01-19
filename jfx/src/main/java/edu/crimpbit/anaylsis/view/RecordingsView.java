@@ -2,8 +2,7 @@ package edu.crimpbit.anaylsis.view;
 
 import edu.crimpbit.Recording;
 import edu.crimpbit.anaylsis.command.CommandService;
-import edu.crimpbit.anaylsis.command.OpenCommand;
-import edu.crimpbit.anaylsis.command.OpenRecordingCommand;
+import edu.crimpbit.anaylsis.command.OpenControllerCommandFactory;
 import edu.crimpbit.service.RecordingService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -24,19 +23,20 @@ public class RecordingsView {
     private TableView<Recording> recordingsTable;
 
     @Autowired
+    private RecordingService recordingService;
+
+    @Autowired
     private CommandService commandService;
 
     @Autowired
-    private RecordingService recordingService;
+    private OpenControllerCommandFactory openControllerCommandFactory;
 
     @FXML
     private void initialize() {
         recordingsTable.setRowFactory(view -> {
             TableRow<Recording> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                OpenCommand command = commandService.getCommand(OpenRecordingCommand.class);
-                command.setElement(row.getItem());
-                commandService.execute(command);
+                commandService.execute(openControllerCommandFactory.create(row.getItem()));
             });
             return row ;
         });

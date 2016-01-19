@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<GridPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <Text text="%subject.name" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+    <TextField fx:id="subjectName" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+</GridPane>

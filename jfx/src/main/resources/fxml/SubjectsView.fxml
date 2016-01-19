@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.text.Text?>
+<TitledPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="edu.crimpbit.anaylsis.view.SubjectsView"
+            text="%subjects.view.title">
+    <ListView fx:id="subjectList">
+        <placeholder>
+            <Text text="%subjects.view.empty" styleClass="view-placeholder" />
+        </placeholder>
+        <contextMenu>
+            <ContextMenu>
+                <items>
+                    <MenuItem fx:id="newSubjectItem" text="%subjects.view.new" />
+                </items>
+            </ContextMenu>
+        </contextMenu>
+    </ListView>
+</TitledPane>

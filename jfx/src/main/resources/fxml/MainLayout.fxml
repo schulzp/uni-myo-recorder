@@ -13,6 +13,7 @@
             <panes>
                 <fx:include source="DevicesView.fxml" />
                 <fx:include source="RecordingsView.fxml" />
+                <fx:include source="SubjectsView.fxml" />
             </panes>
         </Accordion>
     </left>

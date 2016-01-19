@@ -3,6 +3,7 @@ package edu.crimpbit;
 import com.thalmic.myo.enums.Arm;
 import com.thalmic.myo.enums.XDirection;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Reference;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -34,8 +35,8 @@ public class Recording {
     @NotNull
     private String exercise;
 
-    @NotNull
-    private String subject;
+    @Reference
+    private Subject subject;
 
     @DBRef
     private final EMGData emgData = new EMGData();
@@ -58,16 +59,16 @@ public class Recording {
         return exercise;
     }
 
-    public void setSubject(String subject) {
+    public void setSubject(Subject subject) {
         this.subject = subject;
+    }
+
+    public Subject getSubject() {
+        return subject;
     }
 
     public EMGData getEmgData() {
         return emgData;
-    }
-
-    public String getSubject() {
-        return subject;
     }
 
     public String getId() {

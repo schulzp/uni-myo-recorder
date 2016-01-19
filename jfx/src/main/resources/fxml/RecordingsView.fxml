@@ -9,7 +9,7 @@
         <columns>
             <TableColumn text="%recording.subject">
                 <cellValueFactory>
-                    <PropertyValueFactory property="subject" />
+                    <PropertyValueFactory property="subject.name" />
                 </cellValueFactory>
             </TableColumn>
             <TableColumn text="%recording.exercise">

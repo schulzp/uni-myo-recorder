@@ -1,6 +1,9 @@
 package edu.crimpbit.anaylsis.view;
 
-import com.thalmic.myo.*;
+import com.thalmic.myo.AbstractDeviceListener;
+import com.thalmic.myo.DeviceListener;
+import com.thalmic.myo.Myo;
+import com.thalmic.myo.Quaternion;
 import edu.crimpbit.Device;
 import edu.crimpbit.anaylsis.view.control.ControlFactory;
 import edu.crimpbit.service.ConnectorService;
@@ -8,8 +11,8 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.value.ObservableStringValue;
 import javafx.fxml.FXML;
 import javafx.geometry.Point3D;
 import javafx.scene.PerspectiveCamera;
@@ -32,7 +35,7 @@ import javax.annotation.PostConstruct;
 import java.util.concurrent.atomic.AtomicReference;
 
 @FXMLController
-public class ImuView implements FXMLController.RootNodeAware<VBox>, Persistable<Quaternion>  {
+public class ImuView implements FXMLController.RootNodeAware<VBox>, Named  {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImuView.class);
 
@@ -141,13 +144,8 @@ public class ImuView implements FXMLController.RootNodeAware<VBox>, Persistable<
     }
 
     @Override
-    public ReadOnlyStringProperty textProperty() {
+    public ObservableStringValue nameValue() {
         return new ReadOnlyStringWrapper("IMU");
-    }
-
-    @Override
-    public void save() {
-
     }
 
 }

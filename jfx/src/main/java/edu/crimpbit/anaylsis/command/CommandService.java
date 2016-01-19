@@ -25,7 +25,7 @@ public class CommandService {
     }
 
     public void registerCommand(Command command) {
-        commands.put(command.getId(), command);
+        commands.putIfAbsent(command.getId(), command);
     }
 
     public void execute(String commandId) {

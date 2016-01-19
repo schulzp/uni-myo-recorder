@@ -25,17 +25,22 @@
 
 package edu.crimpbit.anaylsis.config;
 
+import edu.crimpbit.Recording;
+import edu.crimpbit.Subject;
 import edu.crimpbit.anaylsis.command.CommandService;
 import edu.crimpbit.anaylsis.command.FileSaveCommand;
 import edu.crimpbit.anaylsis.command.OpenControllerCommand;
-import edu.crimpbit.anaylsis.command.OpenRecordingCommand;
+import edu.crimpbit.anaylsis.command.OpenControllerCommandFactory;
 import edu.crimpbit.anaylsis.util.ArmStringConverter;
 import edu.crimpbit.anaylsis.util.DeviceStringConverter;
+import edu.crimpbit.anaylsis.util.SubjectStringConverter;
 import edu.crimpbit.anaylsis.view.ImuView;
 import edu.crimpbit.anaylsis.view.RecordingEditor;
+import edu.crimpbit.anaylsis.view.SubjectEditor;
 import edu.crimpbit.anaylsis.view.control.ControlFactory;
 import edu.crimpbit.config.CoreConfiguration;
 import edu.crimpbit.service.ConnectorService;
+import edu.crimpbit.service.SubjectService;
 import javafx.concurrent.Task;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,11 +48,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.javafx.EnableFXMLControllers;
+import org.springframework.javafx.FXMLControllerFactory;
 
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -105,23 +114,26 @@ public class AnalysisApplicationConfiguration {
     }
 
     @Bean
-    public OpenControllerCommand imuViewOpenCommand(CommandService commandService, ApplicationEventPublisher applicationEventPublisher) {
-        OpenControllerCommand openControllerCommand = new OpenControllerCommand(applicationEventPublisher, ImuView.class, "view.show.imu.command");
-        commandService.registerCommand(openControllerCommand);
-        return openControllerCommand;
+    public OpenControllerCommand imuViewOpenCommand(OpenControllerCommandFactory factory) {
+        return factory.create(ImuView.class, "view.show.imu.command");
     }
 
     @Bean
-    public OpenControllerCommand fileNewCommand(CommandService commandService, ApplicationEventPublisher applicationEventPublisher) {
-        OpenControllerCommand openControllerCommand = new OpenControllerCommand(applicationEventPublisher, RecordingEditor.class, "file.new.command");
-        commandService.registerCommand(openControllerCommand);
-        return openControllerCommand;
+    public OpenControllerCommand fileNewCommand(OpenControllerCommandFactory factory) {
+        return factory.create(RecordingEditor.class, "file.new.command");
     }
 
     @Bean
-    @Scope("prototype")
-    public OpenRecordingCommand openRecordingCommand(ApplicationEventPublisher applicationEventPublisher) {
-        return new OpenRecordingCommand(applicationEventPublisher);
+    public OpenControllerCommand fileNewSubjectCommand(OpenControllerCommandFactory factory) {
+        return factory.create(SubjectEditor.class, "file.new.subject.command");
+    }
+
+    @Bean
+    public OpenControllerCommandFactory openControllerCommandFactory(ApplicationEventPublisher applicationEventPublisher, FXMLControllerFactory controllerFactory, CommandService commandService) {
+        OpenControllerCommandFactory factory = new OpenControllerCommandFactory(applicationEventPublisher, controllerFactory, commandService);
+        factory.map(Recording.class, RecordingEditor.class);
+        factory.map(Subject.class, SubjectEditor.class);
+        return factory;
     }
 
     @Bean
@@ -139,6 +151,11 @@ public class AnalysisApplicationConfiguration {
     @Bean
     public ArmStringConverter armStringConverter(ResourceBundle resourceBundle) {
         return new ArmStringConverter(resourceBundle);
+    }
+
+    @Bean
+    public SubjectStringConverter subjectStringConverter(SubjectService subjectService) {
+        return new SubjectStringConverter(subjectService);
     }
 
     @Bean
