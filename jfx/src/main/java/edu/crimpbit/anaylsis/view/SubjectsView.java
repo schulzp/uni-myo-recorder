@@ -3,9 +3,11 @@ package edu.crimpbit.anaylsis.view;
 import edu.crimpbit.Subject;
 import edu.crimpbit.anaylsis.command.CommandService;
 import edu.crimpbit.anaylsis.command.OpenControllerCommandFactory;
+import edu.crimpbit.anaylsis.selection.SelectionService;
 import edu.crimpbit.anaylsis.util.MouseEventUtils;
 import edu.crimpbit.service.SubjectService;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -20,9 +22,6 @@ public class SubjectsView {
     @FXML
     private ListView<Subject> subjectList;
 
-    @FXML
-    private MenuItem newSubjectItem;
-
     @Autowired
     private SubjectService subjectService;
 
@@ -32,8 +31,13 @@ public class SubjectsView {
     @Autowired
     private OpenControllerCommandFactory openControllerCommandFactory;
 
+    @Autowired
+    private SelectionService selectionService;
+
     @FXML
     private void initialize() {
+        selectionService.register(subjectList.focusedProperty(), subjectList.getSelectionModel());
+
         subjectList.setCellFactory(view -> {
             ListCell<Subject> cell = new ListCell<Subject>() {
 
@@ -58,16 +62,22 @@ public class SubjectsView {
             return cell;
         });
 
-        newSubjectItem.setOnAction(event -> {
-            commandService.execute("file.new.subject.command");
-        });
-
         refresh();
     }
 
     @EventListener(condition = "#subject.id != null")
     private void onUpdate(Subject subject) {
         refresh();
+    }
+
+    @FXML
+    private void create(ActionEvent event) {
+        commandService.execute("file.new.subject.command");
+    }
+
+    @FXML
+    private void delete(ActionEvent event) {
+        commandService.execute("file.delete.command");
     }
 
     private void refresh() {

@@ -43,7 +43,7 @@ buildscript {
                 }
             }
             if (!result?.file) {
-                throw new GradleException("Could not find $searchID, please set one of ${places.keySet()}");
+                throw new GradleException("Could not get $searchID, please set one of ${places.keySet()}");
             } else {
                 project.logger.info("$searchID: ${result}")
                 return result

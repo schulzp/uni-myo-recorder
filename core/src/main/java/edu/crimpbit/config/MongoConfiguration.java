@@ -4,6 +4,7 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import edu.crimpbit.converter.StringToSubject;
+import edu.crimpbit.repository.RepositoryProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
@@ -15,6 +16,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
+import org.springframework.data.mongodb.core.mapping.event.AfterDeleteEvent;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
 import org.springframework.data.mongodb.core.mapping.event.MongoMappingEvent;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -62,7 +64,17 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
                 applicationEventPublisher.publishEvent(event.getSource());
             }
 
+            @Override
+            public void onAfterDelete(AfterDeleteEvent<Object> event) {
+                applicationEventPublisher.publishEvent(event.getSource());
+            }
+
         };
+    }
+
+    @Bean
+    public RepositoryProvider repositoryProvider() {
+        return new RepositoryProvider();
     }
 
 }

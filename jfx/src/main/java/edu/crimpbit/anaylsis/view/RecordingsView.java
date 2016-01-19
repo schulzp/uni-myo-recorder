@@ -3,10 +3,14 @@ package edu.crimpbit.anaylsis.view;
 import edu.crimpbit.Recording;
 import edu.crimpbit.anaylsis.command.CommandService;
 import edu.crimpbit.anaylsis.command.OpenControllerCommandFactory;
+import edu.crimpbit.anaylsis.selection.SelectionService;
 import edu.crimpbit.anaylsis.util.MouseEventUtils;
 import edu.crimpbit.service.RecordingService;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import org.slf4j.Logger;
@@ -32,8 +36,12 @@ public class RecordingsView {
     @Autowired
     private OpenControllerCommandFactory openControllerCommandFactory;
 
+    @Autowired
+    private SelectionService selectionService;
+
     @FXML
     private void initialize() {
+        selectionService.register(recordingsTable.focusedProperty(), recordingsTable.getSelectionModel());
         recordingsTable.setRowFactory(view -> {
             TableRow<Recording> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -44,6 +52,11 @@ public class RecordingsView {
             return row ;
         });
         refresh();
+    }
+
+    @FXML
+    private void delete(ActionEvent event) {
+        commandService.execute("file.delete.command");
     }
 
     @EventListener(condition = "#recording.id != null")

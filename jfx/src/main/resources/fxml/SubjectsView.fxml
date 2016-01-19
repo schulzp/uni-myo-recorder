@@ -14,7 +14,8 @@
         <contextMenu>
             <ContextMenu>
                 <items>
-                    <MenuItem fx:id="newSubjectItem" text="%subjects.view.new" />
+                    <MenuItem text="%file.new.command" onAction="#create" />
+                    <MenuItem text="%file.delete.command" onAction="#delete" />
                 </items>
             </ContextMenu>
         </contextMenu>

@@ -26,5 +26,12 @@
         <placeholder>
             <Text text="%recordings.view.empty" styleClass="view-placeholder" />
         </placeholder>
+        <contextMenu>
+            <ContextMenu>
+                <items>
+                    <MenuItem text="%file.delete.command" onAction="#delete" />
+                </items>
+            </ContextMenu>
+        </contextMenu>
     </TableView>
 </TitledPane>

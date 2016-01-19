@@ -1,44 +1,18 @@
-/*
- * **********************************************************************
- *
- *  Copyright (C) 2010 - 2014
- *
- *  [Component.java]
- *  JACPFX Project (https://github.com/JacpFX/JacpFX/)
- *  All rights reserved.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an "AS IS"
- *  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- *  express or implied. See the License for the specific language
- *  governing permissions and limitations under the License.
- *
- *
- * *********************************************************************
- */
-
 package edu.crimpbit.anaylsis.config;
 
 import edu.crimpbit.Recording;
 import edu.crimpbit.Subject;
-import edu.crimpbit.anaylsis.command.CommandService;
-import edu.crimpbit.anaylsis.command.FileSaveCommand;
-import edu.crimpbit.anaylsis.command.OpenControllerCommand;
-import edu.crimpbit.anaylsis.command.OpenControllerCommandFactory;
+import edu.crimpbit.anaylsis.command.*;
 import edu.crimpbit.anaylsis.converter.ArmStringConverter;
 import edu.crimpbit.anaylsis.converter.DeviceStringConverter;
 import edu.crimpbit.anaylsis.converter.SubjectStringConverter;
+import edu.crimpbit.anaylsis.selection.SelectionService;
 import edu.crimpbit.anaylsis.view.ImuView;
 import edu.crimpbit.anaylsis.view.RecordingEditor;
 import edu.crimpbit.anaylsis.view.SubjectEditor;
 import edu.crimpbit.anaylsis.view.control.ControlFactory;
 import edu.crimpbit.config.CoreConfiguration;
+import edu.crimpbit.repository.RepositoryProvider;
 import edu.crimpbit.service.ConnectorService;
 import edu.crimpbit.service.SubjectService;
 import javafx.concurrent.Task;
@@ -46,7 +20,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -144,6 +117,13 @@ public class AnalysisApplicationConfiguration {
     }
 
     @Bean
+    public FileDeleteCommand fileDeleteCommand(CommandService commandService, SelectionService selectionService, RepositoryProvider repositoryProvider) {
+        FileDeleteCommand fileDeleteCommand = new FileDeleteCommand(selectionService, repositoryProvider);
+        commandService.registerCommand(fileDeleteCommand);
+        return fileDeleteCommand;
+    }
+
+    @Bean
     public DeviceStringConverter deviceStringConverter(ConnectorService connectorService, ArmStringConverter armStringConverter) {
         return new DeviceStringConverter(connectorService, armStringConverter);
     }
@@ -163,6 +143,9 @@ public class AnalysisApplicationConfiguration {
         return new ControlFactory();
     }
 
-    private static ConfigurableApplicationContext context;
+    @Bean
+    public SelectionService selectionService() {
+        return new SelectionService();
+    }
 
 }
