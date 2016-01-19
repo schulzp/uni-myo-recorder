@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <GridPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets left="10" top="10" right="10" bottom="10" />
+    </padding>
     <Text text="%subject.name" GridPane.rowIndex="0" GridPane.columnIndex="0" />
     <TextField fx:id="subjectName" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+    <Text text="%subject.age" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+    <Spinner fx:id="subjectAge" GridPane.rowIndex="0" GridPane.columnIndex="3" />
 </GridPane>
