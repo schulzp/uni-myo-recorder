@@ -5,12 +5,18 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import edu.crimpbit.converter.StringToSubject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.event.EventListener;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
+import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
+import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
+import org.springframework.data.mongodb.core.mapping.event.MongoMappingEvent;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.util.Arrays;
@@ -45,6 +51,18 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
     @Override
     public CustomConversions customConversions() {
         return new CustomConversions(Arrays.asList(StringToSubject.INSTANCE));
+    }
+
+    @Bean
+    public ApplicationListener<MongoMappingEvent<?>> mongoEventListener(ApplicationEventPublisher applicationEventPublisher) {
+        return new AbstractMongoEventListener<Object>() {
+
+            @Override
+            public void onAfterSave(AfterSaveEvent<Object> event) {
+                applicationEventPublisher.publishEvent(event.getSource());
+            }
+
+        };
     }
 
 }
