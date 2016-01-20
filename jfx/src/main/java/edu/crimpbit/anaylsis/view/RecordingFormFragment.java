@@ -1,5 +1,6 @@
 package edu.crimpbit.anaylsis.view;
 
+import edu.crimpbit.Gesture;
 import edu.crimpbit.Recording;
 import edu.crimpbit.Subject;
 import edu.crimpbit.anaylsis.view.control.ControlFactory;
@@ -25,7 +26,7 @@ public class RecordingFormFragment {
     private static final String STYLE_CLASS_CONSTRAINT_VIOLATION = "constraint-violation";
 
     @FXML
-    private ComboBox<String> exerciseSelect;
+    private ComboBox<Gesture> gestureSelect;
 
     @FXML
     private ComboBox<Subject> subjectSelect;
@@ -35,10 +36,10 @@ public class RecordingFormFragment {
 
     private Recording recording;
 
-    private final ChangeListener<String> exerciseListener =
+    private final ChangeListener<Gesture> gestureListener =
             (selection, oldExercise, newExercise) -> {
                 if (recording != null) {
-                    recording.setExercise(newExercise);
+                    recording.setGesture(newExercise);
                 }
             };
 
@@ -53,13 +54,13 @@ public class RecordingFormFragment {
         this.recording = recording;
 
         if (recording != null) {
-            SingleSelectionModel<String> exerciseSelectionModel = exerciseSelect.getSelectionModel();
+            SingleSelectionModel<Gesture> exerciseSelectionModel = gestureSelect.getSelectionModel();
             SingleSelectionModel<Subject> subjectSelectionModel = subjectSelect.getSelectionModel();
             if (recording.getId() == null) {
-                recording.setExercise(exerciseSelectionModel.getSelectedItem());
+                recording.setGesture(exerciseSelectionModel.getSelectedItem());
                 recording.setSubject(subjectSelectionModel.getSelectedItem());
             } else {
-                exerciseSelectionModel.select(recording.getExercise());
+                exerciseSelectionModel.select(recording.getGesture());
                 subjectSelectionModel.select(recording.getSubject());
             }
         }
@@ -67,9 +68,10 @@ public class RecordingFormFragment {
 
     @FXML
     private void initialize() {
-        exerciseSelect.getSelectionModel().selectedItemProperty().addListener(exerciseListener);
+        gestureSelect.getSelectionModel().selectedItemProperty().addListener(gestureListener);
         subjectSelect.getSelectionModel().selectedItemProperty().addListener(subjectListener);
         controlFactory.initializeSubjectComboBox(subjectSelect);
+        controlFactory.initializeGestureComboBox(gestureSelect);
     }
 
     public void handleException(ConstraintViolationException exception) {
@@ -84,11 +86,11 @@ public class RecordingFormFragment {
             name = pathIterator.next().getName();
         }
         markConstraintViolation(subjectSelect, null);
-        markConstraintViolation(exerciseSelect, null);
+        markConstraintViolation(gestureSelect, null);
         if ("subject".equals(name)) {
             markConstraintViolation(subjectSelect, violation);
         } else if ("exercise".equals(name)) {
-            markConstraintViolation(exerciseSelect, violation);
+            markConstraintViolation(gestureSelect, violation);
         }
 
     }

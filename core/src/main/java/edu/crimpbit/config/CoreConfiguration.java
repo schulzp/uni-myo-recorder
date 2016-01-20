@@ -1,15 +1,17 @@
 package edu.crimpbit.config;
 
 import com.thalmic.myo.Hub;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import edu.crimpbit.converter.StringToGesture;
+import org.springframework.context.annotation.*;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.core.convert.support.GenericConversionService;
 
 
 @Configuration
 @Import({ MongoConfiguration.class, ValidationConfiguration.class })
 @ComponentScan({ "edu.crimpbit.service" })
+@PropertySource({ "core.properties" })
 public class CoreConfiguration {
 
     private static final String HUB_ID = "edu.crimpbit.analysis";
@@ -17,6 +19,22 @@ public class CoreConfiguration {
     @Bean
     public Hub hub() {
         return new Hub(HUB_ID);
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+
+    @Bean
+    public GenericConversionService genericConversionService() {
+        return new DefaultConversionService();
+    }
+
+    @Bean
+    public StringToGesture stringToGesture(GenericConversionService conversionService) {
+        conversionService.addConverter(StringToGesture.INSTANCE);
+        return StringToGesture.INSTANCE;
     }
 
 }

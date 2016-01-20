@@ -1,32 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.collections.FXCollections?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<?import java.lang.String?>
 <GridPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="edu.crimpbit.anaylsis.view.RecordingFormFragment" hgap="4" vgap="4">
 
     <Text text="%recording.subject" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-    <ComboBox fx:id="subjectSelect" GridPane.columnIndex="1" GridPane.rowIndex="0">
-        <items>
-            <FXCollections fx:factory="observableArrayList">
-                <String fx:value="peter" />
-            </FXCollections>
-        </items>
-    </ComboBox>
+    <ComboBox fx:id="subjectSelect" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-    <Text text="%recording.exercise" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-    <ComboBox fx:id="exerciseSelect" GridPane.columnIndex="1" GridPane.rowIndex="1">
-        <items>
-            <FXCollections fx:factory="observableArrayList">
-                <String fx:value="index-finger" />
-                <String fx:value="index-finger+middle-finger" />
-                <String fx:value="index-finger+middle-finger+ring-finger" />
-            </FXCollections>
-        </items>
-    </ComboBox>
+    <Text text="%recording.gesture" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+    <ComboBox fx:id="gestureSelect" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
     <columnConstraints>
         <ColumnConstraints />

@@ -12,9 +12,9 @@
                     <PropertyValueFactory property="subject.name" />
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn text="%recording.exercise">
+            <TableColumn text="%recording.gesture">
                 <cellValueFactory>
-                    <PropertyValueFactory property="exercise" />
+                    <PropertyValueFactory property="gesture" />
                 </cellValueFactory>
             </TableColumn>
             <TableColumn text="%recording.createdAt">

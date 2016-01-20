@@ -9,7 +9,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-import weka.classifiers.Evaluation;
 import weka.classifiers.functions.Logistic;
 import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.trees.J48;
@@ -17,8 +16,6 @@ import weka.core.Instances;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  * Created by Dario on 16.01.2016.
@@ -59,19 +56,19 @@ public class WekaTest {
             List<Recording> testBList = new ArrayList<>();
             List<Recording> testCList = new ArrayList<>();
             List<Instances> testList = new ArrayList<>();
-            String actualClass = testRecordingA.getExercise();
+            String actualClass = testRecordingA.getGesture().getName();
             Recording testRecordingB = testRecordingA;
             Recording testRecordingC = testRecordingA;
 
-            testRecordingA.setExercise("index-finger");
+            testRecordingA.setGesture(new Gesture("index-finger"));
             testAList.add(testRecordingA);
             testList.add(WekaTool.convert(testAList));
 
-            testRecordingB.setExercise("index-finger+middle-finger");
+            testRecordingB.setGesture(new Gesture("index-finger+middle-finger"));
             testBList.add(testRecordingB);
             testList.add(WekaTool.convert(testBList));
 
-            testRecordingC.setExercise("index-finger+middle-finger+ring-finger");
+            testRecordingC.setGesture(new Gesture("index-finger+middle-finger+ring-finger"));
             testCList.add(testRecordingC);
             testList.add(WekaTool.convert(testCList));
 

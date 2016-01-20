@@ -1,5 +1,6 @@
 package edu.crimpbit.converter;
 
+import edu.crimpbit.Gesture;
 import edu.crimpbit.Subject;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
@@ -15,13 +16,13 @@ import java.util.Set;
  */
 @ReadingConverter
 @WritingConverter
-public enum StringToSubject implements GenericConverter {
+public enum StringToGesture implements GenericConverter {
 
     INSTANCE;
 
     private static final HashSet<ConvertiblePair> CONVERTIBLE_PAIRS = new HashSet<>(Arrays.asList(
-            new ConvertiblePair(String.class, Subject.class),
-            new ConvertiblePair(Subject.class, String.class)));
+            new ConvertiblePair(String.class, Gesture.class),
+            new ConvertiblePair(Gesture.class, String.class)));
 
     public Set<ConvertiblePair> getConvertibleTypes() {
         return CONVERTIBLE_PAIRS;
@@ -29,12 +30,9 @@ public enum StringToSubject implements GenericConverter {
 
     public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
         if (source instanceof String) {
-            Subject subject = new Subject();
-            subject.setName((String) source);
-            return subject;
+            new Gesture((String) source);
         }
-
-        return ((Subject) source).getName();
+        return ((Gesture) source).getName();
     }
 
 }

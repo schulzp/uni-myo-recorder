@@ -3,9 +3,7 @@ package edu.crimpbit.anaylsis.config;
 import edu.crimpbit.Recording;
 import edu.crimpbit.Subject;
 import edu.crimpbit.anaylsis.command.*;
-import edu.crimpbit.anaylsis.converter.ArmStringConverter;
-import edu.crimpbit.anaylsis.converter.DeviceStringConverter;
-import edu.crimpbit.anaylsis.converter.SubjectStringConverter;
+import edu.crimpbit.anaylsis.converter.*;
 import edu.crimpbit.anaylsis.selection.SelectionService;
 import edu.crimpbit.anaylsis.view.ImuView;
 import edu.crimpbit.anaylsis.view.RecordingEditor;
@@ -28,6 +26,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.javafx.EnableFXMLControllers;
 import org.springframework.javafx.FXMLControllerFactory;
 
@@ -134,8 +133,13 @@ public class AnalysisApplicationConfiguration {
     }
 
     @Bean
-    public SubjectStringConverter subjectStringConverter(SubjectService subjectService) {
-        return new SubjectStringConverter(subjectService);
+    public SubjectStringConverter subjectStringConverter(ConversionService conversionService) {
+        return new SubjectStringConverter(conversionService);
+    }
+
+    @Bean
+    public GestureStringConverter gestureStringConverter(ConversionService conversionService) {
+        return new GestureStringConverter(conversionService);
     }
 
     @Bean

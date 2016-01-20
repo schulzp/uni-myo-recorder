@@ -3,6 +3,7 @@ package edu.crimpbit.config;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
+import edu.crimpbit.converter.StringToGesture;
 import edu.crimpbit.converter.StringToSubject;
 import edu.crimpbit.repository.RepositoryProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,11 +53,12 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
 
     @Override
     public CustomConversions customConversions() {
-        return new CustomConversions(Arrays.asList(StringToSubject.INSTANCE));
+        return new CustomConversions(Arrays.asList(StringToSubject.INSTANCE, StringToGesture.INSTANCE));
     }
 
     @Bean
     public ApplicationListener<MongoMappingEvent<?>> mongoEventListener(ApplicationEventPublisher applicationEventPublisher) {
+
         return new AbstractMongoEventListener<Object>() {
 
             @Override
@@ -70,6 +72,7 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
             }
 
         };
+
     }
 
     @Bean

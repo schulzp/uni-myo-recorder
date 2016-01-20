@@ -33,7 +33,7 @@ public class Recording {
     private final LocalTime createdAt = LocalTime.now();
 
     @NotNull
-    private String exercise;
+    private Gesture gesture;
 
     @Reference
     private Subject subject;
@@ -51,12 +51,12 @@ public class Recording {
         return arm;
     }
 
-    public void setExercise(String exercise) {
-        this.exercise = exercise;
+    public void setGesture(Gesture gesture) {
+        this.gesture = gesture;
     }
 
-    public String getExercise() {
-        return exercise;
+    public Gesture getGesture() {
+        return gesture;
     }
 
     public void setSubject(Subject subject) {
