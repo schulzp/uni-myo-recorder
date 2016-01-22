@@ -56,11 +56,6 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
     }
 
     @Override
-    public CustomConversions customConversions() {
-        return new CustomConversions(Arrays.asList(StringToSubject.INSTANCE, StringToGesture.INSTANCE));
-    }
-
-    @Override
     public MongoTemplate mongoTemplate() throws Exception {
         MongoTemplate mongoTemplate = super.mongoTemplate();
         createIndices(mongoTemplate);
@@ -69,8 +64,8 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
 
     private void createIndices(MongoTemplate mongoTemplate) {
         mongoTemplate.indexOps(Subject.class).ensureIndex(new Index().on("name", Sort.Direction.ASC).unique());
-        mongoTemplate.indexOps(Recording.class).ensureIndex(new Index().on("tags", Sort.Direction.ASC));
         mongoTemplate.indexOps(Recording.class).ensureIndex(new Index().on("gesture", Sort.Direction.ASC));
+        mongoTemplate.indexOps(Recording.class).ensureIndex(new Index().on("gesture.tags", Sort.Direction.ASC));
     }
 
     @Bean

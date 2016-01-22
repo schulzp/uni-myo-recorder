@@ -2,6 +2,7 @@ package edu.crimpbit.config;
 
 import com.thalmic.myo.Hub;
 import edu.crimpbit.converter.StringToGesture;
+import edu.crimpbit.converter.StringToSubject;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -35,6 +36,12 @@ public class CoreConfiguration {
     public StringToGesture stringToGesture(GenericConversionService conversionService) {
         conversionService.addConverter(StringToGesture.INSTANCE);
         return StringToGesture.INSTANCE;
+    }
+
+    @Bean
+    public StringToSubject stringToSubject(GenericConversionService conversionService) {
+        conversionService.addConverter(StringToSubject.INSTANCE);
+        return StringToSubject.INSTANCE;
     }
 
 }

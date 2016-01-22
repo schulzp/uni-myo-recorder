@@ -12,11 +12,18 @@ import java.util.List;
 @Service
 public class GestureService {
 
+    @Value("#{'${edu.crimpbit.gesture.tags}'.split(',')}")
+    private List<String> tags;
+
     @Value("#{'${edu.crimpbit.gestures}'.split(',')}")
     private List<Gesture> gestures;
 
     public List<Gesture> findAll() {
         return gestures;
+    }
+
+    public List<String> getTags() {
+        return tags;
     }
 
 }

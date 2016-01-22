@@ -3,14 +3,23 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.control.TextField?>
+<?import org.controlsfx.control.CheckComboBox?>
 <GridPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="edu.crimpbit.anaylsis.view.RecordingFormFragment" hgap="4" vgap="4">
 
     <Text text="%recording.subject" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-    <ComboBox fx:id="subjectSelect" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+    <ComboBox fx:id="subjectSelect" GridPane.columnIndex="1" GridPane.rowIndex="0">
+        <placeholder>
+            <Text text="%subjects.view.empty" styleClass="view-placeholder" />
+        </placeholder>
+    </ComboBox>
 
     <Text text="%recording.gesture" GridPane.columnIndex="0" GridPane.rowIndex="1" />
     <ComboBox fx:id="gestureSelect" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+    <Text text="%recording.gesture.tags" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+    <CheckComboBox fx:id="gestureTags" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
     <columnConstraints>
         <ColumnConstraints />

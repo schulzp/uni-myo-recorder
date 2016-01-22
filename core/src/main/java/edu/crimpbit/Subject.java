@@ -12,14 +12,9 @@ public class Subject {
     @Id
     private String id;
 
-    @NotNull
     private String name = "";
 
     private int age;
-
-    private ArmDetails leftArm;
-
-    private ArmDetails rightArm;
 
     public String getId() {
         return id;
@@ -39,21 +34,6 @@ public class Subject {
 
     public void setAge(int age) {
         this.age = age;
-    }
-
-    public ArmDetails getArmDetails(Arm arm) {
-        if (arm == Arm.ARM_LEFT) {
-            return leftArm;
-        } else if (arm == Arm.ARM_RIGHT) {
-            return rightArm;
-        }
-        throw new IllegalArgumentException("Unkown arm");
-    }
-
-    public static class ArmDetails {
-
-        int girth;
-
     }
 
 }

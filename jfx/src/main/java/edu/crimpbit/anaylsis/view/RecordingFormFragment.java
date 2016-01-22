@@ -10,6 +10,9 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.control.TextField;
+import org.controlsfx.control.CheckComboBox;
+import org.controlsfx.control.textfield.TextFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -30,6 +33,9 @@ public class RecordingFormFragment {
 
     @FXML
     private ComboBox<Subject> subjectSelect;
+
+    @FXML
+    private CheckComboBox<String> gestureTags;
 
     @Autowired
     private ControlFactory controlFactory;
@@ -54,14 +60,17 @@ public class RecordingFormFragment {
         this.recording = recording;
 
         if (recording != null) {
-            SingleSelectionModel<Gesture> exerciseSelectionModel = gestureSelect.getSelectionModel();
             SingleSelectionModel<Subject> subjectSelectionModel = subjectSelect.getSelectionModel();
+            SingleSelectionModel<Gesture> gestureSelectionModel = gestureSelect.getSelectionModel();
             if (recording.getId() == null) {
-                recording.setGesture(exerciseSelectionModel.getSelectedItem());
                 recording.setSubject(subjectSelectionModel.getSelectedItem());
+                Gesture gesture = gestureSelectionModel.getSelectedItem();
+                recording.setGesture(gesture);
+                gesture.setTags(gestureTags.getCheckModel().getCheckedItems());
             } else {
-                exerciseSelectionModel.select(recording.getGesture());
                 subjectSelectionModel.select(recording.getSubject());
+                gestureSelectionModel.select(recording.getGesture());
+                recording.getGesture().getTags().stream().forEach(tag -> gestureTags.getCheckModel().check(tag));
             }
         }
     }
@@ -72,6 +81,7 @@ public class RecordingFormFragment {
         subjectSelect.getSelectionModel().selectedItemProperty().addListener(subjectListener);
         controlFactory.initializeSubjectComboBox(subjectSelect);
         controlFactory.initializeGestureComboBox(gestureSelect);
+        controlFactory.initializeGestureTagsTextField(gestureTags);
     }
 
     public void handleException(ConstraintViolationException exception) {

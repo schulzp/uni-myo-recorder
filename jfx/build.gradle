@@ -105,15 +105,17 @@ ext {
     vJfxtras = '8.0-r4'
     vSpringBootJavaFx = '0.5.7'
     vStringTest = '2.5'
+    vControlFx = '8.40.10'
 }
 
 dependencies {
-    compile 'org.springframework.boot:spring-boot-javafx:' + vSpringBootJavaFx,
-            'de.jensd:fontawesomefx:' + vFontAwesome,
+    compile "org.springframework.boot:spring-boot-javafx:$vSpringBootJavaFx",
+            "de.jensd:fontawesomefx:$vFontAwesome",
+            "org.controlsfx:controlsfx:$vControlFx",
             project(':core'),
             project(':weka')
 
-    testCompile 'org.springframework:spring-test:' + vStringTest
+    testCompile "org.springframework:spring-test:$vStringTest"
 }
 
 repositories {
