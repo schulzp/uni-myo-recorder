@@ -1,7 +1,7 @@
 package edu.crimpbit.anaylsis.selection;
 
-import com.sun.scenario.effect.impl.sw.sse.SSERendererDelegate;
-import javafx.beans.property.*;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -11,10 +11,12 @@ import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Selection service.
  */
+@Service
 public class SelectionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectionService.class);

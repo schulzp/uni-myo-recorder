@@ -4,18 +4,22 @@ import com.thalmic.myo.enums.Arm;
 import edu.crimpbit.Device;
 import edu.crimpbit.service.ConnectorService;
 import javafx.util.StringConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.NoSuchElementException;
 
 /**
  * {@link StringConverter} implementation for {@link Device} values.
  */
+@Component
 public class DeviceStringConverter extends StringConverter<Device> {
 
     private final ConnectorService connectorService;
 
     private final ArmStringConverter armStringConverter;
 
+    @Autowired
     public DeviceStringConverter(ConnectorService connectorService, ArmStringConverter armStringConverter) {
         this.connectorService = connectorService;
         this.armStringConverter = armStringConverter;

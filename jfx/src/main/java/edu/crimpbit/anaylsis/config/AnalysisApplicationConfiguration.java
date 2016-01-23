@@ -3,18 +3,14 @@ package edu.crimpbit.anaylsis.config;
 import edu.crimpbit.Recording;
 import edu.crimpbit.Subject;
 import edu.crimpbit.anaylsis.command.*;
-import edu.crimpbit.anaylsis.converter.*;
 import edu.crimpbit.anaylsis.selection.SelectionService;
 import edu.crimpbit.anaylsis.view.ImuView;
 import edu.crimpbit.anaylsis.view.RecordingEditor;
 import edu.crimpbit.anaylsis.view.SubjectEditor;
-import edu.crimpbit.anaylsis.view.control.ControlFactory;
+import edu.crimpbit.anaylsis.view.control.AlertFactory;
 import edu.crimpbit.config.CoreConfiguration;
 import edu.crimpbit.repository.RepositoryProvider;
-import edu.crimpbit.service.ConnectorService;
-import edu.crimpbit.service.SubjectService;
 import javafx.concurrent.Task;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,11 +22,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.javafx.EnableFXMLControllers;
 import org.springframework.javafx.FXMLControllerFactory;
 
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -38,7 +32,7 @@ import java.util.function.Function;
 
 @Configuration
 @EnableFXMLControllers
-@ComponentScan(basePackages = { "edu.crimpbit.anaylsis.view" })
+@ComponentScan(basePackages = { "edu.crimpbit.anaylsis" })
 @Import({ CoreConfiguration.class })
 public class AnalysisApplicationConfiguration {
 
@@ -81,11 +75,6 @@ public class AnalysisApplicationConfiguration {
     }
 
     @Bean
-    public CommandService commandService(BeanFactory beanFactory) {
-        return new CommandService(beanFactory);
-    }
-
-    @Bean
     public OpenControllerCommand imuViewOpenCommand(OpenControllerCommandFactory factory) {
         return factory.create(ImuView.class, "view.show.imu.command");
     }
@@ -116,40 +105,10 @@ public class AnalysisApplicationConfiguration {
     }
 
     @Bean
-    public FileDeleteCommand fileDeleteCommand(CommandService commandService, SelectionService selectionService, RepositoryProvider repositoryProvider) {
-        FileDeleteCommand fileDeleteCommand = new FileDeleteCommand(selectionService, repositoryProvider);
+    public FileDeleteCommand fileDeleteCommand(CommandService commandService, SelectionService selectionService, RepositoryProvider repositoryProvider, AlertFactory alertFactory) {
+        FileDeleteCommand fileDeleteCommand = new FileDeleteCommand(selectionService, repositoryProvider, alertFactory);
         commandService.registerCommand(fileDeleteCommand);
         return fileDeleteCommand;
-    }
-
-    @Bean
-    public DeviceStringConverter deviceStringConverter(ConnectorService connectorService, ArmStringConverter armStringConverter) {
-        return new DeviceStringConverter(connectorService, armStringConverter);
-    }
-
-    @Bean
-    public ArmStringConverter armStringConverter(ResourceBundle resourceBundle) {
-        return new ArmStringConverter(resourceBundle);
-    }
-
-    @Bean
-    public SubjectStringConverter subjectStringConverter(ConversionService conversionService) {
-        return new SubjectStringConverter(conversionService);
-    }
-
-    @Bean
-    public GestureStringConverter gestureStringConverter(ConversionService conversionService) {
-        return new GestureStringConverter(conversionService);
-    }
-
-    @Bean
-    public ControlFactory controlFactory() {
-        return new ControlFactory();
-    }
-
-    @Bean
-    public SelectionService selectionService() {
-        return new SelectionService();
     }
 
 }

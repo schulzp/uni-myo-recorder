@@ -1,15 +1,17 @@
 package edu.crimpbit.anaylsis.converter;
 
-import com.thalmic.myo.enums.Arm;
 import edu.crimpbit.Subject;
-import javafx.util.StringConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.stereotype.Component;
 
 /**
  * ConversionServiceStringConverter for Subject.
  */
+@Component
 public class SubjectStringConverter extends ConversionServiceStringConverter<Subject> {
 
+    @Autowired
     public SubjectStringConverter(ConversionService conversionService) {
         super(conversionService, Subject.class);
     }

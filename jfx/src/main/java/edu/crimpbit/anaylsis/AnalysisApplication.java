@@ -1,6 +1,7 @@
 package edu.crimpbit.anaylsis;
 
 import edu.crimpbit.anaylsis.config.AnalysisApplicationConfiguration;
+import edu.crimpbit.anaylsis.scene.SceneHolder;
 import edu.crimpbit.anaylsis.view.MainLayout;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -12,12 +13,17 @@ public class AnalysisApplication extends SpringFXApplication {
     @Autowired
     private MainLayout mainLayout;
 
+    @Autowired
+    private SceneHolder sceneHolder;
+
     public AnalysisApplication() {
         super(AnalysisApplicationConfiguration.class);
     }
 
     @Override
     public void start(Stage stage) throws Exception {
+        stage.sceneProperty().addListener((observable, oldValue, newValue) -> sceneHolder.setScene(newValue));
+
         Scene scene = new Scene(mainLayout.getRootNode());
         scene.getStylesheets().addAll(
                 AnalysisApplication.class.getResource("/styles/default.css").toExternalForm(),

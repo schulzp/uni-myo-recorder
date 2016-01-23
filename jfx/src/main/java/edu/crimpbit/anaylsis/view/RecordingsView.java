@@ -11,8 +11,9 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.stage.Modality;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
 import org.controlsfx.control.table.TableFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,15 +84,7 @@ public class RecordingsView {
 
     @FXML
     private void delete(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, resourceBundle.getString("file.delete.confirm"));
-        alert.initOwner(recordingsTable.getScene().getWindow());
-        alert.initModality(Modality.APPLICATION_MODAL);
-        alert.resultProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == ButtonType.OK) {
-                commandService.execute("file.delete.command");
-            }
-        });
-        alert.show();
+        commandService.execute("file.delete.command");
     }
 
     @EventListener(condition = "#event == 'update.recording'")

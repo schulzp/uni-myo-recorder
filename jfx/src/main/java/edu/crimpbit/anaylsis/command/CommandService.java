@@ -1,6 +1,7 @@
 package edu.crimpbit.anaylsis.command;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -16,6 +17,7 @@ public class CommandService {
 
     private final BeanFactory beanFactory;
 
+    @Autowired
     public CommandService(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }

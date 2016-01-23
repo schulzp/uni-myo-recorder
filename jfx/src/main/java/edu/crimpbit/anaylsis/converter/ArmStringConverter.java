@@ -2,12 +2,15 @@ package edu.crimpbit.anaylsis.converter;
 
 import com.thalmic.myo.enums.Arm;
 import javafx.util.StringConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 /**
  * {@link StringConverter} implementation for {@link Arm} values.
  */
+@Component
 public class ArmStringConverter extends StringConverter<Arm> {
 
     static final String RESOURCE_BUNDLE_PREFIX = "device.arm.";
@@ -16,6 +19,7 @@ public class ArmStringConverter extends StringConverter<Arm> {
 
     final Map<Arm, String> translations;
 
+    @Autowired
     public ArmStringConverter(ResourceBundle resourceBundle) {
         this.resourceBundle = resourceBundle;
 
