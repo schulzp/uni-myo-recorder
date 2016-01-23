@@ -1,8 +1,6 @@
 package edu.crimpbit.anaylsis.util;
 
-import javafx.beans.property.adapter.JavaBeanIntegerPropertyBuilder;
-import javafx.beans.property.adapter.JavaBeanProperty;
-import javafx.beans.property.adapter.JavaBeanStringPropertyBuilder;
+import javafx.beans.property.adapter.*;
 
 /**
  * JavaFX bean property utility functions.
@@ -24,8 +22,15 @@ public abstract class JavaBeanPropertyUtils {
                     return (JavaBeanProperty<T>) JavaBeanIntegerPropertyBuilder.create()
                             .bean(bean).beanClass(bean.getClass()).name(propertyName).build();
                 }
+                if (propertyType == Double.class) {
+                    return (JavaBeanProperty<T>) JavaBeanDoublePropertyBuilder.create()
+                            .bean(bean).beanClass(bean.getClass()).name(propertyName).build();
+                }
             } else if (propertyType == String.class) {
                 return (JavaBeanProperty<T>) JavaBeanStringPropertyBuilder.create()
+                        .bean(bean).beanClass(bean.getClass()).name(propertyName).build();
+            } else {
+                return (JavaBeanProperty<T>) JavaBeanObjectPropertyBuilder.create()
                         .bean(bean).beanClass(bean.getClass()).name(propertyName).build();
             }
         } catch (NoSuchMethodException e) {

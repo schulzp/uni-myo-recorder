@@ -5,6 +5,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.control.TitledPane?>
 <GridPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" vgap="10" hgap="10">
     <padding>
         <Insets left="10" top="10" right="10" bottom="10" />
@@ -13,5 +14,15 @@
     <TextField fx:id="subjectName" GridPane.rowIndex="0" GridPane.columnIndex="1" />
 
     <Text text="%subject.age" GridPane.rowIndex="0" GridPane.columnIndex="2" />
-    <Spinner fx:id="subjectAge" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+    <Spinner fx:id="subjectAge" GridPane.rowIndex="0" GridPane.columnIndex="3" maxWidth="100" />
+
+    <Text text="%subject.gender" GridPane.rowIndex="0" GridPane.columnIndex="4" />
+    <HBox fx:id="genderPane" GridPane.rowIndex="0" GridPane.columnIndex="5" alignment="CENTER" />
+
+    <TitledPane text="%device.arm.ARM_LEFT" GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="3">
+        <fx:include fx:id="leftArmFragment" source="ArmDetailsFormFragment.fxml" />
+    </TitledPane>
+    <TitledPane text="%device.arm.ARM_RIGHT"  GridPane.rowIndex="1" GridPane.columnIndex="3" GridPane.columnSpan="3">
+        <fx:include fx:id="rightArmFragment" source="ArmDetailsFormFragment.fxml" />
+    </TitledPane>
 </GridPane>

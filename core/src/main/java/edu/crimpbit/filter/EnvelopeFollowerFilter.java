@@ -2,7 +2,6 @@ package edu.crimpbit.filter;
 
 import com.google.common.base.MoreObjects;
 import one.util.streamex.EntryStream;
-import one.util.streamex.StreamEx;
 
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;

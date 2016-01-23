@@ -5,8 +5,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import edu.crimpbit.Recording;
 import edu.crimpbit.Subject;
-import edu.crimpbit.converter.StringToGesture;
-import edu.crimpbit.converter.StringToSubject;
 import edu.crimpbit.repository.RepositoryProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,15 +16,12 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.AfterDeleteEvent;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
 import org.springframework.data.mongodb.core.mapping.event.MongoMappingEvent;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableMongoRepositories(basePackages = { "edu.crimpbit.repository" })

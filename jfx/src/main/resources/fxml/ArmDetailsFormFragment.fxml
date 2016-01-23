@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<GridPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="edu.crimpbit.anaylsis.view.ArmDetailsFormFragment">
+    <Text text="%subject.arm.girth" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+    <Spinner fx:id="girthSpinner" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+</GridPane>
