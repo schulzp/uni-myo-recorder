@@ -65,8 +65,8 @@ public class SubjectsView {
         refresh();
     }
 
-    @EventListener(condition = "#subject.id != null")
-    private void onUpdate(Subject subject) {
+    @EventListener(condition = "#event == 'update.subject'")
+    private void onUpdate(String event) {
         refresh();
     }
 

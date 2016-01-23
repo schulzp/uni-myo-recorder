@@ -2,8 +2,11 @@ package edu.crimpbit.anaylsis.command;
 
 import edu.crimpbit.anaylsis.selection.SelectionService;
 import edu.crimpbit.repository.RepositoryProvider;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableBooleanValue;
+
+import java.util.ArrayList;
 
 /**
  * Global delete command.
@@ -29,9 +32,8 @@ public class FileDeleteCommand implements Command {
 
     @Override
     public void run() {
-        for (Object selected : selectionService.getSelection()) {
-            repositoryProvider.get(selected).delete(selected);
-        }
+        new ArrayList<>(selectionService.getSelection())
+        .stream().forEach(selected -> repositoryProvider.get(selected).delete(selected));
     }
 
 }

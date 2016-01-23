@@ -75,12 +75,12 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
 
             @Override
             public void onAfterSave(AfterSaveEvent<Object> event) {
-                applicationEventPublisher.publishEvent(event.getSource());
+                applicationEventPublisher.publishEvent("update." + event.getCollectionName());
             }
 
             @Override
             public void onAfterDelete(AfterDeleteEvent<Object> event) {
-                applicationEventPublisher.publishEvent(event.getSource());
+                applicationEventPublisher.publishEvent("update." + event.getCollectionName());
             }
 
         };

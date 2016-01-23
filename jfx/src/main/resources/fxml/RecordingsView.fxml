@@ -1,28 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.text.Text?>
 <TitledPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="edu.crimpbit.anaylsis.view.RecordingsView"
             text="%recordings.view.title">
     <TableView fx:id="recordingsTable">
-        <columns>
-            <TableColumn text="%recording.subject">
-                <cellValueFactory>
-                    <PropertyValueFactory property="subject.name" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn text="%recording.gesture">
-                <cellValueFactory>
-                    <PropertyValueFactory property="gesture" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn text="%recording.createdAt">
-                <cellValueFactory>
-                    <PropertyValueFactory property="createdAt" />
-                </cellValueFactory>
-            </TableColumn>
-        </columns>
         <placeholder>
             <Text text="%recordings.view.empty" styleClass="view-placeholder" />
         </placeholder>
