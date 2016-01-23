@@ -90,6 +90,13 @@ public class AnalysisApplicationConfiguration {
     }
 
     @Bean
+    public StartRecordingWizardCommand startRecordingWizardCommand(CommandService commandService) {
+        StartRecordingWizardCommand command = new StartRecordingWizardCommand();
+        commandService.registerCommand(command);
+        return command;
+    }
+
+    @Bean
     public OpenControllerCommandFactory openControllerCommandFactory(ApplicationEventPublisher applicationEventPublisher, FXMLControllerFactory controllerFactory, CommandService commandService) {
         OpenControllerCommandFactory factory = new OpenControllerCommandFactory(applicationEventPublisher, controllerFactory, commandService);
         factory.map(Recording.class, RecordingEditor.class);

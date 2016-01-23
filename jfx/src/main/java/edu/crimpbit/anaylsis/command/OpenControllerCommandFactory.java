@@ -27,17 +27,17 @@ public class OpenControllerCommandFactory {
         contentControllerMap.put(contentClass, controllerClass);
     }
 
-    public <C> OpenControllerCommand<C, ?> create(Class<C> type, String id) {
+    public <C> OpenControllerCommand<?, C> create(Class<C> type, String id) {
         OpenControllerCommand command = new OpenControllerCommand(applicationEventPublisher, controllerFactory, type, id);
         commandService.registerCommand(command);
         return command;
     }
 
-    public <C, T> OpenControllerCommand<C, T> create(Class<C> type, T content) {
+    public <C, T> OpenControllerCommand<T, C> create(Class<C> type, T content) {
         return new OpenControllerCommand(applicationEventPublisher, controllerFactory, type, content);
     }
 
-    public <T> OpenControllerCommand<?, T> create(T content) {
+    public <T> OpenControllerCommand<T, ?> create(T content) {
         Class<?> controllerType = contentControllerMap.get(content.getClass());
         if (controllerType == null) {
             throw new NoSuchElementException("No controller for " + content.getClass());

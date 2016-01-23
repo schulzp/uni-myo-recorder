@@ -16,8 +16,10 @@ public class OpenControllerCommand<T, C> extends OpenCommand<T> {
     private final Class<C> type;
     private final String id;
 
+    private C controller;
+
     public OpenControllerCommand(ApplicationEventPublisher applicationEventPublisher, FXMLControllerFactory<C> controllerFactory, Class<C> type, T content) {
-        this(applicationEventPublisher, controllerFactory, type, "open." + content.getClass().getSimpleName() + "." + content.hashCode());
+        this(applicationEventPublisher, controllerFactory, type, (String) null);
         setContent(content);
     }
 
@@ -29,9 +31,11 @@ public class OpenControllerCommand<T, C> extends OpenCommand<T> {
     }
 
     public C createController() {
-        C controller = controllerFactory.call(type);
-        if (controller instanceof Named) {
-            getContent().ifPresent(((Persistable) controller)::setPersistable);
+        if (controller == null) {
+            controller = controllerFactory.call(type);
+            if (controller instanceof Named) {
+                getContent().ifPresent(((Persistable) controller)::setPersistable);
+            }
         }
         return controller;
     }

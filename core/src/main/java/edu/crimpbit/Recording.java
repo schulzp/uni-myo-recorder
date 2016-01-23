@@ -35,6 +35,7 @@ public class Recording {
     @NotNull
     private Gesture gesture;
 
+    @NotNull
     @Reference
     private Subject subject;
 

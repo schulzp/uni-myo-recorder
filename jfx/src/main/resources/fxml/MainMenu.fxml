@@ -10,6 +10,11 @@
                 <KeyCodeCombination alt="UP" code="N" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
             </accelerator>
         </MenuItem>
+        <MenuItem fx:id="startRecordingWizard" text="%start.recording.wizard.command" onAction="#handle">
+            <accelerator>
+                <KeyCodeCombination alt="UP" code="N" control="UP" meta="DOWN" shift="DOWN" shortcut="UP" />
+            </accelerator>
+        </MenuItem>
         <MenuItem fx:id="fileSave" text="%file.save.command" onAction="#handle">
             <accelerator>
                 <KeyCodeCombination alt="UP" code="S" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
