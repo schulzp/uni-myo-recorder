@@ -1,6 +1,5 @@
 package edu.crimpbit.anaylsis.wizard;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Service;
 import de.jensd.fx.glyphs.GlyphsDude;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -17,17 +16,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import org.apache.commons.logging.LogFactory;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
-import org.controlsfx.glyphfont.FontAwesome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
@@ -38,6 +35,10 @@ public class TagBasedRecordingWizardBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("RecordingWizard");
 
+    private static final String EXECUTOR_PROPERTY = "executor";
+    private static final String SUBJECT_SETTING = "subject";
+    private static final String DEVICE_SETTING = "device";
+
     private final MessageSourceAccessor messageSourceAccessor;
     private final RecordingService recordingService;
     private final ControlFactory controlFactory;
@@ -47,7 +48,6 @@ public class TagBasedRecordingWizardBuilder {
     private Window owner;
     private String title;
     private Optional<Consumer<Recording>> recordingConsumer = Optional.empty();
-    private Executor executor = Executors.newFixedThreadPool(1);
 
     public TagBasedRecordingWizardBuilder(MessageSourceAccessor messageSourceAccessor, RecordingService recordingService, ControlFactory controlFactory) {
         this.messageSourceAccessor = messageSourceAccessor;
@@ -91,6 +91,11 @@ public class TagBasedRecordingWizardBuilder {
         Wizard wizard = new Wizard(owner);
         wizard.setTitle(title);
         wizard.setFlow(createWizardFlow(createWizardPanes(wizard)));
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        wizard.getProperties().put(EXECUTOR_PROPERTY, executorService);
+        wizard.resultProperty().addListener((observable, oldValue, newValue) -> {
+            executorService.shutdown();
+        });
         return wizard;
     }
 
@@ -117,6 +122,8 @@ public class TagBasedRecordingWizardBuilder {
         gestures.stream().map(gestrue -> {
             String recordButtonText = messageSourceAccessor.getMessage("recorder.record") + ": " + gestrue.getName();
             Button recordButton = new Button(recordButtonText);
+
+            Executor executor = (Executor) wizard.getProperties().get(EXECUTOR_PROPERTY);
 
             Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
                 recordButton.setText(recordButtonText);
@@ -161,10 +168,10 @@ public class TagBasedRecordingWizardBuilder {
     }
 
     private Recorder createRecorder(Wizard wizard, Gesture gestrue, String tag) {
-        Recorder recorder = recordingService.createRecorder((Device) wizard.getSettings().get("device"));
+        Recorder recorder = recordingService.createRecorder((Device) wizard.getSettings().get(DEVICE_SETTING));
         gestrue.setTags(Collections.singletonList(tag));
         recorder.getRecording().setGesture(gestrue);
-        recorder.getRecording().setSubject((Subject) wizard.getSettings().get("subject"));
+        recorder.getRecording().setSubject((Subject) wizard.getSettings().get(SUBJECT_SETTING));
         return recorder;
     }
 
@@ -186,11 +193,11 @@ public class TagBasedRecordingWizardBuilder {
         wizardPane.setContent(layout);
 
         subjectComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            wizard.getSettings().put("subject", newValue);
+            wizard.getSettings().put(SUBJECT_SETTING, newValue);
         });
 
         deviceComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            wizard.getSettings().put("device", newValue);
+            wizard.getSettings().put(DEVICE_SETTING, newValue);
         });
 
         return wizardPane;
