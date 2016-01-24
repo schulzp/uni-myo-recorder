@@ -34,10 +34,12 @@ public class Recording {
     @NotNull
     private Gesture gesture;
 
+    @DBRef
     @NotNull
     private Subject subject;
 
     @DBRef
+    @NotNull
     private final EMGData emgData = new EMGData();
 
     public Recording(Arm arm, XDirection xDirection, float rotation) {
