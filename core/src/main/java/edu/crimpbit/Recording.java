@@ -3,12 +3,11 @@ package edu.crimpbit;
 import com.thalmic.myo.enums.Arm;
 import com.thalmic.myo.enums.XDirection;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Reference;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 /**
@@ -30,13 +29,12 @@ public class Recording {
     private final float rotation;
 
     @NotNull
-    private final LocalTime createdAt = LocalTime.now();
+    private final LocalDateTime createdAt = LocalDateTime.now();
 
     @NotNull
     private Gesture gesture;
 
     @NotNull
-    @Reference
     private Subject subject;
 
     @DBRef
@@ -70,6 +68,10 @@ public class Recording {
 
     public EMGData getEmgData() {
         return emgData;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public String getId() {
