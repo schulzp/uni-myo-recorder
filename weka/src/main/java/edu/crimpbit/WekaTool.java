@@ -3,6 +3,9 @@ package edu.crimpbit;
 import edu.crimpbit.filter.AverageFilter;
 import edu.crimpbit.filter.EnvelopeFollowerFilter;
 import edu.crimpbit.filter.LabelFilter;
+import edu.crimpbit.service.GestureService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
@@ -10,14 +13,50 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@Component
 public class WekaTool {
 
-    public static Instances convert(List<Recording> recordings) {
+    @Autowired
+    private GestureService gestureService;
+
+    private static AverageFilter averageFilter;
+    private static LabelFilter labelFilter;
+    private static EnvelopeFollowerFilter envelopeFollowerFilter;
+
+    public WekaTool(Builder builder) {
+        averageFilter = builder.averageFilter;
+        labelFilter = builder.labelFilter;
+        envelopeFollowerFilter = builder.envelopeFollowerFilter;
+    }
+
+    public Instances convertToTrainSet(List<Recording> recordings) {
+        return convert(recordings);
+    }
+
+    public List<Instances> convertToTestSet(Recording recording, List<Gesture> gestures) {
+        List<Recording> recordings = new ArrayList<>();
+        List<Instances> instances = new ArrayList<>();
+        recordings.add(recording);
+        for (Gesture gesture : gestures) {
+            System.out.println("gesture: " + gesture.getName());
+            if (!gesture.getName().equals(recording.getGesture().getName())) {
+                Recording temp = recording;
+                temp.setGesture(gesture);
+                recordings.add(temp);
+            }
+        }
+        return convert(recordings);
+    }
+
+    public Instances convert(List<Recording> recordings) {
         FastVector attInfo = new FastVector();
 
         Attribute emg_0 = new Attribute("emg_0", 0);
@@ -30,9 +69,22 @@ public class WekaTool {
         Attribute emg_7 = new Attribute("emg_7", 7);
 
         FastVector fastVector = new FastVector();
-        fastVector.addElement("index-finger");
-        fastVector.addElement("index-finger+middle-finger");
-        fastVector.addElement("index-finger+middle-finger+ring-finger");
+
+        fastVector.addElement("index");
+        fastVector.addElement("index+middle");
+        fastVector.addElement("index+middle+ring");
+        fastVector.addElement("index+thumb");
+        fastVector.addElement("index+middle+thumb");
+        fastVector.addElement("index+middle+ring+thumb");
+
+//
+//
+//        fastVector.addElement("index-finger");
+//        fastVector.addElement("index-finger+middle-finger");
+//        fastVector.addElement("index-finger+middle-finger+ring-finger");
+//
+
+
         Attribute classnameAttribute = new Attribute("grip_type", fastVector, 8);
 
         attInfo.addElement(emg_0);
@@ -55,10 +107,6 @@ public class WekaTool {
 
         int chunk = 1;
         for (Recording recording : recordings) {
-            EnvelopeFollowerFilter envelopeFollowerFilter = new EnvelopeFollowerFilter(0.3, 0.8);
-            //envelopeFollowerFilter.apply(EntryStream.of(recording.getEmgData().getData(0).stream().map(Byte::doubleValue).collect(Collectors.toList())));
-            LabelFilter labelFilter = new LabelFilter(10);
-            AverageFilter averageFilter = new AverageFilter(10);
             List<List<Byte>> averagesList = new ArrayList<>();
 //            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(0).stream())).collect(Collectors.toList()));
 //            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(1).stream())).collect(Collectors.toList()));
@@ -70,14 +118,32 @@ public class WekaTool {
 //            averagesList.add(labelFilter.apply(averageFilter.apply(recording.getEmgData().getData(7).stream())).collect(Collectors.toList()));
 //
 
-            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(0).stream()))).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(1).stream()))).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(2).stream()))).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(3).stream()))).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(4).stream()))).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(5).stream()))).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(6).stream()))).collect(Collectors.toList()));
-            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(7).stream()))).collect(Collectors.toList()));
+
+            for (int i = 0; i < EMGData.NUM_EMG_PADS; i++) {
+                Stream<Byte> stream = recording.getEmgData().getData(i).stream();
+                if (envelopeFollowerFilter != null) {
+                    stream = envelopeFollowerFilter.apply(stream);
+                }
+
+                if (averageFilter != null) {
+                    stream = averageFilter.apply(stream);
+                }
+
+                if (labelFilter != null) {
+                    stream = labelFilter.apply(stream);
+                }
+                averagesList.add(stream.collect(Collectors.toList()));
+            }
+
+
+//            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(0).stream()))).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(1).stream()))).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(2).stream()))).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(3).stream()))).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(4).stream()))).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(5).stream()))).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(6).stream()))).collect(Collectors.toList()));
+//            averagesList.add(labelFilter.apply(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(7).stream()))).collect(Collectors.toList()));
 
 //            averagesList.add(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(0).stream())).collect(Collectors.toList()));
 //            averagesList.add(averageFilter.apply(envelopeFollowerFilter.apply(recording.getEmgData().getData(1).stream())).collect(Collectors.toList()));
@@ -97,7 +163,6 @@ public class WekaTool {
 //            averagesList.add(envelopeFollowerFilter.apply(recording.getEmgData().getData(6).stream()).collect(Collectors.toList()));
 //            averagesList.add(envelopeFollowerFilter.apply(recording.getEmgData().getData(7).stream()).collect(Collectors.toList()));
 //
-
 
 
 //            averagesList.add(
@@ -123,6 +188,7 @@ public class WekaTool {
                 row.setValue(emg_5, averagesList.get(5).get(i));
                 row.setValue(emg_6, averagesList.get(6).get(i));
                 row.setValue(emg_7, averagesList.get(7).get(i));
+                //System.out.println("recording.getGesture().getName(): " + recording.getGesture().getName());
                 row.setValue(classnameAttribute, recording.getGesture().getName());
                 instances.add(row);
             }
@@ -133,14 +199,21 @@ public class WekaTool {
         return instances;
     }
 
-    public static String testAllClasses(Instances train, List<Instances> testList, Classifier cls) {
+    public static String testAllClasses(Instances train, List<Instances> testList, Classifier cls) throws ExecutionException, InterruptedException {
         String result = "";
         double biggestPctCorrect = -1;
+        ExecutorService executor = Executors.newFixedThreadPool(testList.size());
+        Set<FutureTask<Double>> set = new HashSet<>();
         for (Instances testInstances : testList) {
-            double ptcCorrect = test(train, testInstances, cls);
-            if (ptcCorrect > biggestPctCorrect) {
-                biggestPctCorrect = ptcCorrect;
-                result = testInstances.instance(0).stringValue(8);
+            FutureTask<Double> doubleFuture = new FutureTask<>(() -> test(train, testInstances, cls));
+            set.add(doubleFuture);
+            executor.execute(doubleFuture);
+            for (FutureTask<Double> future : set) {
+                double ptcCorrect = future.get();
+                if (ptcCorrect > biggestPctCorrect) {
+                    biggestPctCorrect = ptcCorrect;
+                    result = testInstances.instance(0).stringValue(8);
+                }
             }
         }
         return result;
@@ -156,6 +229,40 @@ public class WekaTool {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return -1;
+        return -1d;
+    }
+
+    private List<String> getAllGestures() {
+        return gestureService.findAll().stream().map(Gesture::getName).collect(Collectors.toList());
+    }
+
+
+    public static class Builder {
+
+        private AverageFilter averageFilter;
+        private LabelFilter labelFilter;
+        private EnvelopeFollowerFilter envelopeFollowerFilter;
+
+        public Builder() {
+        }
+
+        public Builder setAverageFilter(AverageFilter averageFilter) {
+            this.averageFilter = averageFilter;
+            return this;
+        }
+
+        public Builder setLabelFilter(LabelFilter labelFilter) {
+            this.labelFilter = labelFilter;
+            return this;
+        }
+
+        public Builder setEnvelopeFollowerFilter(EnvelopeFollowerFilter envelopeFollowerFilter) {
+            this.envelopeFollowerFilter = envelopeFollowerFilter;
+            return this;
+        }
+
+        public WekaTool build() {
+            return new WekaTool(this);
+        }
     }
 }
