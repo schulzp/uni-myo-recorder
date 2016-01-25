@@ -5,6 +5,8 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import edu.crimpbit.Recording;
 import edu.crimpbit.Subject;
+import edu.crimpbit.repository.RecordingRepositoryExtension;
+import edu.crimpbit.repository.RecordingRepositoryImpl;
 import edu.crimpbit.repository.RepositoryProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -37,6 +39,11 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
+    }
+
+    @Bean
+    public RecordingRepositoryExtension recordingRepositoryExtension() {
+        return new RecordingRepositoryImpl();
     }
 
     @Override
