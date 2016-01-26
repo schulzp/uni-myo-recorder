@@ -9,11 +9,14 @@ import edu.crimpbit.service.RecordingService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringArrayPropertyEditor;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import weka.classifiers.functions.Logistic;
+import weka.classifiers.functions.MultilayerPerceptron;
+import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
 import java.util.ArrayList;
@@ -71,36 +74,108 @@ public class WekaTest {
      * 1. Classifier Test: classifier for one subject, one tag, one gesture, different filter sets, different classifiers
      */
     @Test
-    public void classifierTest() {
+    public void classifierTest() throws ExecutionException, InterruptedException {
         //TODO filter subject (recording.getSubject().getName().equals("Peter") &&)
+//        List<Recording> trainList = recordingService.findAll().stream().filter(recording ->
+//                recording.getGesture().getName().equals("index") &&
+//                        recording.getGesture().getTags().get(0).equals("pull-downwards")
+//        ).collect(Collectors.toList());
+
         List<Recording> trainList = recordingService.findAll().stream().filter(recording ->
-                recording.getGesture().getName().equals("index") &&
-                        recording.getGesture().getTags().get(0).equals("pull-downwards")
+                recording.getGesture().getName().equals("index")
         ).collect(Collectors.toList());
-        //List<Recording> testList = new ArrayList<>();
-        Recording correctRecording = trainList.remove(0);
-        //testList.add(correctRecording);
-        WekaTool wekaTool = new WekaTool.Builder()
-                .setAverageFilter(new AverageFilter(10))
-                .setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8))
-                .setLabelFilter(new LabelFilter(10)).build();
+
+        //List<Recording> trainList = recordingService.findAll();
+        //System.out.println(trainList.get(0).getEmgData().getData(0));
+        System.out.println("trainList.size(): " + trainList.size());
+        int logisticCounter = 0;
+        int j48Counter = 0;
+        int multiCounter = 0;
+        List<String> actualClasses = new ArrayList<>();
+        int[][] j48CounterArray = new int[trainList.size()][21];
+
+        for (int i = 0; i < trainList.size(); i++) {
+            Recording correctRecording = trainList.remove(i);
+            System.out.println("correctRecording.getGesture().getName(): " + correctRecording.getGesture().getName());
+            actualClasses.add(correctRecording.getGesture().getName());
+
+            //int j = 10;
+            //int k = 10;
+            for (int j = 1; j <= 20; j++) {
+                //for (int k = 6; k < 20; k += 2) {
+
+                WekaTool wekaTool = new WekaTool.Builder()
+                        .setAverageFilter(new AverageFilter(j))
+                        .setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8))
+                        .setLabelFilter(null).build();
+
+                //WekaTool wekaTool = new WekaTool();
 
 
+                Instances train = wekaTool.convertToTrainSet(trainList);
+                //System.out.println(train);
+                List<Instances> test = wekaTool.convertToTestSet(correctRecording, gestureService.findAll());
 
+//                for (Instances instances : test) {
+//                    System.out.println("+++++++++++++++++++++++++++++++");
+//                    System.out.println(instances);
+//                    System.out.println("+++++++++++++++++++++++++++++++");
+//                }
 
+                //System.out.println("i = " + i + ", j = " + j + ", k " + k);
 
-        Instances train = wekaTool.convertToTrainSet(trainList);
+                System.out.println("i = " + i + ", j = " + j);
+                System.out.println("---------------------------------");
+//                Logistic cls = new Logistic();
+//                //String prediction = WekaTool.testAllClasses(train, test, cls);
+//                String prediction = WekaTool.testAllClassesAsynchronously(train, test, cls);
+//
+//                System.out.println("Logistic");
+//                System.out.println("Predicted Class: " + prediction + " Actual Class : " + actualClasses.get(i));
+//                System.out.println("Prediction correct: " + prediction.equals(actualClasses.get(i)));
+//                if (prediction.equals(actualClasses.get(i)))
+//                    logisticCounter++;
 
-        Instances test = wekaTool.convertToTestSet(correctRecording,gestureService.findAll());
+                J48 cls2 = new J48();
+                //String prediction2 = WekaTool.testAllClasses(train, test, cls2);
+                String prediction2 = WekaTool.testAllClassesAsynchronously(train, test, cls2);
 
+                System.out.println("J48");
+                System.out.println("Predicted Class: " + prediction2 + " Actual Class : " + actualClasses.get(i));
+                System.out.println("Prediction correct: " + prediction2.equals(actualClasses.get(i)));
+                if (prediction2.equals(actualClasses.get(i))) {
+                    j48CounterArray[i][j]++;
+                    j48Counter++;
+                }
 
- //       System.out.println(train);
+//                MultilayerPerceptron cls3 = new MultilayerPerceptron();
+//                //String prediction3 = WekaTool.testAllClasses(train, test, cls3);
+//                String prediction3 = WekaTool.testAllClassesAsynchronously(train, test, cls3);
+//
+//                System.out.println("MultilayerPerceptron");
+//                System.out.println("Predicted Class: " + prediction3 + " Actual Class : " + actualClasses.get(i));
+//                System.out.println("Prediction correct: " + prediction3.equals(actualClasses.get(i)));
+//                if (prediction3.equals(actualClasses.get(i)))
+//                    multiCounter++;
+                System.out.println("---------------------------------");
 
-        System.out.println("--------------");
-        System.out.println(test);
-        System.out.println(train.numInstances());
-        System.out.println(test.numInstances());
+                //}
+            }
+            trainList.add(i, correctRecording);
+        }
 
+        for (int i = 0; i < trainList.size(); i++) {
+            System.out.printf("%5s ", actualClasses.get(i));
+            System.out.print("i " + i + ": ");
+            for (int j = 0; j < 20; j++) {
+                System.out.printf("%d, ", j48CounterArray[i][j]);
+            }
+            System.out.println();
+        }
+        System.out.println("logisticCounter: " + logisticCounter);
+        System.out.println("j48Counter: " + j48Counter);
+        System.out.println("multiCounter: " + multiCounter);
+        System.out.println("total: " + trainList.size());
     }
 
 
