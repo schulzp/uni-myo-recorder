@@ -4,6 +4,7 @@ ext {
     vJSR305 = '3.0.1'
     vHibernateValidator = '5.2.2.Final'
     vMyo = '0.9.1'
+    vStringTest = '2.5'
 }
 
 dependencies {
@@ -13,4 +14,6 @@ dependencies {
             'com.google.code.findbugs:jsr305:' + vJSR305,
             'org.hibernate:hibernate-validator:' + vHibernateValidator,
             'com.opencsv:opencsv:' + vOpenCsv
+
+    testCompile "org.springframework:spring-test:$vStringTest"
 }

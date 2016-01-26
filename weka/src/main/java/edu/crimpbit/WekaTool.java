@@ -4,6 +4,7 @@ import edu.crimpbit.filter.AverageFilter;
 import edu.crimpbit.filter.EnvelopeFollowerFilter;
 import edu.crimpbit.filter.LabelFilter;
 import edu.crimpbit.service.GestureService;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import weka.classifiers.Classifier;
@@ -155,46 +156,46 @@ public class WekaTool {
         String result = "";
         double biggestPctCorrect = -1;
         ExecutorService executor = Executors.newFixedThreadPool(testList.size());
-        Set<FutureTask<Double>> set = new HashSet<>();
+        Set<FutureTask<Pair<String,Double>>> set = new HashSet<>();
         for (Instances testInstances : testList) {
-            FutureTask<Double> doubleFuture = new FutureTask<>(() -> test(train, testInstances, cls));
+            FutureTask<Pair<String,Double>> doubleFuture = new FutureTask<>(() -> test(train, testInstances, cls));
             set.add(doubleFuture);
             executor.execute(doubleFuture);
-            for (FutureTask<Double> future : set) {
-                double ptcCorrect = future.get();
-                if (ptcCorrect > biggestPctCorrect) {
-                    biggestPctCorrect = ptcCorrect;
-                    result = testInstances.instance(0).stringValue(8);
-                }
+        }
+        for (FutureTask<Pair<String,Double>> future : set) {
+            Pair<String, Double> ptcCorrect = future.get();
+            if (ptcCorrect.getRight() > biggestPctCorrect) {
+                biggestPctCorrect = ptcCorrect.getRight();
+                result = ptcCorrect.getLeft();
             }
         }
         return result;
     }
 
-    public static String testAllClassesAsynchronously(Instances train, List<Instances> testList, Classifier cls) {
+    public static String testAllClassesSynchronously(Instances train, List<Instances> testList, Classifier cls) {
         String result = "";
         double biggestPctCorrect = -1;
         for (Instances testInstances : testList) {
-            double ptcCorrect = test(train, testInstances, cls);
-            if (ptcCorrect > biggestPctCorrect) {
-                biggestPctCorrect = ptcCorrect;
-                result = testInstances.instance(0).stringValue(8);
+            Pair<String, Double> ptcCorrect = test(train, testInstances, cls);
+            if (ptcCorrect.getRight() > biggestPctCorrect) {
+                biggestPctCorrect = ptcCorrect.getRight();
+                result = ptcCorrect.getLeft();
             }
         }
         return result;
     }
 
-    private static double test(Instances train, Instances test, Classifier cls) {
+    private static Pair<String, Double> test(Instances train, Instances test, Classifier cls) {
         try {
             cls.buildClassifier(train);
             Evaluation eval = new Evaluation(train);
-            eval.crossValidateModel(cls, train, 10, new Random(1));
+            //eval.crossValidateModel(cls, train, 10, new Random(1));
             eval.evaluateModel(cls, test);
-            return eval.pctCorrect();
+            return Pair.of(test.instance(0).stringValue(8), eval.pctCorrect());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return -1d;
+        return null;
     }
 
     private List<String> getAllGestures() {

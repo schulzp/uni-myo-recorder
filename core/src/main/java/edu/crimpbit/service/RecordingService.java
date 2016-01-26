@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.config.ParsingUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -66,27 +67,36 @@ public class RecordingService {
         }
     }
 
-    public List<Recording> findBySubjectIdAndGestureAndTag(long id, String gesture, String tag) {
+    public List<Recording> findBySubjectIdAndGestureAndTag(String id, String gesture, String tag) {
         try {
-            return findBySubjectIdAndGestureAndTag(id, gesture, tag);
+            return recordingRepository.findBySubjectIdAndGestureAndTag(id, gesture, tag);
         } catch (Exception e) {
             LOGGER.error("Failed to load recordings.", e);
             throw e;
         }
     }
 
-    public List<Recording> findBySubjectIdAndGesture(long id, String gesture) {
+    public List<Recording> findBySubjectIdAndGesture(String id, String gesture) {
         try {
-            return findBySubjectIdAndGesture(id, gesture);
+            return recordingRepository.findBySubjectIdAndGesture(id, gesture);
         } catch (Exception e) {
             LOGGER.error("Failed to load recordings.", e);
             throw e;
         }
     }
 
-    public List<Recording> findBySubjectIdAndTag(long id, String tag) {
+    public List<Recording> findBySubjectIdAndTag(String id, String tag) {
         try {
-            return findBySubjectIdAndGesture(id, tag);
+            return recordingRepository.findBySubjectIdAndTag(id, tag);
+        } catch (Exception e) {
+            LOGGER.error("Failed to load recordings.", e);
+            throw e;
+        }
+    }
+
+    public List<Recording> findBySubjectNameAndTagAndGesture(String name, String tag, String gesture) {
+        try {
+            return recordingRepository.findBySubjectNameAndTagAndGesture(name, tag, gesture);
         } catch (Exception e) {
             LOGGER.error("Failed to load recordings.", e);
             throw e;

@@ -26,18 +26,18 @@ public class RecordingRepositoryImplTest {
 
     @Test
     public void testFindBySubjectIdAndGestureAndTag() throws Exception {
-        recordingRepository.findBySubjectIdAndGestureAndTag(1,"index","pull-downwards");
+        recordingRepository.findBySubjectIdAndGestureAndTag("","index","pull-downwards");
     }
 
     @Test
     public void testFindBySubjectIdAndGesture() throws Exception {
-        recordingRepository.findBySubjectIdAndGesture(1, "index");
+        recordingRepository.findBySubjectIdAndGesture("", "index");
 
     }
 
     @Test
     public void testFindBySubjectIdAndTag() throws Exception {
-        recordingRepository.findBySubjectIdAndTag(1, "pull-downwards");
+        recordingRepository.findBySubjectIdAndTag("", "pull-downwards");
     }
 
 }
