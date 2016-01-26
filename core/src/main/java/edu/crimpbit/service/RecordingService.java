@@ -66,4 +66,30 @@ public class RecordingService {
         }
     }
 
+    public List<Recording> findBySubjectIdAndGestureAndTag(long id, String gesture, String tag) {
+        try {
+            return findBySubjectIdAndGestureAndTag(id, gesture, tag);
+        } catch (Exception e) {
+            LOGGER.error("Failed to load recordings.", e);
+            throw e;
+        }
+    }
+
+    public List<Recording> findBySubjectIdAndGesture(long id, String gesture) {
+        try {
+            return findBySubjectIdAndGesture(id, gesture);
+        } catch (Exception e) {
+            LOGGER.error("Failed to load recordings.", e);
+            throw e;
+        }
+    }
+
+    public List<Recording> findBySubjectIdAndTag(long id, String tag) {
+        try {
+            return findBySubjectIdAndGesture(id, tag);
+        } catch (Exception e) {
+            LOGGER.error("Failed to load recordings.", e);
+            throw e;
+        }
+    }
 }
