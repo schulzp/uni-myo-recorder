@@ -11,7 +11,7 @@ import org.springframework.validation.ObjectError;
 import java.util.List;
 
 /**
- * Created by jorg on 25.01.16.
+ * Created by joerg on 25.01.16.
  */
 public class RecordingRepositoryImpl implements RecordingRepositoryExtension {
 
