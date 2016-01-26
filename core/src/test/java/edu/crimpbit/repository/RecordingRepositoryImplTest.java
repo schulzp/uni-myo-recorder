@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 public class RecordingRepositoryImplTest {
 
     @Autowired
-    private RecordingRepositoryExtension recordingRepository;
+    private RecordingRepository recordingRepository;
 
     @Test
     public void testFindBySubjectIdAndGestureAndTag() throws Exception {
@@ -40,8 +40,4 @@ public class RecordingRepositoryImplTest {
         recordingRepository.findBySubjectIdAndTag(1, "pull-downwards");
     }
 
-    @Before
-    public void setUp() throws Exception {
-        recordingRepository = new RecordingRepositoryImpl();
-    }
 }
