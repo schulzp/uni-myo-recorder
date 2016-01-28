@@ -106,12 +106,14 @@ ext {
     vSpringBootJavaFx = '0.5.7'
     vStringTest = '2.5'
     vControlFx = '8.40.10'
+    vOpenCsv = '3.6'
 }
 
 dependencies {
     compile "org.springframework.boot:spring-boot-javafx:$vSpringBootJavaFx",
             "de.jensd:fontawesomefx:$vFontAwesome",
             "org.controlsfx:controlsfx:$vControlFx",
+            'com.opencsv:opencsv:' + vOpenCsv,
             project(':core'),
             project(':weka')
 
