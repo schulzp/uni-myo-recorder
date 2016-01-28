@@ -28,4 +28,8 @@ public class Gesture {
         this.tags = tags;
     }
 
+    @Override
+    public String toString() {
+        return "Gesture[name = " + name + "... ]";
+    }
 }
