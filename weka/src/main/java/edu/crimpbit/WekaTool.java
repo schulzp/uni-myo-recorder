@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.evaluation.Prediction;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
@@ -113,6 +114,7 @@ public class WekaTool {
 
         int capacity = 0;
         for (Recording recording : recordings) {
+            System.out.println("EmgData().size()" + recording.getEmgData().size());
             capacity += recording.getEmgData().size();
         }
 
@@ -206,6 +208,17 @@ public class WekaTool {
         //System.out.println("cls: " + cls == null);
         //System.out.println("test: " + test == null);
         eval.evaluateModel(cls, test);
+
+
+        for (int i = 0; i < eval.predictions().size(); i++) {
+            System.out.println("predictions at i =  " + i + " = " + ((Prediction) eval.predictions().elementAt(i)).predicted());
+        }
+
+        System.out.println("Pair<String, Double>" + Pair.of(test.instance(0).stringValue(8), eval.pctCorrect()));
+
+        System.out.println(eval.toClassDetailsString());
+        System.out.println(eval.toSummaryString("\nResults\n======\n", false));
+
         //Pair<String, Double> resPair = Pair.of(test.instance(0).stringValue(8), eval.pctCorrect());
         //System.out.println("resPair" + resPair);
         return Pair.of(test.instance(0).stringValue(8), eval.pctCorrect());

@@ -134,6 +134,27 @@ public class WekaTest {
 
     }
 
+    @Test
+    public void simpleTest() throws Exception {
+        //List<Recording> trainList = recordingService.findBySubjectNameAndTagAndGesture("Peter", null, "index");
+        List<Recording> trainList = recordingService.findAll();
+        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture("Peter", null, "index+middle"));
+        Recording correctRecording = trainList.remove(0);
+        List<Gesture> gestures = gestureService.findAll();
+        //List<Gesture> gestures = new ArrayList<>();
+        //gestures.add(new Gesture("index"));
+        //gestures.add(new Gesture("index+middle"));
+        List<String> actualClasses = new ArrayList<>();
+        actualClasses.add(correctRecording.getGesture().getName());
+
+        Integer[][] counterArray = new Integer[10][10];
+        for (int j = 0; j < 10; j++) {
+            for (int k = 0; k < 10; k++) {
+                counterArray[j][k] = 0;
+            }
+        }
+        classifyOnce(trainList, 0, correctRecording, gestures, actualClasses, new J48(), counterArray, 9, 9);
+    }
 
     private Integer[][] classify(String subjectName, String tag, String gesture, Classifier cls, int averageFilterMin, int averageFilterMax, int labelFilterMin, int labelFilterMax) throws Exception {
         List<Recording> trainList = recordingService.findBySubjectNameAndTagAndGesture(subjectName, tag, gesture);
@@ -152,18 +173,18 @@ public class WekaTest {
             for (int j = labelFilterMin; j < labelFilterMax; j++) {
                 for (int k = averageFilterMin; k < averageFilterMax; k++) {
 
-
-                    WekaTool wekaTool = new WekaTool.Builder()
-                            .setAverageFilter(new AverageFilter(k))
-                            .setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8))
-                            .setLabelFilter(new LabelFilter(j)).build();
-
-                    Instances train = wekaTool.convertToTrainSet(trainList, gestures);
-                    List<Instances> test = wekaTool.convertToTestSet(correctRecording, gestures);
-                    if (wekaTool.testAllClassesSynchronously(train, test, cls).equals(actualClasses.get(i))) {
-                        System.out.println("correct i: " + i + " Label: " + j + " Average: " + k + " classifier: " + cls.getClass().getSimpleName());
-                        counterArray[j][k]++;
-                    }
+                    classifyOnce(trainList, i, correctRecording, gestures, actualClasses, cls, counterArray, j, k);
+//                    WekaTool wekaTool = new WekaTool.Builder()
+//                            .setAverageFilter(new AverageFilter(k))
+//                            .setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8))
+//                            .setLabelFilter(new LabelFilter(j)).build();
+//
+//                    Instances train = wekaTool.convertToTrainSet(trainList, gestures);
+//                    List<Instances> test = wekaTool.convertToTestSet(correctRecording, gestures);
+//                    if (wekaTool.testAllClassesSynchronously(train, test, cls).equals(actualClasses.get(i))) {
+//                        System.out.println("correct i: " + i + " Label: " + j + " Average: " + k + " classifier: " + cls.getClass().getSimpleName());
+//                        counterArray[j][k]++;
+//                    }
                 }
             }
             trainList.add(i, correctRecording);
@@ -171,12 +192,35 @@ public class WekaTest {
         return counterArray;
     }
 
+    private Integer[][] classifyOnce(List<Recording> trainList, int trainListIndex, Recording correctRecording, List<Gesture> gestures, List<String> actualClasses, Classifier cls, Integer[][] result, int labelFilter, int averageFilter) throws Exception {
+
+        WekaTool wekaTool = new WekaTool.Builder()
+                .setAverageFilter(new AverageFilter(averageFilter))
+                .setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8))
+                .setLabelFilter(new LabelFilter(labelFilter)).build();
+
+        Instances train = wekaTool.convertToTrainSet(trainList, gestures);
+        System.out.println("-------------------------------");
+        System.out.println(train);
+        List<Instances> test = wekaTool.convertToTestSet(correctRecording, gestures);
+        System.out.println("-------------------------------");
+        System.out.println(test.get(0));
+        System.out.println("-------------------------------");
+        System.out.println(test.get(1));
+        System.out.println("-------------------------------");
+        if (wekaTool.testAllClassesSynchronously(train, test, cls).equals(actualClasses.get(trainListIndex))) {
+            System.out.println("correct i: " + trainListIndex + " Label: " + labelFilter + " Average: " + averageFilter + " classifier: " + cls.getClass().getSimpleName());
+            result[labelFilter][averageFilter]++;
+        }
+        return result;
+    }
+
     private void printArray(Integer[][] data, String key, String fileName, int averageFilterMin, int averageFilterMax, int labelFilterMin, int labelFilterMax) {
         System.out.println(key);
         PrintWriter writer = null;
 
         try {
-            writer = new PrintWriter(new FileOutputStream(new File(fileName),true));
+            writer = new PrintWriter(new FileOutputStream(new File(fileName), true));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -196,7 +240,7 @@ public class WekaTest {
         System.out.println(key);
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter(new FileOutputStream(new File(fileName),true /* append = true */));
+            writer = new PrintWriter(new FileOutputStream(new File(fileName), true /* append = true */));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
