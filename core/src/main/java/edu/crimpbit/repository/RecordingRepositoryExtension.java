@@ -40,4 +40,6 @@ public interface RecordingRepositoryExtension {
     List<Recording> findBySubjectIdAndTag(String id, String tag);
 
     List<Recording> findBySubjectNameAndTagAndGesture(String name, String tag, String gesture);
+
+    //List<Recording> findBySubjectNamesAndTagsAndGestures(List<String> names, List<String> tags, List<String> gestures);
 }

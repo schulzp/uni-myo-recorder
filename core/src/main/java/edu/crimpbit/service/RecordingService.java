@@ -102,4 +102,13 @@ public class RecordingService {
             throw e;
         }
     }
+
+//    public List<Recording> findBySubjectNamesAndTagsAndGestures(List<String> names, List<String> tags, List<String> gestures) {
+//        try {
+//            return recordingRepository.findBySubjectNamesAndTagsAndGestures(names, tags, gestures);
+//        } catch (Exception e) {
+//            LOGGER.error("Failed to load recordings.", e);
+//            throw e;
+//        }
+//    }
 }

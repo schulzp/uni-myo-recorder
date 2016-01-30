@@ -4,22 +4,18 @@ import edu.crimpbit.filter.AverageFilter;
 import edu.crimpbit.filter.EnvelopeFollowerFilter;
 import edu.crimpbit.filter.LabelFilter;
 import edu.crimpbit.service.GestureService;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
-import weka.classifiers.evaluation.Prediction;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,27 +39,15 @@ public class WekaTool {
     }
 
     public Instances convertToTrainSet(List<Recording> recordings, List<Gesture> gestures) {
-        return convert(recordings, gestures);
+        return convert(recordings, gestures, false);
     }
 
-    public List<Instances> convertToTestSet(Recording recording, List<Gesture> gestures) {
-        List<Recording> recordings = new ArrayList<>();
-        List<Instances> instances = new ArrayList<>();
-        recordings.add(recording);
-        instances.add(convert(recordings, gestures));
-        for (Gesture gesture : gestures) {
-            if (!gesture.getName().equals(recording.getGesture().getName())) {
-                List<Recording> r = new ArrayList<>();
-                Recording temp = recording;
-                temp.setGesture(gesture);
-                r.add(temp);
-                instances.add(convert(r, gestures));
-            }
-        }
-        return instances;
+    public Instances convertToTestSet(Recording recording, List<Gesture> gestures) {
+
+        return convert(Arrays.asList(recording), gestures, true);
     }
 
-    public Instances convert(List<Recording> recordings, List<Gesture> gestures) {
+    public Instances convert(List<Recording> recordings, List<Gesture> gestures, boolean isTestSet) {
         FastVector attInfo = new FastVector();
 
         Attribute emg_0 = new Attribute("emg_0", 0);
@@ -75,31 +59,14 @@ public class WekaTool {
         Attribute emg_6 = new Attribute("emg_6", 6);
         Attribute emg_7 = new Attribute("emg_7", 7);
 
-        FastVector fastVector = new FastVector();
+        FastVector classVal = new FastVector();
 
 
         for (Gesture gesture : gestures) {
-            //fastVector.addElement(new Attribute(gesture.getName(), (FastVector) null));
-            fastVector.addElement(gesture.getName());
+            classVal.addElement(gesture.getName());
         }
 
-//        fastVector.addElement("index");
-//        fastVector.addElement("index+middle");
-//        fastVector.addElement("index+middle+ring");
-//        fastVector.addElement("index+thumb");
-//        fastVector.addElement("index+middle+thumb");
-//        fastVector.addElement("index+middle+ring+thumb");
-
-//
-//
-//        fastVector.addElement("index-finger");
-//        fastVector.addElement("index-finger+middle-finger");
-//        fastVector.addElement("index-finger+middle-finger+ring-finger");
-//
-
-
-        Attribute classnameAttribute = new Attribute("grip_type", fastVector, 8);
-        //System.out.println("classnameAttribute: " + classnameAttribute.isString());
+         Attribute classnameAttribute = new Attribute("grip_type", classVal, 8);
 
         attInfo.addElement(emg_0);
         attInfo.addElement(emg_1);
@@ -109,16 +76,15 @@ public class WekaTool {
         attInfo.addElement(emg_5);
         attInfo.addElement(emg_6);
         attInfo.addElement(emg_7);
-
         attInfo.addElement(classnameAttribute);
 
         int capacity = 0;
         for (Recording recording : recordings) {
-            System.out.println("EmgData().size()" + recording.getEmgData().size());
             capacity += recording.getEmgData().size();
         }
 
         Instances instances = new Instances("emg-data", attInfo, capacity / 8);
+        instances.setClassIndex(instances.numAttributes() - 1);
         for (Recording recording : recordings) {
             List<List<Byte>> averagesList = new ArrayList<>();
 
@@ -140,6 +106,7 @@ public class WekaTool {
 
             for (int i = 0; i < averagesList.size(); i++) {
                 Instance row = new Instance(attInfo.size());
+                row.setDataset(instances);
                 row.setValue(emg_0, averagesList.get(0).get(i));
                 row.setValue(emg_1, averagesList.get(1).get(i));
                 row.setValue(emg_2, averagesList.get(2).get(i));
@@ -148,86 +115,47 @@ public class WekaTool {
                 row.setValue(emg_5, averagesList.get(5).get(i));
                 row.setValue(emg_6, averagesList.get(6).get(i));
                 row.setValue(emg_7, averagesList.get(7).get(i));
-                //System.out.println("recording.getGesture().getName(): " + recording.getGesture().getName());
-                row.setValue(classnameAttribute, recording.getGesture().getName());
+                 if (isTestSet) {
+                    //row.setValue(classnameAttribute, "?");
+                } else {
+                       row.setValue(8, recording.getGesture().getName());
+                }
                 instances.add(row);
             }
         }
 
-        instances.setClassIndex(instances.numAttributes() - 1);
+
 
         return instances;
     }
 
-    public String testAllClasses(Instances train, List<Instances> testList, Classifier cls) {
-        String result = "";
-        double biggestPctCorrect = -1;
-        ExecutorService executor = Executors.newFixedThreadPool(testList.size());
-        Set<FutureTask<Pair<String, Double>>> set = new HashSet<>();
-        for (Instances testInstances : testList) {
-            FutureTask<Pair<String, Double>> doubleFuture = new FutureTask<>(() -> test(train, testInstances, cls));
-            set.add(doubleFuture);
-            executor.execute(doubleFuture);
-        }
-        for (FutureTask<Pair<String, Double>> future : set) {
-            Pair<String, Double> ptcCorrect = null;
-            try {
-                ptcCorrect = future.get();
-                if (ptcCorrect.getRight() > biggestPctCorrect) {
-                    biggestPctCorrect = ptcCorrect.getRight();
-                    result = ptcCorrect.getLeft();
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
 
-        }
-        return result;
-    }
-
-    public String testAllClassesSynchronously(Instances train, List<Instances> testList, Classifier cls) throws Exception {
-        String result = "";
-        double biggestPctCorrect = -1;
-        for (Instances testInstances : testList) {
-            Pair<String, Double> ptcCorrect = test(train, testInstances, cls);
-            if (ptcCorrect.getRight() > biggestPctCorrect) {
-                biggestPctCorrect = ptcCorrect.getRight();
-                result = ptcCorrect.getLeft();
-            }
-        }
-        return result;
-    }
-
-    private Pair<String, Double> test(Instances train, Instances test, Classifier cls) throws Exception {
+    public String evaluate(Instances train, Instances test, Classifier cls, List<Gesture> gestures) throws Exception {
         cls.buildClassifier(train);
         Evaluation eval = new Evaluation(train);
-        //eval.crossValidateModel(cls, train, 10, new Random(1));
-        //System.out.println("eval: " + eval == null);
-        //System.out.println("cls: " + cls == null);
-        //System.out.println("test: " + test == null);
-        eval.evaluateModel(cls, test);
-
-
-        for (int i = 0; i < eval.predictions().size(); i++) {
-            System.out.println("predictions at i =  " + i + " = " + ((Prediction) eval.predictions().elementAt(i)).predicted());
-        }
-
-        System.out.println("Pair<String, Double>" + Pair.of(test.instance(0).stringValue(8), eval.pctCorrect()));
-
-        System.out.println(eval.toClassDetailsString());
-        System.out.println(eval.toSummaryString("\nResults\n======\n", false));
-
-        //Pair<String, Double> resPair = Pair.of(test.instance(0).stringValue(8), eval.pctCorrect());
-        //System.out.println("resPair" + resPair);
-        return Pair.of(test.instance(0).stringValue(8), eval.pctCorrect());
+        return evaluatePredictions(eval.evaluateModel(cls, test), gestures);
     }
 
-//    private List<String> getAllGestures() {
-//        return gestureService.findAll().stream().map(Gesture::getName).collect(Collectors.toList());
-//    }
-
+    private String evaluatePredictions(double[] predictions, List<Gesture> gestures) {
+        double sum = 0;
+        for (double d : predictions)
+            sum += d;
+        double average = sum / predictions.length;
+        if (average <= 1.0) {
+            return gestures.get(0).getName();
+        } else if (average > 1.0 && average <= 2.0) {
+            return gestures.get(1).getName();
+        } else if (average > 2.0 && average <= 3.0) {
+            return gestures.get(2).getName();
+        } else if (average > 3.0 && average <= 4.0) {
+            return gestures.get(3).getName();
+        } else if (average > 4.0 && average <= 5.0) {
+            return gestures.get(4).getName();
+        } else if (average > 5.0 && average <= 6.0) {
+            return gestures.get(5).getName();
+        }
+        return null;
+    }
 
     public static class Builder {
 
