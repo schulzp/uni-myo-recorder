@@ -42,7 +42,11 @@ public class RecordingRepositoryImpl implements RecordingRepositoryExtension {
 
     @Override
     public List<Recording> findBySubjectNameAndTagAndGesture(String name, String tag, String gesture) {
-        return findBySubjectIdAndGestureAndTag(subjectRepository.findByName(name).get(0).getId(), gesture, tag);
+        if (name != null) {
+            return findBySubjectIdAndGestureAndTag(subjectRepository.findByName(name).get(0).getId(), gesture, tag);
+        } else {
+            return findBySubjectIdAndGestureAndTag(null, gesture, tag);
+        }
     }
 
 //    @Override

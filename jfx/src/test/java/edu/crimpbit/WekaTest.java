@@ -7,7 +7,7 @@ import edu.crimpbit.filter.LabelFilter;
 import edu.crimpbit.service.GestureService;
 import edu.crimpbit.service.RecordingService;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -44,101 +44,231 @@ public class WekaTest {
 
     @Autowired
     private GestureService gestureService;
+    private static PrintWriter writer = null;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+
+        String fileName = "WekaTest" + System.currentTimeMillis() + ".txt";
+        try {
+            writer = new PrintWriter(new FileOutputStream(new File(fileName), true));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @AfterClass
+    public static void oneTimeTearDown() {
+        writer.close();
+    }
 
     /**
      * variables: subject, tags, gestures, filter, Classifier
      * <p>
      * Classifier Test: classifier for one subject, one tag, one gesture, different filter sets, different classifiers
      */
-    @Test
-    public void differentFiltersAndClassifiersTest() throws ExecutionException, InterruptedException {
-        int averageFilterMin = 2;
-        int averageFilterMax = 20;
-        int labelFilterMin = 2;
-        int labelFilterMax = 20;
-        ExecutorService executor = Executors.newFixedThreadPool(4);
-        //ExecutorService executor = Executors.newFixedThreadPool(2);
-        HashMap<String, FutureTask<Integer[][]>> map = new HashMap<>();
-        //Set<FutureTask<Integer[][]>> set = new HashSet<>();
-
-        FutureTask<Integer[][]> futureTask1 = new FutureTask<>(() -> classify("Peter", null, "index", new J48(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-        FutureTask<Integer[][]> futureTask2 = new FutureTask<>(() -> classify("Peter", null, "index", new Logistic(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-        FutureTask<Integer[][]> futureTask3 = new FutureTask<>(() -> classify("Peter", null, "index", new NaiveBayes(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-        // FutureTask<Integer[][]> futureTask4 = new FutureTask<>(() -> classify("Peter", null, "index", new MultilayerPerceptron(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-
-
-        map.put("J48", futureTask1);
-        executor.execute(futureTask1);
-        map.put("Logistic", futureTask2);
-        executor.execute(futureTask2);
-        map.put("NaiveBayes", futureTask3);
-        executor.execute(futureTask3);
-
-        for (Map.Entry<String, FutureTask<Integer[][]>> stringFutureTaskEntry : map.entrySet()) {
-            String fileName = stringFutureTaskEntry.getKey() + System.currentTimeMillis() + ".txt";
-            printArray(stringFutureTaskEntry.getValue().get(), stringFutureTaskEntry.getKey(), fileName, averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax);
-            printBestFilterCombo(stringFutureTaskEntry.getValue().get(), stringFutureTaskEntry.getKey(), fileName, averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax);
-        }
-    }
+//    @Test
+//    public void differentFiltersAndClassifiersTest() throws ExecutionException, InterruptedException {
+//        int averageFilterMin = 2;
+//        int averageFilterMax = 20;
+//        int labelFilterMin = 2;
+//        int labelFilterMax = 20;
+//        ExecutorService executor = Executors.newFixedThreadPool(4);
+//        //ExecutorService executor = Executors.newFixedThreadPool(2);
+//        HashMap<String, FutureTask<Integer[][]>> map = new HashMap<>();
+//        //Set<FutureTask<Integer[][]>> set = new HashSet<>();
+//
+//        FutureTask<Integer[][]> futureTask1 = new FutureTask<>(() -> classify("Peter", null, "index", new J48(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
+//        FutureTask<Integer[][]> futureTask2 = new FutureTask<>(() -> classify("Peter", null, "index", new Logistic(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
+//        FutureTask<Integer[][]> futureTask3 = new FutureTask<>(() -> classify("Peter", null, "index", new NaiveBayes(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
+//        // FutureTask<Integer[][]> futureTask4 = new FutureTask<>(() -> classify("Peter", null, "index", new MultilayerPerceptron(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
+//
+//
+//        map.put("J48", futureTask1);
+//        executor.execute(futureTask1);
+//        map.put("Logistic", futureTask2);
+//        executor.execute(futureTask2);
+//        map.put("NaiveBayes", futureTask3);
+//        executor.execute(futureTask3);
+//
+//        for (Map.Entry<String, FutureTask<Integer[][]>> stringFutureTaskEntry : map.entrySet()) {
+//            String fileName = stringFutureTaskEntry.getKey() + System.currentTimeMillis() + ".txt";
+//            printArray(stringFutureTaskEntry.getValue().get(), stringFutureTaskEntry.getKey(), fileName, averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax);
+//            printBestFilterCombo(stringFutureTaskEntry.getValue().get(), stringFutureTaskEntry.getKey(), fileName, averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax);
+//        }
+//    }
 
     /**
      * variables: subject, tags, gestures, filter, Classifier
      * <p>
      * for each gesture with different sets of subjects
      */
-    @Test
-    public void differentSetsOfSubjectsTest() throws ExecutionException, InterruptedException {
-        int averageFilterMin = 19;
-        int averageFilterMax = 20;
-        int labelFilterMin = 3;
-        int labelFilterMax = 4;
-        ExecutorService executor = Executors.newFixedThreadPool(3);
-        HashMap<String, FutureTask<Integer[][]>> map = new HashMap<>();
-
-        FutureTask<Integer[][]> futureTask1 = new FutureTask<>(() -> classify("Peter", null, "index", new J48(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-        FutureTask<Integer[][]> futureTask2 = new FutureTask<>(() -> classify("Jasmin", null, "index", new J48(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-
-        map.put("Peter", futureTask1);
-        executor.execute(futureTask1);
-        map.put("Jasmin", futureTask2);
-        executor.execute(futureTask2);
-
-        for (Map.Entry<String, FutureTask<Integer[][]>> stringFutureTaskEntry : map.entrySet()) {
-            String fileName = stringFutureTaskEntry.getKey() + System.currentTimeMillis() + ".txt";
-            printArray(stringFutureTaskEntry.getValue().get(), stringFutureTaskEntry.getKey(), fileName, averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax);
-        }
-    }
+//    @Test
+//    public void differentSetsOfSubjectsTest() throws ExecutionException, InterruptedException {
+//        int averageFilterMin = 19;
+//        int averageFilterMax = 20;
+//        int labelFilterMin = 3;
+//        int labelFilterMax = 4;
+//        ExecutorService executor = Executors.newFixedThreadPool(3);
+//        HashMap<String, FutureTask<Integer[][]>> map = new HashMap<>();
+//
+//        FutureTask<Integer[][]> futureTask1 = new FutureTask<>(() -> classify("Peter", null, "index", new J48(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
+//        FutureTask<Integer[][]> futureTask2 = new FutureTask<>(() -> classify("Jasmin", null, "index", new J48(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
+//
+//        map.put("Peter", futureTask1);
+//        executor.execute(futureTask1);
+//        map.put("Jasmin", futureTask2);
+//        executor.execute(futureTask2);
+//
+//        for (Map.Entry<String, FutureTask<Integer[][]>> stringFutureTaskEntry : map.entrySet()) {
+//            String fileName = stringFutureTaskEntry.getKey() + System.currentTimeMillis() + ".txt";
+//            printArray(stringFutureTaskEntry.getValue().get(), stringFutureTaskEntry.getKey(), fileName, averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax);
+//        }
+//    }
 
     /**
      * variables: subject, tags, gestures, filter, Classifier
      * <p>
      * for each gesture with different tags and different sets of subjects
      */
+//    @Test
+//    public void differentTagsAndDifferentSetsOfSubjects() {
+//
+//    }
+
+    /**
+     * Tests all recordings with all gestures and classifier J48
+     *
+     * @throws Exception
+     */
     @Test
-    public void differentTagsAndDifferentSetsOfSubjects() {
-
-    }
-
-    @Test
-    public void testAllRecordings() throws Exception {
-
+    public void testAllRecordingsWithJ48() throws Exception {
         List<Recording> trainList = recordingService.findAll();
         List<Gesture> gestures = gestureService.findAll();
-//        List<Recording> trainList = recordingService.findBySubjectNameAndTagAndGesture("Peter", null, "index");
-//        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture("Peter", null, "index+middle"));
-//        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture("Peter", null, "index+middle+ring"));
-//        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture("Jasmin", null, "index"));
-//        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture("Jasmin", null, "index+middle"));
-//        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture("Jasmin", null, "index+middle+ring"));
-//        List<Gesture> gestures = gestureService.findAll().stream().limit(3).collect(Collectors.toList());
-        //System.out.println("MultilayerPerceptron pctCorrect: " + classifyAllRecordings(trainList, gestures, new MultilayerPerceptron(), 15, 17)); //
-        //System.out.println("Logistic pctCorrect: " + classifyAllRecordings(trainList, gestures,new Logistic(), 19,12)); //46.875%
-        //System.out.println("NaiveBayes pctCorrect: " + classifyAllRecordings(trainList, gestures, new NaiveBayes(), 3, 18)); //36.4583%
-        System.out.println("J48 pctCorrect: " + classifyAllRecordings(trainList, gestures, new J48(), 5, 18)); //42.7083%
+        double pctCorrect = classifyAllRecordings(trainList, gestures, new J48(), 5, 18);
+        writer.println("testAllRecordingsWithJ48 pctCorrect: " + pctCorrect);
+        System.out.println("testAllRecordingsWithJ48 pctCorrect: " + pctCorrect); //42.7083%
     }
 
+    /**
+     * Tests all recordings with all gestures and classifier NaiveBayes
+     *
+     * @throws Exception
+     */
     @Test
-    public void testAllRecordingsWithDifferentFilterValues() throws Exception {
+    public void testAllRecordingsWithNaiveBayes() throws Exception {
+        List<Recording> trainList = recordingService.findAll();
+        List<Gesture> gestures = gestureService.findAll();
+        double pctCorrect = classifyAllRecordings(trainList, gestures, new NaiveBayes(), 3, 18);
+        writer.println("testAllRecordingsWithNaiveBayes pctCorrect: " + pctCorrect);
+        System.out.println("testAllRecordingsWithNaiveBayes pctCorrect: " + pctCorrect); //36.4583%
+
+    }
+
+
+    /**
+     * Tests all recordings with all gestures and classifier Logistic
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testAllRecordingsWithLogistic() throws Exception {
+        List<Recording> trainList = recordingService.findAll();
+        List<Gesture> gestures = gestureService.findAll();
+        double pctCorrect = classifyAllRecordings(trainList, gestures, new Logistic(), 19, 12);
+        writer.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect);
+        System.out.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect); //46.875%
+
+    }
+
+    /**
+     * Tests all recordings with all gestures and classifier MultilayerPerceptron
+     *
+     * @throws Exception
+     */
+    @Ignore("takes to long...")
+    @Test
+    public void testAllRecordingsWithMultilayerPerceptron() throws Exception {
+        List<Recording> trainList = recordingService.findAll();
+        List<Gesture> gestures = gestureService.findAll();
+        double pctCorrect = classifyAllRecordings(trainList, gestures, new MultilayerPerceptron(), 15, 17);
+        writer.println("testAllRecordingsWithMultilayerPerceptron pctCorrect: " + pctCorrect);
+        System.out.println("testAllRecordingsWithMultilayerPerceptron pctCorrect: " + pctCorrect); //31.25%
+
+    }
+
+    /**
+     * Tests recordings with the gestures index,index+middle, index+middle+ring and classifier J48
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testSelectedRecordingsWithJ48() throws Exception {
+        List<Recording> trainList = recordingService.findBySubjectNameAndTagAndGesture(null, null, "index");
+        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle"));
+        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle+ring"));
+        List<Gesture> gestures = gestureService.findAll().stream().limit(3).collect(Collectors.toList());
+        double pctCorrect = classifyAllRecordings(trainList, gestures, new J48(), 5, 18);
+        writer.println("testSelectedRecordingsWithJ48 pctCorrect: " + pctCorrect);
+        System.out.println("testSelectedRecordingsWithJ48 pctCorrect: " + pctCorrect); //91.66%
+    }
+
+    /**
+     * Tests recordings with the gestures index,index+middle, index+middle+ring and classifier MultilayerPerceptron
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testSelectedRecordingsWithMultilayerPerceptron() throws Exception {
+        List<Recording> trainList = recordingService.findBySubjectNameAndTagAndGesture(null, null, "index");
+        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle"));
+        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle+ring"));
+        List<Gesture> gestures = gestureService.findAll().stream().limit(3).collect(Collectors.toList());
+        double pctCorrect = classifyAllRecordings(trainList, gestures, new MultilayerPerceptron(), 5, 18);
+        writer.println("testSelectedRecordingsWithMultilayerPerceptron pctCorrect: " + pctCorrect);
+        System.out.println("testSelectedRecordingsWithMultilayerPerceptron pctCorrect: " + pctCorrect); //87.5%
+    }
+
+    /**
+     * Tests recordings with the gestures index,index+middle, index+middle+ring and classifier Logistic
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testSelectedRecordingsWithLogistic() throws Exception {
+        List<Recording> trainList = recordingService.findBySubjectNameAndTagAndGesture(null, null, "index");
+        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle"));
+        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle+ring"));
+        List<Gesture> gestures = gestureService.findAll().stream().limit(3).collect(Collectors.toList());
+        double pctCorrect = classifyAllRecordings(trainList, gestures, new Logistic(), 5, 18);
+        writer.println("testSelectedRecordingsWithLogistic pctCorrect: " + pctCorrect);
+        System.out.println("testSelectedRecordingsWithLogistic pctCorrect: " + pctCorrect); //81.25%
+    }
+
+    /**
+     * Tests recordings with the gestures index,index+middle, index+middle+ring and classifier NaiveBayes
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testSelectedRecordingsWithNaiveBayes() throws Exception {
+        List<Recording> trainList = recordingService.findBySubjectNameAndTagAndGesture(null, null, "index");
+        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle"));
+        trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle+ring"));
+        List<Gesture> gestures = gestureService.findAll().stream().limit(3).collect(Collectors.toList());
+        double pctCorrect = classifyAllRecordings(trainList, gestures, new NaiveBayes(), 5, 18);
+        writer.println("testSelectedRecordingsWithNaiveBayes pctCorrect: " + pctCorrect);
+        System.out.println("testSelectedRecordingsWithNaiveBayes pctCorrect: " + pctCorrect); //81.25%
+    }
+
+    /**
+     * Tests all recordings with all gestures and filter values from 2 to 20 with Logistic
+     *
+     * @throws Exception
+     */
+    @Ignore("takes to long...")
+    @Test
+    public void testAllRecordingsWithDifferentFilterValuesWithLogistic() throws Exception {
         List<Recording> trainList = recordingService.findAll();
         List<Gesture> gestures = gestureService.findAll();
         double bestPct = 0;
@@ -153,8 +283,86 @@ public class WekaTest {
 
             }
         }
-        System.out.println("bestFilterValues: " + bestFilterValues);
+        System.out.println("testAllRecordingsWithDifferentFilterValuesWithLogistic bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+        writer.println("testAllRecordingsWithDifferentFilterValuesWithLogistic bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+    }
 
+    /**
+     * Tests all recordings with all gestures and filter values from 2 to 20 with NaiveBayes
+     *
+     * @throws Exception
+     */
+    @Ignore("takes to long...")
+    @Test
+    public void testAllRecordingsWithDifferentFilterValuesWithNaiveBayes() throws Exception {
+        List<Recording> trainList = recordingService.findAll();
+        List<Gesture> gestures = gestureService.findAll();
+        double bestPct = 0;
+        Pair<Integer, Integer> bestFilterValues = null;
+        for (int j = 2; j < 20; j++) {
+            for (int k = 2; k < 20; k++) {
+                double temp = classifyAllRecordings(trainList, gestures, new NaiveBayes(), j, k);
+                if (temp >= bestPct) {
+                    bestPct = temp;
+                    bestFilterValues = Pair.of(j, k);
+                }
+
+            }
+        }
+        System.out.println("testAllRecordingsWithDifferentFilterValuesWithNaiveBayes bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+        writer.println("testAllRecordingsWithDifferentFilterValuesWithNaiveBayes bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+    }
+
+    /**
+     * Tests all recordings with all gestures and filter values from 2 to 20 with MultilayerPerceptron
+     *
+     * @throws Exception
+     */
+    @Ignore("takes to long...")
+    @Test
+    public void testAllRecordingsWithDifferentFilterValuesWithMultilayerPerceptron() throws Exception {
+        List<Recording> trainList = recordingService.findAll();
+        List<Gesture> gestures = gestureService.findAll();
+        double bestPct = 0;
+        Pair<Integer, Integer> bestFilterValues = null;
+        for (int j = 2; j < 20; j++) {
+            for (int k = 2; k < 20; k++) {
+                double temp = classifyAllRecordings(trainList, gestures, new MultilayerPerceptron(), j, k);
+                if (temp >= bestPct) {
+                    bestPct = temp;
+                    bestFilterValues = Pair.of(j, k);
+                }
+
+            }
+        }
+        System.out.println("testAllRecordingsWithDifferentFilterValuesWithMultilayerPerceptron bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+        writer.println("testAllRecordingsWithDifferentFilterValuesWithMultilayerPerceptron bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+    }
+
+    /**
+     * Tests all recordings with all gestures and filter values from 2 to 20 with J48
+     *
+     * @throws Exception
+     */
+    @Ignore("takes to long...")
+    @Test
+    public void testAllRecordingsWithDifferentFilterValuesWithJ48() throws Exception {
+        List<Recording> trainList = recordingService.findAll();
+        List<Gesture> gestures = gestureService.findAll();
+        double bestPct = 0;
+        Pair<Integer, Integer> bestFilterValues = null;
+        for (int j = 2; j < 20; j++) {
+            for (int k = 2; k < 20; k++) {
+                double temp = classifyAllRecordings(trainList, gestures, new J48(), j, k);
+                if (temp >= bestPct) {
+                    bestPct = temp;
+                    bestFilterValues = Pair.of(j, k);
+                }
+
+            }
+        }
+        System.out.println("testAllRecordingsWithDifferentFilterValuesWithJ48 bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+        writer.println("testAllRecordingsWithDifferentFilterValuesWithJ48 bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
     }
 
     public double classifyAllRecordings(List<Recording> trainList, List<Gesture> gestures, Classifier classifier, int labelFilter, int averageFilter) throws Exception {
@@ -164,7 +372,7 @@ public class WekaTest {
             Recording correctRecording = trainList.remove(0);
             //actualClasses.add(correctRecording.getGesture().getName());
             String predicted = classifyOnce(trainList, correctRecording, gestures, classifier, labelFilter, averageFilter);
-            System.out.println("correct?: " + predicted.equals(correctRecording.getGesture().getName()));
+            //System.out.println("correct?: " + predicted.equals(correctRecording.getGesture().getName()));
             if (predicted.equals(correctRecording.getGesture().getName()))
                 correctCounter++;
             trainList.add(i, correctRecording);
