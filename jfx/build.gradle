@@ -114,6 +114,7 @@ dependencies {
             "de.jensd:fontawesomefx:$vFontAwesome",
             "org.controlsfx:controlsfx:$vControlFx",
             'com.opencsv:opencsv:' + vOpenCsv,
+            'tw.edu.ntu.csie:libsvm:3.17',
             project(':core'),
             project(':weka')
 

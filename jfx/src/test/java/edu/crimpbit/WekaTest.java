@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.functions.LibSVM;
 import weka.classifiers.functions.Logistic;
 import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.trees.J48;
@@ -150,6 +151,32 @@ public class WekaTest {
         System.out.println("testAllRecordingsWithJ48 pctCorrect: " + pctCorrect); //42.7083%
     }
 
+    @Test
+    public void crossValidateAllRecordingsWithJ48() throws Exception {
+        List<Recording> recordings = recordingService.findAll();
+        List<Gesture> gestures = gestureService.findAll();
+        crossValidateOnce(new J48(), recordings, gestures, 5, 18);
+    }
+
+    @Test
+    public void crossValidateAllRecordingsWithDifferentTagsWithJ48() throws Exception {
+        List<Gesture> gestures = gestureService.findAll();
+        for (String tag : gestures.get(0).getTags()) {
+            System.out.println(tag + ": ");
+            crossValidateOnce(new J48(), recordingService.findBySubjectNameAndTagAndGesture(null, tag, null), gestures, 5, 18);
+        }
+    }
+
+
+    @Test
+    public void crossValidateSelectedRecordingsWithJ48() throws Exception {
+        List<Recording> recordings = recordingService.findBySubjectNameAndTagAndGesture(null, null, "index");
+        recordings.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle"));
+        recordings.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle+ring"));
+        List<Gesture> gestures = gestureService.findAll().stream().limit(3).collect(Collectors.toList());
+        crossValidateOnce(new J48(), recordings, gestures, 5, 18);
+    }
+
     /**
      * Tests all recordings with all gestures and classifier NaiveBayes
      *
@@ -176,6 +203,21 @@ public class WekaTest {
         List<Recording> trainList = recordingService.findAll();
         List<Gesture> gestures = gestureService.findAll();
         double pctCorrect = classifyAllRecordings(trainList, gestures, new Logistic(), 19, 12);
+        writer.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect);
+        System.out.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect); //46.875%
+
+    }
+
+    /**
+     * Tests all recordings with all gestures and classifier LibSVM
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testAllRecordingsWithLibSVM() throws Exception {
+        List<Recording> trainList = recordingService.findAll();
+        List<Gesture> gestures = gestureService.findAll();
+        double pctCorrect = classifyAllRecordings(trainList, gestures, new LibSVM(), 19, 12);
         writer.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect);
         System.out.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect); //46.875%
 
@@ -429,6 +471,16 @@ public class WekaTest {
             trainList.add(i, correctRecording);
         }
         return counterArray;
+    }
+
+    private void crossValidateOnce(Classifier cls, List<Recording> recordings, List<Gesture> gestures, int labelFilter, int averageFilter) throws Exception {
+        WekaTool wekaTool = new WekaTool.Builder()
+                .setAverageFilter(new AverageFilter(averageFilter))
+                .setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8))
+                //.setLabelFilter(new LabelFilter(labelFilter))
+                .build();
+        Instances data = wekaTool.convertToTrainSet(recordings, gestures);
+        wekaTool.crossValidate(data, cls, gestures);
     }
 
     private String classifyOnce(List<Recording> trainList, Recording correctRecording, List<Gesture> gestures, Classifier cls, int labelFilter, int averageFilter) throws Exception {

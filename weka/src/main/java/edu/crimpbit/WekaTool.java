@@ -13,9 +13,8 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.SynchronousQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -66,7 +65,7 @@ public class WekaTool {
             classVal.addElement(gesture.getName());
         }
 
-         Attribute classnameAttribute = new Attribute("grip_type", classVal, 8);
+        Attribute classnameAttribute = new Attribute("grip_type", classVal, 8);
 
         attInfo.addElement(emg_0);
         attInfo.addElement(emg_1);
@@ -115,18 +114,31 @@ public class WekaTool {
                 row.setValue(emg_5, averagesList.get(5).get(i));
                 row.setValue(emg_6, averagesList.get(6).get(i));
                 row.setValue(emg_7, averagesList.get(7).get(i));
-                 if (isTestSet) {
+                if (isTestSet) {
                     //row.setValue(classnameAttribute, "?");
                 } else {
-                       row.setValue(8, recording.getGesture().getName());
+                    row.setValue(8, recording.getGesture().getName());
                 }
                 instances.add(row);
             }
         }
 
 
-
         return instances;
+    }
+
+    public void crossValidate(Instances data, Classifier cls, List<Gesture> gestures) throws Exception {
+        cls.buildClassifier(data);
+        Evaluation eval = new Evaluation(data);
+        eval.crossValidateModel(cls, data, 10, new Random());
+        System.out.println(eval.toSummaryString(true));
+        for (int i = 0; i < eval.confusionMatrix().length; i++) {
+            for (int j = 0; j < eval.confusionMatrix()[i].length; j++) {
+                System.out.print(eval.confusionMatrix()[i][j] + " ");
+            }
+            System.out.print(gestures.get(i).getName());
+            System.out.println();
+        }
     }
 
 
