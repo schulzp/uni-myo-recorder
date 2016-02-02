@@ -49,23 +49,46 @@ public class WekaTool {
     public Instances convert(List<Recording> recordings, List<Gesture> gestures, boolean isTestSet) {
         FastVector attInfo = new FastVector();
 
-        Attribute emg_0 = new Attribute("emg_0", 0);
-        Attribute emg_1 = new Attribute("emg_1", 1);
-        Attribute emg_2 = new Attribute("emg_2", 2);
-        Attribute emg_3 = new Attribute("emg_3", 3);
-        Attribute emg_4 = new Attribute("emg_4", 4);
-        Attribute emg_5 = new Attribute("emg_5", 5);
-        Attribute emg_6 = new Attribute("emg_6", 6);
-        Attribute emg_7 = new Attribute("emg_7", 7);
+        int attributeIndex = 0;
+
+        Attribute emg_0 = new Attribute("emg_0", attributeIndex++);
+        Attribute emg_1 = new Attribute("emg_1", attributeIndex++);
+        Attribute emg_2 = new Attribute("emg_2", attributeIndex++);
+        Attribute emg_3 = new Attribute("emg_3", attributeIndex++);
+        Attribute emg_4 = new Attribute("emg_4", attributeIndex++);
+        Attribute emg_5 = new Attribute("emg_5", attributeIndex++);
+        Attribute emg_6 = new Attribute("emg_6", attributeIndex++);
+        Attribute emg_7 = new Attribute("emg_7", attributeIndex++);
+
+        FastVector directionValues = new FastVector();
+
+        recordings.stream()
+                .map(Recording::getGesture)
+                .flatMap(gesture -> gesture.getTags().stream())
+                .collect(Collectors.toSet())
+                .stream()
+                .forEach(directionValues::addElement);
+
+        Attribute direction = new Attribute("direction", directionValues, attributeIndex++);
+
+        FastVector subjectValues = new FastVector();
+
+        recordings.stream()
+                .map(Recording::getSubject)
+                .map(Subject::getName)
+                .collect(Collectors.toSet())
+                .stream()
+                .forEach(subjectValues::addElement);
+
+        Attribute subject = new Attribute("subject", subjectValues, attributeIndex++);
 
         FastVector classVal = new FastVector();
-
 
         for (Gesture gesture : gestures) {
             classVal.addElement(gesture.getName());
         }
 
-        Attribute classnameAttribute = new Attribute("grip_type", classVal, 8);
+        Attribute classnameAttribute = new Attribute("grip_type", classVal, attributeIndex++);
 
         attInfo.addElement(emg_0);
         attInfo.addElement(emg_1);
@@ -127,18 +150,12 @@ public class WekaTool {
         return instances;
     }
 
-    public void crossValidate(Instances data, Classifier cls, List<Gesture> gestures) throws Exception {
+    public Evaluation crossValidate(Instances data, Classifier cls, List<Gesture> gestures) throws Exception {
         cls.buildClassifier(data);
         Evaluation eval = new Evaluation(data);
         eval.crossValidateModel(cls, data, 10, new Random());
-        System.out.println(eval.toSummaryString(true));
-        for (int i = 0; i < eval.confusionMatrix().length; i++) {
-            for (int j = 0; j < eval.confusionMatrix()[i].length; j++) {
-                System.out.print(eval.confusionMatrix()[i][j] + " ");
-            }
-            System.out.print(gestures.get(i).getName());
-            System.out.println();
-        }
+
+        return eval;
     }
 
 

@@ -76,7 +76,7 @@ public class RecordingRepositoryImpl implements RecordingRepositoryExtension {
         }
 
         if (tag != null && !tag.isEmpty()) {
-            query = query.addCriteria(Criteria.where("tag.name").is(tag));
+            query = query.addCriteria(Criteria.where("gesture.tags").in(tag));
         }
 
         return query;
