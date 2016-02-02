@@ -48,6 +48,7 @@ public class TagBasedRecordingWizardBuilder {
     private Window owner;
     private String title;
     private Optional<Consumer<Recording>> recordingConsumer = Optional.empty();
+    private ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     public TagBasedRecordingWizardBuilder(MessageSourceAccessor messageSourceAccessor, RecordingService recordingService, ControlFactory controlFactory) {
         this.messageSourceAccessor = messageSourceAccessor;
@@ -91,7 +92,7 @@ public class TagBasedRecordingWizardBuilder {
         Wizard wizard = new Wizard(owner);
         wizard.setTitle(title);
         wizard.setFlow(createWizardFlow(createWizardPanes(wizard)));
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
+
         wizard.getProperties().put(EXECUTOR_PROPERTY, executorService);
         wizard.resultProperty().addListener((observable, oldValue, newValue) -> {
             executorService.shutdown();
@@ -123,7 +124,7 @@ public class TagBasedRecordingWizardBuilder {
             String recordButtonText = messageSourceAccessor.getMessage("recorder.record") + ": " + gestrue.getName();
             Button recordButton = new Button(recordButtonText);
 
-            Executor executor = (Executor) wizard.getProperties().get(EXECUTOR_PROPERTY);
+            Executor executor = executorService;
 
             Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
                 recordButton.setText(recordButtonText);
