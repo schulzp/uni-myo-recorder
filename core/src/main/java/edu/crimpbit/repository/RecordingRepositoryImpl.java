@@ -68,7 +68,7 @@ public class RecordingRepositoryImpl implements RecordingRepositoryExtension {
     private Query getQuery(String id, String gesture, String tag) {
         Query query = new Query();
         if (id != null && !id.isEmpty()) {
-            query = query.addCriteria(Criteria.where("subject._id").is(new ObjectId(id)));
+            query = query.addCriteria(Criteria.where("subject.$id").is(new ObjectId(id)));
         }
 
         if (gesture != null && !gesture.isEmpty()) {
