@@ -1,7 +1,6 @@
 package edu.crimpbit;
 
 import com.opencsv.CSVWriter;
-import com.sun.corba.se.spi.ior.IdentifiableFactory;
 import edu.crimpbit.config.CoreConfiguration;
 import edu.crimpbit.filter.AverageFilter;
 import edu.crimpbit.filter.EnvelopeFollowerFilter;
@@ -16,9 +15,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.IfProfileValue;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.annotation.SystemProfileValueSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -585,14 +582,14 @@ public class WekaTest {
     }
 
     private Evaluation crossValidateOnce(Classifier cls, List<Recording> recordings, List<Gesture> gestures, int labelFilter, int averageFilter) throws Exception {
-        WekaTool.Builder wekaToolBulder = new WekaTool.Builder().setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8));
+        WekaTool.Builder builder = new WekaTool.Builder().setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8));
         if (labelFilter != 0) {
-            wekaToolBulder.setLabelFilter(new LabelFilter(labelFilter));
+            builder.setLabelFilter(new LabelFilter(labelFilter));
         }
         if (averageFilter != 0) {
-            wekaToolBulder.setAverageFilter(new AverageFilter(averageFilter));
+            builder.setAverageFilter(new AverageFilter(averageFilter));
         }
-        WekaTool wekaTool = wekaToolBulder.build();
+        WekaTool wekaTool = builder.build();
         Instances data = wekaTool.convertToTrainSet(recordings, gestures);
         return wekaTool.crossValidate(data, cls, gestures);
     }

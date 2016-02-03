@@ -3,9 +3,6 @@ package edu.crimpbit;
 import edu.crimpbit.filter.AverageFilter;
 import edu.crimpbit.filter.EnvelopeFollowerFilter;
 import edu.crimpbit.filter.LabelFilter;
-import edu.crimpbit.service.GestureService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
@@ -13,27 +10,25 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 
-import java.util.*;
-import java.util.concurrent.SynchronousQueue;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component
 public class WekaTool {
 
-    @Autowired
-    private GestureService gestureService;
+    private final AverageFilter averageFilter;
+    private final LabelFilter labelFilter;
+    private final EnvelopeFollowerFilter envelopeFollowerFilter;
 
-    private static AverageFilter averageFilter;
-    private static LabelFilter labelFilter;
-    private static EnvelopeFollowerFilter envelopeFollowerFilter;
-
-    public WekaTool() {
-    }
+    private final DataSplitter<Byte> splitter;
 
     public WekaTool(Builder builder) {
         averageFilter = builder.averageFilter;
         labelFilter = builder.labelFilter;
+        splitter = builder.splitter;
         envelopeFollowerFilter = builder.envelopeFollowerFilter;
     }
 
@@ -111,7 +106,7 @@ public class WekaTool {
             List<List<Byte>> averagesList = new ArrayList<>();
 
             for (int i = 0; i < EMGData.NUM_EMG_PADS; i++) {
-                Stream<Byte> stream = recording.getEmgData().getData(i).stream();
+                Stream<Byte> stream = getEmgDataStream(recording, i, isTestSet);
                 if (envelopeFollowerFilter != null) {
                     stream = envelopeFollowerFilter.apply(stream);
                 }
@@ -148,6 +143,12 @@ public class WekaTool {
 
 
         return instances;
+    }
+
+    private Stream<Byte> getEmgDataStream(Recording recording, int i, boolean isTestSet) {
+        List<Byte> data = recording.getEmgData().getData(i);
+        data = splitter.apply(data, isTestSet ? DataSplitter.DataType.TEST : DataSplitter.DataType.TRAINING);
+        return data.stream();
     }
 
     public Evaluation crossValidate(Instances data, Classifier cls, List<Gesture> gestures) throws Exception {
@@ -191,8 +192,13 @@ public class WekaTool {
         private AverageFilter averageFilter;
         private LabelFilter labelFilter;
         private EnvelopeFollowerFilter envelopeFollowerFilter;
+        public DataSplitter<Byte> splitter = new DataSplitter<>();
 
         public Builder() {
+        }
+
+        public void setSplitter(DataSplitter<Byte> splitter) {
+            this.splitter = splitter;
         }
 
         public Builder setAverageFilter(AverageFilter averageFilter) {
