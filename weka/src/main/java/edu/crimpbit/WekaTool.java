@@ -126,7 +126,7 @@ public class WekaTool {
                 averagesList.add(stream.collect(Collectors.toList()));
             }
 
-            for (int i = 0; i < averagesList.size(); i++) {
+            for (int i = 0; i < averagesList.get(0).size(); i++) {
                 Instance row = new Instance(attInfo.size());
                 row.setDataset(instances);
                 row.setValue(emg_0, averagesList.get(0).get(i));
