@@ -653,14 +653,14 @@ public class WekaTest {
     }
 
     private Evaluation crossValidateOnce(Classifier cls, List<Recording> recordings, List<Gesture> gestures, int labelFilter, int averageFilter) throws Exception {
-        WekaTool.Builder wekaToolBulder = new WekaTool.Builder().setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8));
+        WekaTool.Builder builder = new WekaTool.Builder().setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8));
         if (labelFilter != 0) {
-            wekaToolBulder.setLabelFilter(new LabelFilter(labelFilter));
+            builder.setLabelFilter(new LabelFilter(labelFilter));
         }
         if (averageFilter != 0) {
-            wekaToolBulder.setAverageFilter(new AverageFilter(averageFilter));
+            builder.setAverageFilter(new AverageFilter(averageFilter));
         }
-        WekaTool wekaTool = wekaToolBulder.build();
+        WekaTool wekaTool = builder.build();
         Instances data = wekaTool.convertToTrainSet(recordings, gestures);
         return wekaTool.crossValidate(data, cls, gestures);
     }
