@@ -1,5 +1,6 @@
 package edu.crimpbit.service;
 
+import com.thalmic.myo.enums.Arm;
 import edu.crimpbit.Device;
 import edu.crimpbit.Recorder;
 import edu.crimpbit.Recording;
@@ -9,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.config.ParsingUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -103,12 +103,13 @@ public class RecordingService {
         }
     }
 
-//    public List<Recording> findBySubjectNamesAndTagsAndGestures(List<String> names, List<String> tags, List<String> gestures) {
-//        try {
-//            return recordingRepository.findBySubjectNamesAndTagsAndGestures(names, tags, gestures);
-//        } catch (Exception e) {
-//            LOGGER.error("Failed to load recordings.", e);
-//            throw e;
-//        }
-//    }
+    public List<Recording> findBySubjectNameAndArmAndTagAndGesture(String name, Arm arm, String tag, String gesture) {
+        try {
+            return recordingRepository.findBySubjectIdAndArmAndTagAndGesture(name, arm, tag, gesture);
+        } catch (Exception e) {
+            LOGGER.error("Failed to load recordings.", e);
+            throw e;
+        }
+    }
+
 }

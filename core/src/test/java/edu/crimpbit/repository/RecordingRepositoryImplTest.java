@@ -1,6 +1,9 @@
 package edu.crimpbit.repository;
 
+import com.thalmic.myo.enums.Arm;
+import edu.crimpbit.Recording;
 import edu.crimpbit.config.CoreConfiguration;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +12,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -38,6 +43,12 @@ public class RecordingRepositoryImplTest {
     @Test
     public void testFindBySubjectIdAndTag() throws Exception {
         recordingRepository.findBySubjectIdAndTag("", "pull-downwards");
+    }
+
+    @Test
+    public void findBySubjectIdAndArmAndTagAndGesture() {
+        List<Recording> result = recordingRepository.findBySubjectIdAndArmAndTagAndGesture("56a3821703649612e376d221", Arm.ARM_LEFT, "index", "pull-gaston");
+        assertThat(result.size(), Matchers.is(Matchers.greaterThan(0)));
     }
 
 }

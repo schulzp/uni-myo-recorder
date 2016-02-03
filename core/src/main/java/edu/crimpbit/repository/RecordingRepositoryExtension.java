@@ -1,7 +1,6 @@
 package edu.crimpbit.repository;
 
-import edu.crimpbit.Gesture;
-import edu.crimpbit.Record;
+import com.thalmic.myo.enums.Arm;
 import edu.crimpbit.Recording;
 
 import java.util.List;
@@ -38,6 +37,8 @@ public interface RecordingRepositoryExtension {
      * @return list of recordings filtered by given criteria
      */
     List<Recording> findBySubjectIdAndTag(String id, String tag);
+
+    List<Recording> findBySubjectIdAndArmAndTagAndGesture(String id, Arm arm, String tag, String gesture);
 
     List<Recording> findBySubjectNameAndTagAndGesture(String name, String tag, String gesture);
 
