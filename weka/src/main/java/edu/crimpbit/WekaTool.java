@@ -36,9 +36,16 @@ public class WekaTool {
         return convert(recordings, gestures, false);
     }
 
+    /**
+     * @deprecated use {@link #convert(List, List, boolean)} instead.
+     */
+    @Deprecated
     public Instances convertToTestSet(Recording recording, List<Gesture> gestures) {
+        return convertToTestSet(Arrays.asList(recording), gestures);
+    }
 
-        return convert(Arrays.asList(recording), gestures, true);
+    public Instances convertToTestSet(List<Recording> recordings, List<Gesture> gestures) {
+        return convert(recordings, gestures, true);
     }
 
     public Instances convert(List<Recording> recordings, List<Gesture> gestures, boolean isTestSet) {
