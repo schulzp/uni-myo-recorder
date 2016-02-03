@@ -541,36 +541,36 @@ public class WekaTest {
     }
 
 
-    @Test
-    public void findBestFilterPairForEachClassifier() throws Exception {
-        List<Gesture> gestures = gestureService.findAll();
-        Map<String, String> summaryStrings = new HashMap<>();
-        List<Recording> recordings = recordingService.findAll();
-
-        for (Classifier cls : classifiers) {
-            String summaryString = "";
-            for (int j = 2; j < 20; j++) {
-                for (int k = 2; k < 20; k++) {
-                    double bestPct = 0;
-                    Pair<Integer, Integer> bestFilterValues = null;
-                    Evaluation evaluation = crossValidateOnce(cls, recordings, gestures, 15, 27);
-                    double temp = evaluation.pctCorrect();
-                    if (temp >= bestPct) {
-                        bestPct = temp;
-                        bestFilterValues = Pair.of(j, k);
-                        summaryStrings.put("==== " + cls.getClass().getSimpleName() + " for all ====",
-                                evaluation.toSummaryString(true) + "\n" +
-                                        evaluation.toMatrixString("=== Confusion Matrix  ===") + "\n" +
-                                        evaluation.toClassDetailsString());
-                    }
-
-                    summaryStrings.put(
-
-                }
-            }
-        }
-        printSummaryStrings("testOnClassifierForAllvsOneClassifierPerPerson-" + System.currentTimeMillis(), summaryStrings);
-    }
+//    @Test
+//    public void findBestFilterPairForEachClassifier() throws Exception {
+//        List<Gesture> gestures = gestureService.findAll();
+//        Map<String, String> summaryStrings = new HashMap<>();
+//        List<Recording> recordings = recordingService.findAll();
+//
+//        for (Classifier cls : classifiers) {
+//            String summaryString = "";
+//            for (int j = 2; j < 20; j++) {
+//                for (int k = 2; k < 20; k++) {
+//                    double bestPct = 0;
+//                    Pair<Integer, Integer> bestFilterValues = null;
+//                    Evaluation evaluation = crossValidateOnce(cls, recordings, gestures, 15, 27);
+//                    double temp = evaluation.pctCorrect();
+//                    if (temp >= bestPct) {
+//                        bestPct = temp;
+//                        bestFilterValues = Pair.of(j, k);
+//                        summaryStrings.put("==== " + cls.getClass().getSimpleName() + " for all ====",
+//                                evaluation.toSummaryString(true) + "\n" +
+//                                        evaluation.toMatrixString("=== Confusion Matrix  ===") + "\n" +
+//                                        evaluation.toClassDetailsString());
+//                    }
+//
+//                    summaryStrings.put(
+//
+//                }
+//            }
+//        }
+//        printSummaryStrings("testOnClassifierForAllvsOneClassifierPerPerson-" + System.currentTimeMillis(), summaryStrings);
+//    }
 
     /**
      * Testing One Classifier For All vs One Classifier Per Person
