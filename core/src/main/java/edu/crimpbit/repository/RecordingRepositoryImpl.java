@@ -52,7 +52,7 @@ public class RecordingRepositoryImpl implements RecordingRepositoryExtension {
 
     @Override
     public List<Recording> findBySubjectIdAndArmAndTagAndGesture(String id, Arm arm, String tag, String gesture) {
-        return find(getQuery(id, arm, tag, gesture));
+        return find(getQuery(id, arm, gesture, tag));
     }
 
     /**

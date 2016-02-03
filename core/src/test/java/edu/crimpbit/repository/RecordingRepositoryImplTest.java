@@ -47,7 +47,7 @@ public class RecordingRepositoryImplTest {
 
     @Test
     public void findBySubjectIdAndArmAndTagAndGesture() {
-        List<Recording> result = recordingRepository.findBySubjectIdAndArmAndTagAndGesture("56a3821703649612e376d221", Arm.ARM_LEFT, "index", "pull-gaston");
+        List<Recording> result = recordingRepository.findBySubjectIdAndArmAndTagAndGesture("56a3821703649612e376d221", Arm.ARM_LEFT, "pull-gaston", "index");
         assertThat(result.size(), Matchers.is(Matchers.greaterThan(0)));
     }
 
