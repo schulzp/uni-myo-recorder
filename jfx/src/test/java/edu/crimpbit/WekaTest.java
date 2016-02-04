@@ -42,6 +42,10 @@ import java.util.stream.Collectors;
 @Rollback
 public class WekaTest {
 
+    private static final List<Supplier<Classifier>> CLASSIFIERS = Arrays.asList(J48::new, NaiveBayes::new, LibSVM::new, Logistic::new);
+
+    private static final EnumSet<Arm> ARMS = EnumSet.of(Arm.ARM_LEFT, Arm.ARM_RIGHT);
+
     @Rule
     public TestName testName = new TestName();
 
@@ -54,37 +58,22 @@ public class WekaTest {
     @Autowired
     private SubjectService subjectService;
 
-    private static PrintWriter writer = null;
-
-    private static List<Supplier<Classifier>> suppliers = Arrays.asList(J48::new, NaiveBayes::new, LibSVM::new, Logistic::new);
-
     private CSVWriter summaryWriter = null;
 
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        String fileName = "WekaTest" + System.currentTimeMillis() + ".txt";
-        try {
-            writer = new PrintWriter(new FileOutputStream(new File(fileName), true));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
+    private PrintWriter detailWriter = null;
 
     @Before
     public void beforeTest() throws IOException {
-        String summaryFileName = testName.getMethodName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
-        summaryWriter = new CSVWriter(new FileWriter(summaryFileName + ".csv", false), ',');
+        String testFileName = testName.getMethodName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        summaryWriter = new CSVWriter(new FileWriter(testFileName + ".csv", false), ',');
+        detailWriter = new PrintWriter(new FileWriter(testFileName + ".txt", false));
         printResultCSVHeader();
     }
 
     @After
     public void afterTest() throws IOException {
         summaryWriter.close();
-    }
-
-    @AfterClass
-    public static void oneTimeTearDown() {
-        writer.close();
+        detailWriter.close();
     }
 
     /**
@@ -97,7 +86,7 @@ public class WekaTest {
         List<Recording> trainList = recordingService.findAll();
         List<Gesture> gestures = gestureService.findAll();
         double pctCorrect = classifyAllRecordings(trainList, gestures, new J48(), 5, 18);
-        writer.println("testAllRecordingsWithJ48 pctCorrect: " + pctCorrect);
+        detailWriter.println("testAllRecordingsWithJ48 pctCorrect: " + pctCorrect);
         System.out.println("testAllRecordingsWithJ48 pctCorrect: " + pctCorrect); //42.7083%
     }
 
@@ -111,7 +100,7 @@ public class WekaTest {
         List<Recording> trainList = recordingService.findAll();
         List<Gesture> gestures = gestureService.findAll();
         double pctCorrect = classifyAllRecordings(trainList, gestures, new NaiveBayes(), 3, 18);
-        writer.println("testAllRecordingsWithNaiveBayes pctCorrect: " + pctCorrect);
+        detailWriter.println("testAllRecordingsWithNaiveBayes pctCorrect: " + pctCorrect);
         System.out.println("testAllRecordingsWithNaiveBayes pctCorrect: " + pctCorrect); //36.4583%
 
     }
@@ -128,7 +117,7 @@ public class WekaTest {
         List<Recording> trainList = recordingService.findAll();
         List<Gesture> gestures = gestureService.findAll();
         double pctCorrect = classifyAllRecordings(trainList, gestures, new Logistic(), 19, 12);
-        writer.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect);
+        detailWriter.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect);
         System.out.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect); //46.875%
 
     }
@@ -144,7 +133,7 @@ public class WekaTest {
         List<Recording> trainList = recordingService.findAll();
         List<Gesture> gestures = gestureService.findAll();
         double pctCorrect = classifyAllRecordings(trainList, gestures, new LibSVM(), 19, 12);
-        writer.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect);
+        detailWriter.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect);
         System.out.println("testAllRecordingsWithLogistic pctCorrect: " + pctCorrect); //46.875%
 
     }
@@ -161,7 +150,7 @@ public class WekaTest {
         trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle+ring"));
         List<Gesture> gestures = gestureService.findAll().stream().limit(3).collect(Collectors.toList());
         double pctCorrect = classifyAllRecordings(trainList, gestures, new J48(), 5, 18);
-        writer.println("testSelectedRecordingsWithJ48 pctCorrect: " + pctCorrect);
+        detailWriter.println("testSelectedRecordingsWithJ48 pctCorrect: " + pctCorrect);
         System.out.println("testSelectedRecordingsWithJ48 pctCorrect: " + pctCorrect); //91.66%
     }
 
@@ -177,7 +166,7 @@ public class WekaTest {
         trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle+ring"));
         List<Gesture> gestures = gestureService.findAll().stream().limit(3).collect(Collectors.toList());
         double pctCorrect = classifyAllRecordings(trainList, gestures, new Logistic(), 5, 18);
-        writer.println("testSelectedRecordingsWithLogistic pctCorrect: " + pctCorrect);
+        detailWriter.println("testSelectedRecordingsWithLogistic pctCorrect: " + pctCorrect);
         System.out.println("testSelectedRecordingsWithLogistic pctCorrect: " + pctCorrect); //81.25%
     }
 
@@ -193,7 +182,7 @@ public class WekaTest {
         trainList.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle+ring"));
         List<Gesture> gestures = gestureService.findAll().stream().limit(3).collect(Collectors.toList());
         double pctCorrect = classifyAllRecordings(trainList, gestures, new NaiveBayes(), 5, 18);
-        writer.println("testSelectedRecordingsWithNaiveBayes pctCorrect: " + pctCorrect);
+        detailWriter.println("testSelectedRecordingsWithNaiveBayes pctCorrect: " + pctCorrect);
         System.out.println("testSelectedRecordingsWithNaiveBayes pctCorrect: " + pctCorrect); //81.25%
     }
 
@@ -220,7 +209,7 @@ public class WekaTest {
             }
         }
         System.out.println("testAllRecordingsWithDifferentFilterValuesWithLogistic bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
-        writer.println("testAllRecordingsWithDifferentFilterValuesWithLogistic bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+        detailWriter.println("testAllRecordingsWithDifferentFilterValuesWithLogistic bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
     }
 
     /**
@@ -246,7 +235,7 @@ public class WekaTest {
             }
         }
         System.out.println("testAllRecordingsWithDifferentFilterValuesWithNaiveBayes bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
-        writer.println("testAllRecordingsWithDifferentFilterValuesWithNaiveBayes bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+        detailWriter.println("testAllRecordingsWithDifferentFilterValuesWithNaiveBayes bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
     }
 
     /**
@@ -272,7 +261,7 @@ public class WekaTest {
             }
         }
         System.out.println("testAllRecordingsWithDifferentFilterValuesWithJ48 bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
-        writer.println("testAllRecordingsWithDifferentFilterValuesWithJ48 bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+        detailWriter.println("testAllRecordingsWithDifferentFilterValuesWithJ48 bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
     }
 
     @Test
@@ -285,7 +274,7 @@ public class WekaTest {
         Pair<Integer, Integer> worstFilterValues = null;
         for (int j = 0; j < 20; j++) {
             for (int k = 0; k < 30; k++) {
-                double temp = crossValidateOnce(new J48(), recordings, gestures, j, k).pctCorrect();
+                double temp = crossValidate(new J48(), recordings, j, k).pctCorrect();
                 if (temp >= bestPct) {
                     bestPct = temp;
                     bestFilterValues = Pair.of(j, k);
@@ -297,51 +286,10 @@ public class WekaTest {
             }
         }
         System.out.println("crossValidateAllWithDifferentFilterValuesWithJ48 bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
-        writer.println("crossValidateAllWithDifferentFilterValuesWithJ48 bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
+        detailWriter.println("crossValidateAllWithDifferentFilterValuesWithJ48 bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
 
         System.out.println("crossValidateAllWithDifferentFilterValuesWithJ48 worstFilterValues: " + worstFilterValues + " = " + worstPct + "%");
-        writer.println("crossValidateAllWithDifferentFilterValuesWithJ48 worstFilterValues: " + worstFilterValues + " = " + worstPct + "%");
-    }
-
-//    @Test
-//    public void crossValidateAllWithDifferentFilterValuesWithLibSVM() throws Exception {
-//        List<Recording> recordings = recordingService.findAll();
-//        List<Gesture> gestures = gestureService.findAll();
-//        double worstPct = 100;
-//        double bestPct = 0;
-//        Pair<Integer, Integer> bestFilterValues = null;
-//        Pair<Integer, Integer> worstFilterValues = null;
-//        for (int j = 0; j < 20; j++) {
-//            for (int k = 0; k < 30; k++) {
-//                double temp = crossValidateOnce(new LibSVM(), recordings, gestures, j, k).pctCorrect();
-//                if (temp >= bestPct) {
-//                    bestPct = temp;
-//                    bestFilterValues = Pair.of(j, k);
-//                }
-//                if (temp <= worstPct) {
-//                    worstPct = temp;
-//                    worstFilterValues = Pair.of(j, k);
-//                }
-//                System.out.println("i: " + j);
-//            }
-//        }
-//        System.out.println("crossValidateAllWithDifferentFilterValuesWithLibSVM bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
-//        writer.println("crossValidateAllWithDifferentFilterValuesWithLibSVM bestFilterValues: " + bestFilterValues + " = " + bestPct + "%");
-//
-//        System.out.println("crossValidateAllWithDifferentFilterValuesWithLibSVM worstFilterValues: " + worstFilterValues + " = " + worstPct + "%");
-//        writer.println("crossValidateAllWithDifferentFilterValuesWithLibSVM worstFilterValues: " + worstFilterValues + " = " + worstPct + "%");
-//    }
-
-    //TODO
-    @Test
-    public void crossValidateAllWithDifferentFilterValuesWithLogistic() throws Exception {
-
-    }
-
-    //TODO
-    @Test
-    public void crossValidateAllWithDifferentFilterValuesWithNaiveBayes() throws Exception {
-
+        detailWriter.println("crossValidateAllWithDifferentFilterValuesWithJ48 worstFilterValues: " + worstFilterValues + " = " + worstPct + "%");
     }
 
     /**
@@ -353,7 +301,7 @@ public class WekaTest {
     public void crossValidateAllRecordingsWithJ48() throws Exception {
         List<Recording> recordings = recordingService.findAll();
         List<Gesture> gestures = gestureService.findAll();
-        Evaluation evaluation = crossValidateOnce(new J48(), recordings, gestures, 5, 18);
+        Evaluation evaluation = crossValidate(new J48(), recordings, 5, 18);
         printConfusionMatrix("crossValidateAllRecordingsWithJ48", evaluation.confusionMatrix(), gestures);
     }
 
@@ -368,7 +316,7 @@ public class WekaTest {
         List<Gesture> gestures = gestureService.findAll();
         for (String tag : gestureService.getTags()) {
             List<Recording> recordings = recordingService.findBySubjectNameAndTagAndGesture(null, tag, null);
-            Evaluation evaluation = crossValidateOnce(new J48(), recordings, gestures, 5, 18);
+            Evaluation evaluation = crossValidate(new J48(), recordings, 5, 18);
             String fileName = System.currentTimeMillis() + "-" + tag + "-WithJ48";
             printConfusionMatrix(fileName + "-ConfusionMatrix", evaluation.confusionMatrix(), gestures);
             printSummary(fileName + "-Summary", evaluation);
@@ -382,7 +330,7 @@ public class WekaTest {
         recordings.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle"));
         recordings.addAll(recordingService.findBySubjectNameAndTagAndGesture(null, null, "index+middle+ring"));
         List<Gesture> gestures = gestureService.findAll().stream().limit(3).collect(Collectors.toList());
-        crossValidateOnce(new J48(), recordings, gestures, 5, 18);
+        crossValidate(new J48(), recordings, 5, 18);
     }
 
     /**
@@ -394,7 +342,7 @@ public class WekaTest {
     public void crossValidateAllRecordingsWithLogistic() throws Exception {
         List<Recording> recordings = recordingService.findAll();
         List<Gesture> gestures = gestureService.findAll();
-        Evaluation evaluation = crossValidateOnce(new Logistic(), recordings, gestures, 5, 18);
+        Evaluation evaluation = crossValidate(new Logistic(), recordings, 5, 18);
         printConfusionMatrix("crossValidateAllRecordingsWithLogistic", evaluation.confusionMatrix(), gestures);
     }
 
@@ -409,7 +357,7 @@ public class WekaTest {
         List<Gesture> gestures = gestureService.findAll();
         for (String tag : gestureService.getTags()) {
             List<Recording> recordings = recordingService.findBySubjectNameAndTagAndGesture(null, tag, null);
-            Evaluation evaluation = crossValidateOnce(new Logistic(), recordings, gestures, 5, 18);
+            Evaluation evaluation = crossValidate(new Logistic(), recordings, 5, 18);
             String fileName = System.currentTimeMillis() + "-" + tag + "-WithLogistic";
             printConfusionMatrix(fileName + "-ConfusionMatrix", evaluation.confusionMatrix(), gestures);
             printSummary(fileName + "-Summary", evaluation);
@@ -425,7 +373,7 @@ public class WekaTest {
     public void crossValidateAllRecordingsWithNaiveBayes() throws Exception {
         List<Recording> recordings = recordingService.findAll();
         List<Gesture> gestures = gestureService.findAll();
-        Evaluation evaluation = crossValidateOnce(new NaiveBayes(), recordings, gestures, 5, 18);
+        Evaluation evaluation = crossValidate(new NaiveBayes(), recordings, 5, 18);
         printConfusionMatrix("crossValidateAllRecordingsWithLogistic", evaluation.confusionMatrix(), gestures);
     }
 
@@ -440,7 +388,7 @@ public class WekaTest {
         List<Gesture> gestures = gestureService.findAll();
         for (String tag : gestureService.getTags()) {
             List<Recording> recordings = recordingService.findBySubjectNameAndTagAndGesture(null, tag, null);
-            Evaluation evaluation = crossValidateOnce(new NaiveBayes(), recordings, gestures, 5, 18);
+            Evaluation evaluation = crossValidate(new NaiveBayes(), recordings, 5, 18);
             String fileName = System.currentTimeMillis() + "-" + tag + "-WithNaiveBayes";
             printConfusionMatrix(fileName + "-ConfusionMatrix", evaluation.confusionMatrix(), gestures);
             printSummary(fileName + "-Summary", evaluation);
@@ -458,7 +406,7 @@ public class WekaTest {
         List<Gesture> gestures = gestureService.findAll();
         for (String tag : gestureService.getTags()) {
             List<Recording> recordings = recordingService.findBySubjectNameAndTagAndGesture(null, tag, null);
-            Evaluation evaluation = crossValidateOnce(new LibSVM(), recordings, gestures, 5, 18);
+            Evaluation evaluation = crossValidate(new LibSVM(), recordings, 5, 18);
             String fileName = System.currentTimeMillis() + "-" + tag + "-WithLibSVM";
             printConfusionMatrix(fileName + "-ConfusionMatrix", evaluation.confusionMatrix(), gestures);
             printSummary(fileName + "-Summary", evaluation);
@@ -470,7 +418,7 @@ public class WekaTest {
         List<Gesture> gestures = gestureService.findAll();
         for (Subject subject : subjectService.findAll()) {
             List<Recording> recordings = recordingService.findBySubjectNameAndTagAndGesture(subject.getName(), null, null);
-            Evaluation evaluation = crossValidateOnce(new J48(), recordings, gestures, 15, 27);
+            Evaluation evaluation = crossValidate(new J48(), recordings, 15, 27);
             String fileName = System.currentTimeMillis() + "-" + subject.getName() + "-WithNaiveBayes";
             printConfusionMatrix(fileName + "-ConfusionMatrix", evaluation.confusionMatrix(), gestures);
             printSummary(fileName + "-Summary", evaluation);
@@ -484,13 +432,13 @@ public class WekaTest {
         Map<String, String> summaryStrings = new HashMap<>();
         List<Recording> recordings = recordingService.findAll();
 
-        for (Supplier cls : suppliers) {
+        for (Supplier cls : CLASSIFIERS) {
             String summaryString = "";
             for (int j = 0; j < 2; j++) {
                 for (int k = 0; k < 2; k++) {
                     double bestPct = 0;
                     Pair<Integer, Integer> bestFilterValues = null;
-                    Evaluation evaluation = crossValidateOnce((Classifier) cls.get(), recordings, gestures, 15, 27);
+                    Evaluation evaluation = crossValidate((Classifier) cls.get(), recordings, 15, 27);
                     double temp = evaluation.pctCorrect();
                     if (temp >= bestPct) {
                         bestPct = temp;
@@ -508,106 +456,81 @@ public class WekaTest {
         printSummaryStrings("findBestFilterPairForEachClassifier-" + System.currentTimeMillis(), summaryStrings);
     }
 
-    /**
-     * Testing One Classifier For All vs One Classifier Per Person
-     *
-     * @throws Exception
-     */
-    //TODO: save filter values for each classifier in classifiers
     @Test
     public void testOnClassifierForAllVsOneClassifierPerPerson() throws Exception {
-        List<Gesture> gestures = gestureService.findAll();
-
-        Map<String, String> summaryStrings = new HashMap<>();
-
-        for (Supplier cls : suppliers) {
+        for (Supplier cls : CLASSIFIERS) {
             for (String tag : gestureService.getTags()) {
-                Classifier classifier = (Classifier) cls.get();
-                List<Recording> recordingsBySubjectLeft = recordingService.findBySubjectNameAndArmAndTagAndGesture(null, Arm.ARM_LEFT, tag, null);
-                List<Recording> recordingsBySubjectRight = recordingService.findBySubjectNameAndArmAndTagAndGesture(null, Arm.ARM_RIGHT, tag, null);
-                Evaluation evaluationLeft;
-                Evaluation evaluationRight;
-                if (!recordingsBySubjectLeft.isEmpty()) {
-                    evaluationLeft = crossValidateOnce(classifier, recordingsBySubjectLeft, gestures, 15, 27);
-                    summaryStrings.put("==== " + classifier.getClass().getSimpleName() + " Left Arm ====",
-                            evaluationLeft.toSummaryString(true) + "\n" +
-                                    evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
-                                    evaluationLeft.toClassDetailsString());
-                    printResultCSV(getTestName(), evaluationLeft, null, tag, Arm.ARM_LEFT, classifier);
-                }
-                if (!recordingsBySubjectRight.isEmpty()) {
-                    evaluationRight = crossValidateOnce(classifier, recordingsBySubjectRight, gestures, 15, 27);
-                    summaryStrings.put("==== " + classifier.getClass().getSimpleName() + " Right Arm ====",
-                            evaluationRight.toSummaryString(true) + "\n" +
-                                    evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
-                                    evaluationRight.toClassDetailsString());
-                    printResultCSV(getTestName(), evaluationRight, null, tag, Arm.ARM_RIGHT, classifier);
+                for (Arm arm : ARMS) {
+                    Classifier classifier = (Classifier) cls.get();
+
+                    List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(null, Arm.ARM_LEFT, tag, null);
+
+                    if (!recordings.isEmpty()) {
+                        evaluateClassifier(null, arm, null, classifier, recordings, detailWriter);
+                    }
                 }
             }
         }
 
-        for (Supplier cls : suppliers) {
+        for (Supplier<Classifier> classifierSupplier : CLASSIFIERS) {
             for (Subject subject : subjectService.findAll()) {
                 for (String tag : gestureService.getTags()) {
-                    Classifier classifier = (Classifier) cls.get();
-                    List<Recording> recordingsBySubjectLeft = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), Arm.ARM_LEFT, tag, null);
-                    List<Recording> recordingsBySubjectRight = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), Arm.ARM_RIGHT, tag, null);
-                    Evaluation evaluationLeft;
-                    Evaluation evaluationRight;
-                    if (!recordingsBySubjectLeft.isEmpty()) {
-                        evaluationLeft = crossValidateOnce(classifier, recordingsBySubjectLeft, gestures, 15, 27);
-                        summaryStrings.put("==== " + classifier.getClass().getSimpleName() + " for " + subject.getName() + " Left Arm ====",
-                                evaluationLeft.toSummaryString(true) + "\n" +
-                                        evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
-                                        evaluationLeft.toClassDetailsString());
-                        printResultCSV(getTestName(), evaluationLeft, subject.getName(), tag, Arm.ARM_LEFT, classifier);
-                    }
-                    if (!recordingsBySubjectRight.isEmpty()) {
-                        evaluationRight = crossValidateOnce(classifier, recordingsBySubjectRight, gestures, 15, 27);
-                        summaryStrings.put("==== " + classifier.getClass().getSimpleName() + " for " + subject.getName() + " Right Arm ====",
-                                evaluationRight.toSummaryString(true) + "\n" +
-                                        evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
-                                        evaluationRight.toClassDetailsString());
-                        printResultCSV(getTestName(), evaluationRight, subject.getName(), tag, Arm.ARM_RIGHT, classifier);
-                    }
+                    for (Arm arm : ARMS) {
+                        Classifier classifier = classifierSupplier.get();
 
+                        List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), arm, tag, null);
 
+                        if (!recordings.isEmpty()) {
+                            evaluateClassifier(subject, arm, null, classifier, recordings, detailWriter);
+                        }
+                    }
                 }
             }
         }
-        printSummaryStrings("testOnClassifierForAllvsOneClassifierPerPerson-" + System.currentTimeMillis(), summaryStrings);
-
     }
 
     @Test
     public void testOneClassifierForPullDirectionsVsOneClassifierPerPullDirection() throws Exception {
-        List<Gesture> gestures = gestureService.findAll();
-        Map<String, String> summaryStrings = new HashMap<>();
-        for (Supplier cls : suppliers) {
+        for (Supplier<Classifier> classifierSupplier : CLASSIFIERS) {
             for (Subject subject : subjectService.findAll()) {
-                Classifier classifier = (Classifier) cls.get();
-                List<Recording> recordingsBySubjectLeft = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), Arm.ARM_LEFT, null, null);
-                List<Recording> recordingsBySubjectRight = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), Arm.ARM_RIGHT, null, null);
-                Evaluation evaluationLeft;
-                Evaluation evaluationRight;
-                if (!recordingsBySubjectLeft.isEmpty()) {
-                    evaluationLeft = crossValidateOnce(classifier, recordingsBySubjectLeft, gestures, 15, 27);
-                    summaryStrings.put("==== " + classifier.getClass().getSimpleName() + " Left Arm ====",
-                            evaluationLeft.toSummaryString(true) + "\n" +
-                                    evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
-                                    evaluationLeft.toClassDetailsString());
-                    printResultCSV(getTestName(), evaluationLeft, subject.getName(), null, Arm.ARM_LEFT, classifier);
-                }
-                if (!recordingsBySubjectRight.isEmpty()) {
-                    evaluationRight = crossValidateOnce(classifier, recordingsBySubjectRight, gestures, 15, 27);
-                    summaryStrings.put("==== " + classifier.getClass().getSimpleName() + " Right Arm ====",
-                            evaluationRight.toSummaryString(true) + "\n" +
-                                    evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
-                                    evaluationRight.toClassDetailsString());
-                    printResultCSV(getTestName(), evaluationRight, subject.getName(), null, Arm.ARM_RIGHT, classifier);
+                for (Arm arm : ARMS) {
+                    Classifier classifier = classifierSupplier.get();
+                    List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), arm, null, null);
+
+                    if (!recordings.isEmpty()) {
+                        evaluateClassifier(subject, arm, null, classifier, recordings, detailWriter);
+                    }
                 }
             }
         }
+    }
+
+    private void evaluateClassifier(Subject subject, Arm arm, String tag, Classifier classifier, List<Recording> recordings, PrintWriter writer) throws Exception {
+        WekaTool wekaTool = createWekaTool(15, 17);
+        InstancesSupplier trainingSetSupplier = wekaTool.convertToTrainSet(recordings);
+
+        Instances trainingSet = trainingSetSupplier.getNormalized();
+        classifier.buildClassifier(trainingSet);
+
+        Evaluation crossValidation = WekaTool.crossValidate(trainingSet, classifier);
+
+        writeSummary(subject, arm, tag, classifier, crossValidation, writer);
+
+        InstancesSupplier testSetSupplier = wekaTool.convertToTestSet(recordings);
+        Instances testSet = testSetSupplier.get();
+        trainingSetSupplier.getNormalizer().accept(testSet);
+        Evaluation testEvaluation = WekaTool.evaluate(testSet, classifier);
+
+        writeSummary(subject, arm, tag, classifier, testEvaluation, writer);
+
+        printResultCSV(testName.getMethodName(), subject, tag, arm, classifier, crossValidation, testEvaluation);
+    }
+
+    private void writeSummary(Subject subject, Arm arm, String tag, Classifier classifier, Evaluation evaluation, PrintWriter writer) throws Exception {
+        writer.write("==== " + classifier.getClass().getSimpleName() + " Subject: " + identifySubject(subject) + " Arm: " + identifyArm(arm) + " Direction: " + identifyTag(tag) + " ====\n" +
+                evaluation.toSummaryString(true) + "\n" +
+                evaluation.toMatrixString("=== Confusion Matrix  ===") + "\n" +
+                evaluation.toClassDetailsString());
     }
 
     public double classifyAllRecordings(List<Recording> trainList, List<Gesture> gestures, Classifier classifier, int labelFilter, int averageFilter) throws Exception {
@@ -657,32 +580,38 @@ public class WekaTest {
         return counterArray;
     }
 
-    private Evaluation crossValidateOnce(Classifier cls, List<Recording> recordings, List<Gesture> gestures, int labelFilter, int averageFilter) throws Exception {
+    private Evaluation crossValidate(Classifier cls, List<Recording> recordings, int labelFilter, int averageFilter) throws Exception {
+        InstancesSupplier instancesSupplier = createWekaTool(labelFilter, averageFilter).convertToTrainSet(recordings);
+        Instances instances = instancesSupplier.get();
+        instancesSupplier.getNormalizer().accept(instances);
+        return WekaTool.crossValidate(instances, cls);
+    }
+
+    private WekaTool createWekaTool(int labelFilter, int averageFilter) {
         WekaTool.Builder builder = new WekaTool.Builder().setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8));
+
         if (labelFilter != 0) {
             builder.setLabelFilter(new LabelFilter(labelFilter));
         }
+
         if (averageFilter != 0) {
             builder.setAverageFilter(new AverageFilter(averageFilter));
         }
-        WekaTool wekaTool = builder.build();
-        Instances data = wekaTool.convertToTrainSet(recordings, gestures);
-        return wekaTool.crossValidate(data, cls, gestures);
+
+        builder.setGestures(gestureService.findAll());
+
+        return builder.build();
     }
 
     private String classifyOnce(List<Recording> trainList, Recording correctRecording, List<Gesture> gestures, Classifier cls, int labelFilter, int averageFilter) throws Exception {
+        WekaTool wekaTool = createWekaTool(labelFilter, averageFilter);
 
-        WekaTool wekaTool = new WekaTool.Builder()
-                .setAverageFilter(new AverageFilter(averageFilter))
-                .setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8))
-                .setLabelFilter(new LabelFilter(labelFilter)).build();
-
-        Instances train = wekaTool.convertToTrainSet(trainList, gestures);
+        InstancesSupplier train = wekaTool.convertToTrainSet(trainList);
         //System.out.println(train);
-        Instances test = wekaTool.convertToTestSet(correctRecording, gestures);
+        InstancesSupplier test = wekaTool.convertToTestSet(Collections.singletonList(correctRecording));
         //System.out.println(test);
 
-        return wekaTool.evaluate(train, test, cls, gestures);
+        return wekaTool.evaluate(train.get(), test.get(), cls, gestures);
     }
 
     private void printArray(Integer[][] data, String key, String fileName, int averageFilterMin, int averageFilterMax, int labelFilterMin, int labelFilterMax) {
@@ -797,28 +726,45 @@ public class WekaTest {
                 "Arm",
                 "Direction",
                 "Classifier",
-                "# Elements",
-                "# Correct",
-                "# Incorrect",
-                "% Accuracy"});
+                "# CV Elements",
+                "# CV Correct",
+                "# CV Incorrect",
+                "% CV Accuracy",
+                "# Test Elements",
+                "# Test Correct",
+                "# Test Incorrect",
+                "% Test Accuracy"});
     }
 
-    private void printResultCSV(String testId, Evaluation evaluation, String subjectName, String tag, Arm arm, Classifier classifier) {
+    private void printResultCSV(String testId, Subject subject, String tag, Arm arm, Classifier classifier, Evaluation crossValidation, Evaluation testEvaluation) {
         summaryWriter.writeNext(new String[]{
                 testId,
-                subjectName == null ? "*" : subjectName,
-                arm.name(),
-                tag == null ? "*" : tag,
+                identifySubject(subject),
+                identifyArm(arm),
+                identifyTag(tag),
                 classifier.getClass().getSimpleName(),
-                String.valueOf(evaluation.correct() + evaluation.incorrect()),
-                String.valueOf(evaluation.correct()),
-                String.valueOf(evaluation.incorrect()),
-                String.valueOf(evaluation.pctCorrect())});
+                String.valueOf(crossValidation.correct() + crossValidation.incorrect()),
+                String.valueOf(crossValidation.correct()),
+                String.valueOf(crossValidation.incorrect()),
+                String.valueOf(crossValidation.pctCorrect()),
+                String.valueOf(testEvaluation.correct() + testEvaluation.incorrect()),
+                String.valueOf(testEvaluation.correct()),
+                String.valueOf(testEvaluation.incorrect()),
+                String.valueOf(testEvaluation.pctCorrect())
+        });
 
     }
 
-    private String getTestName() {
-        return testName.getMethodName();
+    private static String identifyTag(String tag) {
+        return tag == null ? "*" : tag;
+    }
+
+    private static String identifyArm(Arm arm) {
+        return arm == null ? "*" : arm.name();
+    }
+
+    private static String identifySubject(Subject subject) {
+        return subject == null ? "*" : subject.getName();
     }
 
 }
