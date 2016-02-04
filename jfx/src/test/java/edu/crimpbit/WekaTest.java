@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 @Rollback
 public class WekaTest {
 
-    private static final List<Supplier<Classifier>> CLASSIFIERS = Arrays.asList(J48::new, NaiveBayes::new, /*LibSVM::new,*/ Logistic::new);
+    private static final List<Supplier<Classifier>> CLASSIFIERS = Arrays.asList(J48::new, NaiveBayes::new, LibSVM::new, Logistic::new);
 
     private static final EnumSet<Arm> ARMS = EnumSet.of(Arm.ARM_LEFT, Arm.ARM_RIGHT);
 
@@ -428,38 +428,18 @@ public class WekaTest {
 
     @Test
     public void findBestFilterPairForEachClassifier() throws Exception {
-        List<Gesture> gestures = gestureService.findAll();
-        Map<String, String> summaryStrings = new HashMap<>();
         List<Recording> recordings = recordingService.findAll();
         int progressCounter = 0;
         for (Supplier cls : CLASSIFIERS) {
             Classifier classifier = (Classifier) cls.get();
-            String summaryString = "";
             for (int j = 0; j < 20; j++) {
-                for (int k = 0; k < 20; k++) {
+                for (int k = 0; k < 30; k++) {
                     progressCounter++;
-                    System.out.println(progressCounter + " of " + (CLASSIFIERS.size() * 20 * 20));
-                    double bestPct = 0;
-                    Pair<Integer, Integer> bestFilterValues = null;
-
-                    Evaluation evaluation = crossValidate(classifier, recordings, j, k);
-
-                    double temp = evaluation.pctCorrect();
-                    if (temp >= bestPct) {
-                        bestPct = temp;
-                        bestFilterValues = Pair.of(j, k);
-                        summaryString = evaluation.toSummaryString(true) + "\n" +
-                                evaluation.toMatrixString("=== Confusion Matrix  ===") + "\n" +
-                                evaluation.toClassDetailsString() + "\n" +
-                                "=== Best Filter Values" + "\n" +
-                                "bestFilterValues: " + bestFilterValues + " = " + bestPct + "%";
-                    }
+                    System.out.println(progressCounter + " of " + (CLASSIFIERS.size() * 20 * 30));
+                    evaluateClassifier(null, null, null, classifier, recordings, detailWriter, j, k);
                 }
             }
-            summaryStrings.put("==== " + classifier.getClass().getSimpleName() + " for all ====", summaryString);
         }
-
-        printSummaryStrings("findBestFilterPairForEachClassifier-" + System.currentTimeMillis(), summaryStrings);
     }
 
     @Test
@@ -472,7 +452,7 @@ public class WekaTest {
                     List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(null, Arm.ARM_LEFT, tag, null);
 
                     if (!recordings.isEmpty()) {
-                        evaluateClassifier(null, arm, null, classifier, recordings, detailWriter);
+                        evaluateClassifier(null, arm, null, classifier, recordings, detailWriter, 15, 17);
                     }
                 }
             }
@@ -487,7 +467,7 @@ public class WekaTest {
                         List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), arm, tag, null);
 
                         if (!recordings.isEmpty()) {
-                            evaluateClassifier(subject, arm, null, classifier, recordings, detailWriter);
+                            evaluateClassifier(subject, arm, null, classifier, recordings, detailWriter, 15, 17);
                         }
                     }
                 }
@@ -504,15 +484,15 @@ public class WekaTest {
                     List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), arm, null, null);
 
                     if (!recordings.isEmpty()) {
-                        evaluateClassifier(subject, arm, null, classifier, recordings, detailWriter);
+                        evaluateClassifier(subject, arm, null, classifier, recordings, detailWriter, 15, 17);
                     }
                 }
             }
         }
     }
 
-    private void evaluateClassifier(Subject subject, Arm arm, String tag, Classifier classifier, List<Recording> recordings, PrintWriter writer) throws Exception {
-        WekaTool wekaTool = createWekaTool(15, 17);
+    private void evaluateClassifier(Subject subject, Arm arm, String tag, Classifier classifier, List<Recording> recordings, PrintWriter writer, int labelFilter, int averageFilter) throws Exception {
+        WekaTool wekaTool = createWekaTool(labelFilter, averageFilter);
         InstancesSupplier trainingSetSupplier = wekaTool.convertToTrainSet(recordings);
 
         Instances trainingSet = trainingSetSupplier.getNormalized();
@@ -529,7 +509,31 @@ public class WekaTest {
 
         writeSummary(subject, arm, tag, classifier, testEvaluation, writer);
 
-        printResultCSV(testName.getMethodName(), subject, tag, arm, classifier, crossValidation, testEvaluation);
+        printResultCSV(testName.getMethodName(), subject, tag, arm, labelFilter, averageFilter, classifier, crossValidation, testEvaluation);
+    }
+
+    private Evaluation crossValidate(Classifier cls, List<Recording> recordings, int labelFilter, int averageFilter) throws Exception {
+        InstancesSupplier instancesSupplier = createWekaTool(labelFilter, averageFilter).convertToTrainSet(recordings);
+        Instances instances = instancesSupplier.get();
+        instancesSupplier.getNormalizer().accept(instances);
+        //cls.buildClassifier(instances);
+        return WekaTool.crossValidate(instances, cls);
+    }
+
+    private WekaTool createWekaTool(int labelFilter, int averageFilter) {
+        WekaTool.Builder builder = new WekaTool.Builder().setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8));
+
+        if (labelFilter != 0) {
+            builder.setLabelFilter(new LabelFilter(labelFilter));
+        }
+
+        if (averageFilter != 0) {
+            builder.setAverageFilter(new AverageFilter(averageFilter));
+        }
+
+        builder.setGestures(gestureService.findAll());
+
+        return builder.build();
     }
 
     private void writeSummary(Subject subject, Arm arm, String tag, Classifier classifier, Evaluation evaluation, PrintWriter writer) throws Exception {
@@ -584,29 +588,6 @@ public class WekaTest {
             trainList.add(i, correctRecording);
         }
         return counterArray;
-    }
-
-    private Evaluation crossValidate(Classifier cls, List<Recording> recordings, int labelFilter, int averageFilter) throws Exception {
-        InstancesSupplier instancesSupplier = createWekaTool(labelFilter, averageFilter).convertToTrainSet(recordings);
-        Instances instances = instancesSupplier.get();
-        instancesSupplier.getNormalizer().accept(instances);
-        return WekaTool.crossValidate(instances, cls);
-    }
-
-    private WekaTool createWekaTool(int labelFilter, int averageFilter) {
-        WekaTool.Builder builder = new WekaTool.Builder().setEnvelopeFollowerFilter(new EnvelopeFollowerFilter(0.3, 0.8));
-
-        if (labelFilter != 0) {
-            builder.setLabelFilter(new LabelFilter(labelFilter));
-        }
-
-        if (averageFilter != 0) {
-            builder.setAverageFilter(new AverageFilter(averageFilter));
-        }
-
-        builder.setGestures(gestureService.findAll());
-
-        return builder.build();
     }
 
     private String classifyOnce(List<Recording> trainList, Recording correctRecording, List<Gesture> gestures, Classifier cls, int labelFilter, int averageFilter) throws Exception {
@@ -728,6 +709,8 @@ public class WekaTest {
     private void printResultCSVHeader() {
         summaryWriter.writeNext(new String[]{
                 "Test",
+                "Label Filter Value",
+                "Average Filter Value",
                 "Subject",
                 "Arm",
                 "Direction",
@@ -742,9 +725,11 @@ public class WekaTest {
                 "% Test Accuracy"});
     }
 
-    private void printResultCSV(String testId, Subject subject, String tag, Arm arm, Classifier classifier, Evaluation crossValidation, Evaluation testEvaluation) {
+    private void printResultCSV(String testId, Subject subject, String tag, Arm arm, int labelFilter, int averageFilter, Classifier classifier, Evaluation crossValidation, Evaluation testEvaluation) {
         summaryWriter.writeNext(new String[]{
                 testId,
+                String.valueOf(labelFilter),
+                String.valueOf(averageFilter),
                 identifySubject(subject),
                 identifyArm(arm),
                 identifyTag(tag),
