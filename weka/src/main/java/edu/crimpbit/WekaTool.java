@@ -11,7 +11,6 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -25,30 +24,25 @@ public class WekaTool {
 
     private final DataSplitter<Byte> splitter;
 
+    private final List<Gesture> gestures;
+
     public WekaTool(Builder builder) {
         averageFilter = builder.averageFilter;
         labelFilter = builder.labelFilter;
         splitter = builder.splitter;
+        gestures = builder.gestures;
         envelopeFollowerFilter = builder.envelopeFollowerFilter;
     }
 
-    public Instances convertToTrainSet(List<Recording> recordings, List<Gesture> gestures) {
-        return convert(recordings, gestures, false);
+    public InstancesSupplier convertToTrainSet(List<Recording> recordings) {
+        return convert(recordings, false);
     }
 
-    /**
-     * @deprecated use {@link #convert(List, List, boolean)} instead.
-     */
-    @Deprecated
-    public Instances convertToTestSet(Recording recording, List<Gesture> gestures) {
-        return convertToTestSet(Arrays.asList(recording), gestures);
+    public InstancesSupplier convertToTestSet(List<Recording> recordings) {
+        return convert(recordings, true);
     }
 
-    public Instances convertToTestSet(List<Recording> recordings, List<Gesture> gestures) {
-        return convert(recordings, gestures, true);
-    }
-
-    public Instances convert(List<Recording> recordings, List<Gesture> gestures, boolean isTestSet) {
+    public InstancesSupplier convert(List<Recording> recordings, boolean isTestSet) {
         FastVector attInfo = new FastVector();
 
         int attributeIndex = 0;
@@ -86,7 +80,7 @@ public class WekaTool {
 
         FastVector classVal = new FastVector();
 
-        for (Gesture gesture : gestures) {
+        for (Gesture gesture : this.gestures) {
             classVal.addElement(gesture.getName());
         }
 
@@ -109,6 +103,7 @@ public class WekaTool {
 
         Instances instances = new Instances("emg-data", attInfo, capacity / 8);
         instances.setClassIndex(instances.numAttributes() - 1);
+
         for (Recording recording : recordings) {
             List<List<Byte>> averagesList = new ArrayList<>();
 
@@ -139,18 +134,17 @@ public class WekaTool {
                 row.setValue(emg_5, averagesList.get(5).get(i));
                 row.setValue(emg_6, averagesList.get(6).get(i));
                 row.setValue(emg_7, averagesList.get(7).get(i));
-                if (isTestSet) {
-                    //row.setValue(classnameAttribute, "?");
-                } else {
-                    row.setValue(8, recording.getGesture().getName());
-                }
+
+                row.setValue(8, recording.getGesture().getName());
+
                 instances.add(row);
             }
         }
 
-
-        return instances;
+        return new InstancesSupplier(instances);
     }
+
+
 
     private Stream<Byte> getEmgDataStream(Recording recording, int i, boolean isTestSet) {
         List<Byte> data = recording.getEmgData().getData(i);
@@ -158,22 +152,25 @@ public class WekaTool {
         return data.stream();
     }
 
-    public Evaluation crossValidate(Instances data, Classifier cls, List<Gesture> gestures) throws Exception {
-        cls.buildClassifier(data);
-        Evaluation eval = new Evaluation(data);
-        eval.crossValidateModel(cls, data, 10, new Random());
-
-        return eval;
+    public static Evaluation crossValidate(Instances data, Classifier cls) throws Exception {
+        Evaluation evaluation = new Evaluation(data);
+        evaluation.crossValidateModel(cls, data, 2, new Random());
+        return evaluation;
     }
 
+    public static Evaluation evaluate(Instances testData, Classifier classifier) throws Exception {
+        Evaluation evaluation = new Evaluation(testData);
+        evaluation.evaluateModel(classifier, testData);
+        return evaluation;
+    }
 
-    public String evaluate(Instances train, Instances test, Classifier cls, List<Gesture> gestures) throws Exception {
+    public static String evaluate(Instances train, Instances test, Classifier cls, List<Gesture> gestures) throws Exception {
         cls.buildClassifier(train);
         Evaluation eval = new Evaluation(train);
         return evaluatePredictions(eval.evaluateModel(cls, test), gestures);
     }
 
-    private String evaluatePredictions(double[] predictions, List<Gesture> gestures) {
+    private static String evaluatePredictions(double[] predictions, List<Gesture> gestures) {
         double sum = 0;
         for (double d : predictions)
             sum += d;
@@ -201,7 +198,13 @@ public class WekaTool {
         private EnvelopeFollowerFilter envelopeFollowerFilter;
         public DataSplitter<Byte> splitter = new DataSplitter<>();
 
+        public List<Gesture> gestures;
+
         public Builder() {
+        }
+
+        public void setGestures(List<Gesture> gestures) {
+            this.gestures = gestures;
         }
 
         public void setSplitter(DataSplitter<Byte> splitter) {
