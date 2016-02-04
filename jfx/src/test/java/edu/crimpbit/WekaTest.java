@@ -463,21 +463,61 @@ public class WekaTest {
     }
 
     @Test
-    public void testOnClassifierForAllVsOneClassifierPerPerson() throws Exception {
-        for (Supplier cls : CLASSIFIERS) {
+    public void testOnClassifierForAllSubjectsVsOneClassifierPerSubject() throws Exception {
+        for (Supplier classifierSupplier : CLASSIFIERS) {
             for (String tag : gestureService.getTags()) {
                 for (Arm arm : ARMS) {
-                    Classifier classifier = (Classifier) cls.get();
+                    Classifier classifier = (Classifier) classifierSupplier.get();
 
                     List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(null, Arm.ARM_LEFT, tag, null);
 
                     if (!recordings.isEmpty()) {
-                        evaluateClassifier(null, arm, null, classifier, recordings, detailWriter);
+                        evaluateClassifier("Test-Per-Person", null, arm, null, classifier, recordings, detailWriter);
                     }
                 }
             }
         }
 
+        evaluateClassifiersPerVariable("Test-Per-Variable");
+    }
+
+    @Test
+    public void testOneClassifierForAllPullDirectionsVsOneClassifierPerPullDirection() throws Exception {
+        for (Supplier<Classifier> classifierSupplier : CLASSIFIERS) {
+            for (Subject subject : subjectService.findAll()) {
+                for (Arm arm : ARMS) {
+                    Classifier classifier = classifierSupplier.get();
+                    List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), arm, null, null);
+
+                    if (!recordings.isEmpty()) {
+                        evaluateClassifier("Test-Per-Direction", subject, arm, null, classifier, recordings, detailWriter);
+                    }
+                }
+            }
+        }
+
+        evaluateClassifiersPerVariable("Test-Per-Variable");
+    }
+
+    @Test
+    public void testOneClassifierForBothArmsVsOneClassifierPerArm() throws Exception {
+        for (Supplier<Classifier> classifierSupplier : CLASSIFIERS) {
+            for (Subject subject : subjectService.findAll()) {
+                for (String tag : gestureService.getTags()) {
+                    Classifier classifier = classifierSupplier.get();
+                    List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), null, tag, null);
+
+                    if (!recordings.isEmpty()) {
+                        evaluateClassifier("Test-Per-Arm", subject, null, tag, classifier, recordings, detailWriter);
+                    }
+                }
+            }
+        }
+
+        evaluateClassifiersPerVariable("Test-Per-Variable");
+    }
+
+    private void evaluateClassifiersPerVariable(String testName) throws Exception {
         for (Supplier<Classifier> classifierSupplier : CLASSIFIERS) {
             for (Subject subject : subjectService.findAll()) {
                 for (String tag : gestureService.getTags()) {
@@ -487,7 +527,7 @@ public class WekaTest {
                         List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), arm, tag, null);
 
                         if (!recordings.isEmpty()) {
-                            evaluateClassifier(subject, arm, null, classifier, recordings, detailWriter);
+                            evaluateClassifier(testName, subject, arm, null, classifier, recordings, detailWriter);
                         }
                     }
                 }
@@ -495,23 +535,7 @@ public class WekaTest {
         }
     }
 
-    @Test
-    public void testOneClassifierForPullDirectionsVsOneClassifierPerPullDirection() throws Exception {
-        for (Supplier<Classifier> classifierSupplier : CLASSIFIERS) {
-            for (Subject subject : subjectService.findAll()) {
-                for (Arm arm : ARMS) {
-                    Classifier classifier = classifierSupplier.get();
-                    List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), arm, null, null);
-
-                    if (!recordings.isEmpty()) {
-                        evaluateClassifier(subject, arm, null, classifier, recordings, detailWriter);
-                    }
-                }
-            }
-        }
-    }
-
-    private void evaluateClassifier(Subject subject, Arm arm, String tag, Classifier classifier, List<Recording> recordings, PrintWriter writer) throws Exception {
+    private void evaluateClassifier(String testName, Subject subject, Arm arm, String tag, Classifier classifier, List<Recording> recordings, PrintWriter writer) throws Exception {
         WekaTool wekaTool = createWekaTool(15, 17);
         InstancesSupplier trainingSetSupplier = wekaTool.convertToTrainSet(recordings);
 
@@ -529,7 +553,7 @@ public class WekaTest {
 
         writeSummary(subject, arm, tag, classifier, testEvaluation, writer);
 
-        printResultCSV(testName.getMethodName(), subject, tag, arm, classifier, crossValidation, testEvaluation);
+        printResultCSV(testName, subject, tag, arm, classifier, crossValidation, testEvaluation);
     }
 
     private void writeSummary(Subject subject, Arm arm, String tag, Classifier classifier, Evaluation evaluation, PrintWriter writer) throws Exception {
