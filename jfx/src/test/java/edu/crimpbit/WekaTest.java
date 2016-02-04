@@ -58,22 +58,22 @@ public class WekaTest {
 
     private static PrintWriter writer = null;
 
-    private static List<Classifier> classifiers = new ArrayList();
+    //private static List<Classifier> classifiers = new ArrayList();
 
     static String csvFileName = "testOnClassifierForAllvsOneClassifierPerPersonResult-" + System.currentTimeMillis();
 
-    //private static List<Supplier<Classifier>> suppliers = new ArrayList<>();
+    private static List<Supplier<Classifier>> suppliers = new ArrayList<>();
 
     @BeforeClass
     public static void oneTimeSetUp() {
-//        suppliers.add(J48::new);
-//        suppliers.add(NaiveBayes::new);
-//        suppliers.add(LibSVM::new);
-//        suppliers.add(Logistic::new);
-        classifiers.add(new J48());
-        classifiers.add(new NaiveBayes());
-        classifiers.add(new LibSVM());
-        classifiers.add(new Logistic());
+        suppliers.add(J48::new);
+        suppliers.add(NaiveBayes::new);
+        suppliers.add(LibSVM::new);
+        suppliers.add(Logistic::new);
+//        classifiers.add(new J48());
+//        classifiers.add(new NaiveBayes());
+//        classifiers.add(new LibSVM());
+//        classifiers.add(new Logistic());
         printResultCSVLabel(csvFileName);
         String fileName = "WekaTest" + System.currentTimeMillis() + ".txt";
         try {
@@ -559,13 +559,13 @@ public class WekaTest {
         Map<String, String> summaryStrings = new HashMap<>();
         List<Recording> recordings = recordingService.findAll();
 
-        for (Classifier cls : classifiers) {
+        for (Supplier cls : suppliers) {
             String summaryString = "";
             for (int j = 0; j < 2; j++) {
                 for (int k = 0; k < 2; k++) {
                     double bestPct = 0;
                     Pair<Integer, Integer> bestFilterValues = null;
-                    Evaluation evaluation = crossValidateOnce(cls, recordings, gestures, 15, 27);
+                    Evaluation evaluation = crossValidateOnce((Classifier) cls.get(), recordings, gestures, 15, 27);
                     double temp = evaluation.pctCorrect();
                     if (temp >= bestPct) {
                         bestPct = temp;
@@ -595,32 +595,32 @@ public class WekaTest {
 
         Map<String, String> summaryStrings = new HashMap<>();
 
-        for (Classifier cls : classifiers) {
+        for (Supplier cls : suppliers) {
             for (String tag : gestureService.getTags()) {
                 List<Recording> recordingsBySubjectLeft = recordingService.findBySubjectNameAndArmAndTagAndGesture(null, Arm.ARM_LEFT, tag, null);
                 List<Recording> recordingsBySubjectRight = recordingService.findBySubjectNameAndArmAndTagAndGesture(null, Arm.ARM_RIGHT, tag, null);
                 Evaluation evaluationLeft;
                 Evaluation evaluationRight;
                 if (!recordingsBySubjectLeft.isEmpty()) {
-                    evaluationLeft = crossValidateOnce(cls, recordingsBySubjectLeft, gestures, 15, 27);
+                    evaluationLeft = crossValidateOnce((Classifier) cls.get(), recordingsBySubjectLeft, gestures, 15, 27);
                     summaryStrings.put("==== " + cls.getClass().getSimpleName() + " Left Arm ====",
                             evaluationLeft.toSummaryString(true) + "\n" +
                                     evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationLeft.toClassDetailsString());
-                    printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationLeft, null, tag, Arm.ARM_LEFT, cls.getClass().getSimpleName());
+                    printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationLeft, null, tag, Arm.ARM_LEFT, ((Classifier) cls.get()).getClass().getSimpleName());
                 }
                 if (!recordingsBySubjectRight.isEmpty()) {
-                    evaluationRight = crossValidateOnce(cls, recordingsBySubjectRight, gestures, 15, 27);
+                    evaluationRight = crossValidateOnce((Classifier) cls.get(), recordingsBySubjectRight, gestures, 15, 27);
                     summaryStrings.put("==== " + cls.getClass().getSimpleName() + " Right Arm ====",
                             evaluationRight.toSummaryString(true) + "\n" +
                                     evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationRight.toClassDetailsString());
-                    printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationRight, null, tag, Arm.ARM_RIGHT, cls.getClass().getSimpleName());
+                    printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationRight, null, tag, Arm.ARM_RIGHT, ((Classifier) cls.get()).getClass().getSimpleName());
                 }
             }
         }
 
-        for (Classifier cls : classifiers) {
+        for (Supplier cls : suppliers) {
             for (Subject subject : subjectService.findAll()) {
                 for (String tag : gestureService.getTags()) {
                     List<Recording> recordingsBySubjectLeft = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), Arm.ARM_LEFT, tag, null);
@@ -628,20 +628,20 @@ public class WekaTest {
                     Evaluation evaluationLeft;
                     Evaluation evaluationRight;
                     if (!recordingsBySubjectLeft.isEmpty()) {
-                        evaluationLeft = crossValidateOnce(cls, recordingsBySubjectLeft, gestures, 15, 27);
+                        evaluationLeft = crossValidateOnce((Classifier) cls.get(), recordingsBySubjectLeft, gestures, 15, 27);
                         summaryStrings.put("==== " + cls.getClass().getSimpleName() + " for " + subject.getName() + " Left Arm ====",
                                 evaluationLeft.toSummaryString(true) + "\n" +
                                         evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                         evaluationLeft.toClassDetailsString());
-                        printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationLeft, subject.getName(), tag, Arm.ARM_LEFT, cls.getClass().getSimpleName());
+                        printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationLeft, subject.getName(), tag, Arm.ARM_LEFT, ((Classifier) cls.get()).getClass().getSimpleName());
                     }
                     if (!recordingsBySubjectRight.isEmpty()) {
-                        evaluationRight = crossValidateOnce(cls, recordingsBySubjectRight, gestures, 15, 27);
+                        evaluationRight = crossValidateOnce((Classifier) cls.get(), recordingsBySubjectRight, gestures, 15, 27);
                         summaryStrings.put("==== " + cls.getClass().getSimpleName() + " for " + subject.getName() + " Right Arm ====",
                                 evaluationRight.toSummaryString(true) + "\n" +
                                         evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                         evaluationRight.toClassDetailsString());
-                        printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationRight, subject.getName(), tag, Arm.ARM_RIGHT, cls.getClass().getSimpleName());
+                        printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationRight, subject.getName(), tag, Arm.ARM_RIGHT, ((Classifier) cls.get()).getClass().getSimpleName());
                     }
 
 
@@ -656,27 +656,27 @@ public class WekaTest {
     public void TestOneClassifierForPullDirectionsvsOneClassifierPerPullDirection() throws Exception {
         List<Gesture> gestures = gestureService.findAll();
         Map<String, String> summaryStrings = new HashMap<>();
-        for (Classifier cls : classifiers) {
+        for (Supplier cls : suppliers) {
             for (Subject subject : subjectService.findAll()) {
                 List<Recording> recordingsBySubjectLeft = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), Arm.ARM_LEFT, null, null);
                 List<Recording> recordingsBySubjectRight = recordingService.findBySubjectNameAndArmAndTagAndGesture(subject.getId(), Arm.ARM_RIGHT, null, null);
                 Evaluation evaluationLeft;
                 Evaluation evaluationRight;
                 if (!recordingsBySubjectLeft.isEmpty()) {
-                    evaluationLeft = crossValidateOnce(cls, recordingsBySubjectLeft, gestures, 15, 27);
+                    evaluationLeft = crossValidateOnce((Classifier) cls.get(), recordingsBySubjectLeft, gestures, 15, 27);
                     summaryStrings.put("==== " + cls.getClass().getSimpleName() + " Left Arm ====",
                             evaluationLeft.toSummaryString(true) + "\n" +
                                     evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationLeft.toClassDetailsString());
-                    printResultCSV(csvFileName, "OcForPDsvsOcPD", evaluationLeft, subject.getName(), null, Arm.ARM_LEFT, cls.getClass().getSimpleName());
+                    printResultCSV(csvFileName, "OcForPDsvsOcPD", evaluationLeft, subject.getName(), null, Arm.ARM_LEFT, ((Classifier) cls.get()).getClass().getSimpleName());
                 }
                 if (!recordingsBySubjectRight.isEmpty()) {
-                    evaluationRight = crossValidateOnce(cls, recordingsBySubjectRight, gestures, 15, 27);
+                    evaluationRight = crossValidateOnce((Classifier) cls.get(), recordingsBySubjectRight, gestures, 15, 27);
                     summaryStrings.put("==== " + cls.getClass().getSimpleName() + " Right Arm ====",
                             evaluationRight.toSummaryString(true) + "\n" +
                                     evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationRight.toClassDetailsString());
-                    printResultCSV(csvFileName, "OcForPDsvsOcPD", evaluationRight, subject.getName(), null, Arm.ARM_RIGHT, cls.getClass().getSimpleName());
+                    printResultCSV(csvFileName, "OcForPDsvsOcPD", evaluationRight, subject.getName(), null, Arm.ARM_RIGHT, ((Classifier) cls.get()).getClass().getSimpleName());
                 }
             }
         }
