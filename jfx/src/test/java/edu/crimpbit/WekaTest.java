@@ -558,19 +558,22 @@ public class WekaTest {
         List<Gesture> gestures = gestureService.findAll();
         Map<String, String> summaryStrings = new HashMap<>();
         List<Recording> recordings = recordingService.findAll();
-
+        int progressCounter = 0;
         for (Supplier cls : suppliers) {
+            Classifier classifier = (Classifier) cls.get();
             String summaryString = "";
-            for (int j = 0; j < 2; j++) {
-                for (int k = 0; k < 2; k++) {
+            for (int j = 0; j < 30; j++) {
+                for (int k = 0; k < 30; k++) {
+                    progressCounter++;
+                    System.out.println(progressCounter + " of " + (suppliers.size() * 30 * 30));
                     double bestPct = 0;
                     Pair<Integer, Integer> bestFilterValues = null;
-                    Evaluation evaluation = crossValidateOnce((Classifier) cls.get(), recordings, gestures, 15, 27);
+                    Evaluation evaluation = crossValidateOnce(classifier, recordings, gestures, 15, 27);
                     double temp = evaluation.pctCorrect();
                     if (temp >= bestPct) {
                         bestPct = temp;
                         bestFilterValues = Pair.of(j, k);
-                        summaryStrings.put("==== " + cls.getClass().getSimpleName() + " for all ====",
+                        summaryStrings.put("==== " + classifier.getClass().getSimpleName() + " for all ====",
                                 evaluation.toSummaryString(true) + "\n" +
                                         evaluation.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                         evaluation.toClassDetailsString() + "\n" +
