@@ -10,10 +10,8 @@ import edu.crimpbit.service.GestureService;
 import edu.crimpbit.service.RecordingService;
 import edu.crimpbit.service.SubjectService;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -35,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by Dario on 16.01.2016.
@@ -46,6 +43,9 @@ import java.util.stream.Stream;
 @Transactional
 @Rollback
 public class WekaTest {
+
+    @Rule
+    public TestName testName = new TestName();
 
     @Autowired
     RecordingService recordingService;
@@ -590,7 +590,7 @@ public class WekaTest {
      */
     //TODO: save filter values for each classifier in classifiers
     @Test
-    public void testOnClassifierForAllvsOneClassifierPerPerson() throws Exception {
+    public void testOnClassifierForAllVsOneClassifierPerPerson() throws Exception {
         List<Gesture> gestures = gestureService.findAll();
 
         Map<String, String> summaryStrings = new HashMap<>();
@@ -608,7 +608,7 @@ public class WekaTest {
                             evaluationLeft.toSummaryString(true) + "\n" +
                                     evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationLeft.toClassDetailsString());
-                    printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationLeft, null, tag, Arm.ARM_LEFT, classifier.getClass().getSimpleName());
+                    printResultCSV(csvFileName, getTestName(), evaluationLeft, null, tag, Arm.ARM_LEFT, classifier);
                 }
                 if (!recordingsBySubjectRight.isEmpty()) {
                     evaluationRight = crossValidateOnce(classifier, recordingsBySubjectRight, gestures, 15, 27);
@@ -616,7 +616,7 @@ public class WekaTest {
                             evaluationRight.toSummaryString(true) + "\n" +
                                     evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationRight.toClassDetailsString());
-                    printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationRight, null, tag, Arm.ARM_RIGHT, classifier.getClass().getSimpleName());
+                    printResultCSV(csvFileName, getTestName(), evaluationRight, null, tag, Arm.ARM_RIGHT, classifier);
                 }
             }
         }
@@ -635,7 +635,7 @@ public class WekaTest {
                                 evaluationLeft.toSummaryString(true) + "\n" +
                                         evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                         evaluationLeft.toClassDetailsString());
-                        printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationLeft, subject.getName(), tag, Arm.ARM_LEFT, classifier.getClass().getSimpleName());
+                        printResultCSV(csvFileName, getTestName(), evaluationLeft, subject.getName(), tag, Arm.ARM_LEFT, classifier);
                     }
                     if (!recordingsBySubjectRight.isEmpty()) {
                         evaluationRight = crossValidateOnce(classifier, recordingsBySubjectRight, gestures, 15, 27);
@@ -643,7 +643,7 @@ public class WekaTest {
                                 evaluationRight.toSummaryString(true) + "\n" +
                                         evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                         evaluationRight.toClassDetailsString());
-                        printResultCSV(csvFileName, "OcForAllvsOcPerP", evaluationRight, subject.getName(), tag, Arm.ARM_RIGHT, classifier.getClass().getSimpleName());
+                        printResultCSV(csvFileName, getTestName(), evaluationRight, subject.getName(), tag, Arm.ARM_RIGHT, classifier);
                     }
 
 
@@ -655,7 +655,7 @@ public class WekaTest {
     }
 
     @Test
-    public void TestOneClassifierForPullDirectionsvsOneClassifierPerPullDirection() throws Exception {
+    public void TestOneClassifierForPullDirectionsVsOneClassifierPerPullDirection() throws Exception {
         List<Gesture> gestures = gestureService.findAll();
         Map<String, String> summaryStrings = new HashMap<>();
         for (Supplier cls : suppliers) {
@@ -671,7 +671,7 @@ public class WekaTest {
                             evaluationLeft.toSummaryString(true) + "\n" +
                                     evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationLeft.toClassDetailsString());
-                    printResultCSV(csvFileName, "OcForPDsvsOcPD", evaluationLeft, subject.getName(), null, Arm.ARM_LEFT, classifier.getClass().getSimpleName());
+                    printResultCSV(csvFileName, getTestName(), evaluationLeft, subject.getName(), null, Arm.ARM_LEFT, classifier);
                 }
                 if (!recordingsBySubjectRight.isEmpty()) {
                     evaluationRight = crossValidateOnce(classifier, recordingsBySubjectRight, gestures, 15, 27);
@@ -679,7 +679,7 @@ public class WekaTest {
                             evaluationRight.toSummaryString(true) + "\n" +
                                     evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationRight.toClassDetailsString());
-                    printResultCSV(csvFileName, "OcForPDsvsOcPD", evaluationRight, subject.getName(), null, Arm.ARM_RIGHT, classifier.getClass().getSimpleName());
+                    printResultCSV(csvFileName, getTestName(), evaluationRight, subject.getName(), null, Arm.ARM_RIGHT, classifier);
                 }
             }
         }
@@ -865,12 +865,20 @@ public class WekaTest {
         writer.close();
     }
 
-
     private static void printResultCSVLabel(String fileName) {
         CSVWriter writer = null;
         try {
             writer = new CSVWriter(new FileWriter(fileName + ".csv"), '\t');
-            String[] labels = new String[]{"Test ID", "Classifier", "# Elements", "# Correct", "# Incorrect", "% Accuracy"};
+            String[] labels = new String[]{
+                    "Test",
+                    "Subject",
+                    "Arm",
+                    "Direction",
+                    "Classifier",
+                    "# Elements",
+                    "# Correct",
+                    "# Incorrect",
+                    "% Accuracy"};
 
             writer.writeNext(labels);
             writer.close();
@@ -879,12 +887,17 @@ public class WekaTest {
         }
     }
 
-    private void printResultCSV(String fileName, String testId, Evaluation evaluation, String subjectName, String tag, Arm arm, String cls) {
+
+    private void printResultCSV(String fileName, String testId, Evaluation evaluation, String subjectName, String tag, Arm arm, Classifier classifier) {
         CSVWriter writer = null;
         try {
-            writer = new CSVWriter(new FileWriter(fileName + ".csv", true), '\t');
-            String testIdString = testId + "(" + (subjectName == null ? "" : subjectName + ", ") + (tag == null ? "" : tag + ", ") + arm.name() + ")";
-            writer.writeNext(new String[]{testIdString, cls,
+            writer = new CSVWriter(new FileWriter(fileName + ".csv", true), ',');
+            writer.writeNext(new String[]{
+                    testId,
+                    subjectName,
+                    arm.name(),
+                    tag,
+                    classifier.getClass().getSimpleName(),
                     String.valueOf(evaluation.correct() + evaluation.incorrect()),
                     String.valueOf(evaluation.correct()),
                     String.valueOf(evaluation.incorrect()),
@@ -895,4 +908,9 @@ public class WekaTest {
         }
 
     }
+
+    private String getTestName() {
+        return testName.getMethodName();
+    }
+
 }
