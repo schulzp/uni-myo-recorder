@@ -27,17 +27,15 @@ import weka.classifiers.trees.J48;
 import weka.core.Instances;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
  * Created by Dario on 16.01.2016.
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {CoreConfiguration.class})
 @Transactional
@@ -58,23 +56,12 @@ public class WekaTest {
 
     private static PrintWriter writer = null;
 
-    //private static List<Classifier> classifiers = new ArrayList();
+    private static List<Supplier<Classifier>> suppliers = Arrays.asList(J48::new, NaiveBayes::new, LibSVM::new, Logistic::new);
 
-    static String csvFileName = "testOnClassifierForAllvsOneClassifierPerPersonResult-" + System.currentTimeMillis();
-
-    private static List<Supplier<Classifier>> suppliers = new ArrayList<>();
+    private CSVWriter summaryWriter = null;
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        suppliers.add(J48::new);
-        suppliers.add(NaiveBayes::new);
-        suppliers.add(LibSVM::new);
-        suppliers.add(Logistic::new);
-//        classifiers.add(new J48());
-//        classifiers.add(new NaiveBayes());
-//        classifiers.add(new LibSVM());
-//        classifiers.add(new Logistic());
-        printResultCSVLabel(csvFileName);
         String fileName = "WekaTest" + System.currentTimeMillis() + ".txt";
         try {
             writer = new PrintWriter(new FileOutputStream(new File(fileName), true));
@@ -83,84 +70,22 @@ public class WekaTest {
         }
     }
 
+    @Before
+    public void beforeTest() throws IOException {
+        String summaryFileName = testName.getMethodName() + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        summaryWriter = new CSVWriter(new FileWriter(summaryFileName + ".csv", false), ',');
+        printResultCSVHeader();
+    }
+
+    @After
+    public void afterTest() throws IOException {
+        summaryWriter.close();
+    }
+
     @AfterClass
     public static void oneTimeTearDown() {
         writer.close();
     }
-
-    /**
-     * variables: subject, tags, gestures, filter, Classifier
-     * <p>
-     * Classifier Test: classifier for one subject, one tag, one gesture, different filter sets, different classifiers
-     */
-//    @Test
-//    public void differentFiltersAndClassifiersTest() throws ExecutionException, InterruptedException {
-//        int averageFilterMin = 2;
-//        int averageFilterMax = 20;
-//        int labelFilterMin = 2;
-//        int labelFilterMax = 20;
-//        ExecutorService executor = Executors.newFixedThreadPool(4);
-//        //ExecutorService executor = Executors.newFixedThreadPool(2);
-//        HashMap<String, FutureTask<Integer[][]>> map = new HashMap<>();
-//        //Set<FutureTask<Integer[][]>> set = new HashSet<>();
-//
-//        FutureTask<Integer[][]> futureTask1 = new FutureTask<>(() -> classify("Peter", null, "index", new J48(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-//        FutureTask<Integer[][]> futureTask2 = new FutureTask<>(() -> classify("Peter", null, "index", new Logistic(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-//        FutureTask<Integer[][]> futureTask3 = new FutureTask<>(() -> classify("Peter", null, "index", new NaiveBayes(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-//        // FutureTask<Integer[][]> futureTask4 = new FutureTask<>(() -> classify("Peter", null, "index", new MultilayerPerceptron(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-//
-//
-//        map.put("J48", futureTask1);
-//        executor.execute(futureTask1);
-//        map.put("Logistic", futureTask2);
-//        executor.execute(futureTask2);
-//        map.put("NaiveBayes", futureTask3);
-//        executor.execute(futureTask3);
-//
-//        for (Map.Entry<String, FutureTask<Integer[][]>> stringFutureTaskEntry : map.entrySet()) {
-//            String fileName = stringFutureTaskEntry.getKey() + System.currentTimeMillis() + ".txt";
-//            printArray(stringFutureTaskEntry.getValue().get(), stringFutureTaskEntry.getKey(), fileName, averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax);
-//            printBestFilterCombo(stringFutureTaskEntry.getValue().get(), stringFutureTaskEntry.getKey(), fileName, averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax);
-//        }
-//    }
-
-    /**
-     * variables: subject, tags, gestures, filter, Classifier
-     * <p>
-     * for each gesture with different sets of subjects
-     */
-//    @Test
-//    public void differentSetsOfSubjectsTest() throws ExecutionException, InterruptedException {
-//        int averageFilterMin = 19;
-//        int averageFilterMax = 20;
-//        int labelFilterMin = 3;
-//        int labelFilterMax = 4;
-//        ExecutorService executor = Executors.newFixedThreadPool(3);
-//        HashMap<String, FutureTask<Integer[][]>> map = new HashMap<>();
-//
-//        FutureTask<Integer[][]> futureTask1 = new FutureTask<>(() -> classify("Peter", null, "index", new J48(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-//        FutureTask<Integer[][]> futureTask2 = new FutureTask<>(() -> classify("Jasmin", null, "index", new J48(), averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax));
-//
-//        map.put("Peter", futureTask1);
-//        executor.execute(futureTask1);
-//        map.put("Jasmin", futureTask2);
-//        executor.execute(futureTask2);
-//
-//        for (Map.Entry<String, FutureTask<Integer[][]>> stringFutureTaskEntry : map.entrySet()) {
-//            String fileName = stringFutureTaskEntry.getKey() + System.currentTimeMillis() + ".txt";
-//            printArray(stringFutureTaskEntry.getValue().get(), stringFutureTaskEntry.getKey(), fileName, averageFilterMin, averageFilterMax, labelFilterMin, labelFilterMax);
-//        }
-//    }
-
-    /**
-     * variables: subject, tags, gestures, filter, Classifier
-     * <p>
-     * for each gesture with different tags and different sets of subjects
-     */
-//    @Test
-//    public void differentTagsAndDifferentSetsOfSubjects() {
-//
-//    }
 
     /**
      * Tests all recordings with all gestures and classifier J48
@@ -608,7 +533,7 @@ public class WekaTest {
                             evaluationLeft.toSummaryString(true) + "\n" +
                                     evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationLeft.toClassDetailsString());
-                    printResultCSV(csvFileName, getTestName(), evaluationLeft, null, tag, Arm.ARM_LEFT, classifier);
+                    printResultCSV(getTestName(), evaluationLeft, null, tag, Arm.ARM_LEFT, classifier);
                 }
                 if (!recordingsBySubjectRight.isEmpty()) {
                     evaluationRight = crossValidateOnce(classifier, recordingsBySubjectRight, gestures, 15, 27);
@@ -616,7 +541,7 @@ public class WekaTest {
                             evaluationRight.toSummaryString(true) + "\n" +
                                     evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationRight.toClassDetailsString());
-                    printResultCSV(csvFileName, getTestName(), evaluationRight, null, tag, Arm.ARM_RIGHT, classifier);
+                    printResultCSV(getTestName(), evaluationRight, null, tag, Arm.ARM_RIGHT, classifier);
                 }
             }
         }
@@ -635,7 +560,7 @@ public class WekaTest {
                                 evaluationLeft.toSummaryString(true) + "\n" +
                                         evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                         evaluationLeft.toClassDetailsString());
-                        printResultCSV(csvFileName, getTestName(), evaluationLeft, subject.getName(), tag, Arm.ARM_LEFT, classifier);
+                        printResultCSV(getTestName(), evaluationLeft, subject.getName(), tag, Arm.ARM_LEFT, classifier);
                     }
                     if (!recordingsBySubjectRight.isEmpty()) {
                         evaluationRight = crossValidateOnce(classifier, recordingsBySubjectRight, gestures, 15, 27);
@@ -643,7 +568,7 @@ public class WekaTest {
                                 evaluationRight.toSummaryString(true) + "\n" +
                                         evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                         evaluationRight.toClassDetailsString());
-                        printResultCSV(csvFileName, getTestName(), evaluationRight, subject.getName(), tag, Arm.ARM_RIGHT, classifier);
+                        printResultCSV(getTestName(), evaluationRight, subject.getName(), tag, Arm.ARM_RIGHT, classifier);
                     }
 
 
@@ -655,7 +580,7 @@ public class WekaTest {
     }
 
     @Test
-    public void TestOneClassifierForPullDirectionsVsOneClassifierPerPullDirection() throws Exception {
+    public void testOneClassifierForPullDirectionsVsOneClassifierPerPullDirection() throws Exception {
         List<Gesture> gestures = gestureService.findAll();
         Map<String, String> summaryStrings = new HashMap<>();
         for (Supplier cls : suppliers) {
@@ -671,7 +596,7 @@ public class WekaTest {
                             evaluationLeft.toSummaryString(true) + "\n" +
                                     evaluationLeft.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationLeft.toClassDetailsString());
-                    printResultCSV(csvFileName, getTestName(), evaluationLeft, subject.getName(), null, Arm.ARM_LEFT, classifier);
+                    printResultCSV(getTestName(), evaluationLeft, subject.getName(), null, Arm.ARM_LEFT, classifier);
                 }
                 if (!recordingsBySubjectRight.isEmpty()) {
                     evaluationRight = crossValidateOnce(classifier, recordingsBySubjectRight, gestures, 15, 27);
@@ -679,7 +604,7 @@ public class WekaTest {
                             evaluationRight.toSummaryString(true) + "\n" +
                                     evaluationRight.toMatrixString("=== Confusion Matrix  ===") + "\n" +
                                     evaluationRight.toClassDetailsString());
-                    printResultCSV(csvFileName, getTestName(), evaluationRight, subject.getName(), null, Arm.ARM_RIGHT, classifier);
+                    printResultCSV(getTestName(), evaluationRight, subject.getName(), null, Arm.ARM_RIGHT, classifier);
                 }
             }
         }
@@ -865,47 +790,30 @@ public class WekaTest {
         writer.close();
     }
 
-    private static void printResultCSVLabel(String fileName) {
-        CSVWriter writer = null;
-        try {
-            writer = new CSVWriter(new FileWriter(fileName + ".csv"), '\t');
-            String[] labels = new String[]{
-                    "Test",
-                    "Subject",
-                    "Arm",
-                    "Direction",
-                    "Classifier",
-                    "# Elements",
-                    "# Correct",
-                    "# Incorrect",
-                    "% Accuracy"};
-
-            writer.writeNext(labels);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void printResultCSVHeader() {
+        summaryWriter.writeNext(new String[]{
+                "Test",
+                "Subject",
+                "Arm",
+                "Direction",
+                "Classifier",
+                "# Elements",
+                "# Correct",
+                "# Incorrect",
+                "% Accuracy"});
     }
 
-
-    private void printResultCSV(String fileName, String testId, Evaluation evaluation, String subjectName, String tag, Arm arm, Classifier classifier) {
-        CSVWriter writer = null;
-        try {
-            writer = new CSVWriter(new FileWriter(fileName + ".csv", true), ',');
-            writer.writeNext(new String[]{
-                    testId,
-                    subjectName,
-                    arm.name(),
-                    tag,
-                    classifier.getClass().getSimpleName(),
-                    String.valueOf(evaluation.correct() + evaluation.incorrect()),
-                    String.valueOf(evaluation.correct()),
-                    String.valueOf(evaluation.incorrect()),
-                    String.valueOf(evaluation.pctCorrect())});
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void printResultCSV(String testId, Evaluation evaluation, String subjectName, String tag, Arm arm, Classifier classifier) {
+        summaryWriter.writeNext(new String[]{
+                testId,
+                subjectName == null ? "*" : subjectName,
+                arm.name(),
+                tag == null ? "*" : tag,
+                classifier.getClass().getSimpleName(),
+                String.valueOf(evaluation.correct() + evaluation.incorrect()),
+                String.valueOf(evaluation.correct()),
+                String.valueOf(evaluation.incorrect()),
+                String.valueOf(evaluation.pctCorrect())});
 
     }
 
