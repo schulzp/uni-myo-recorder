@@ -449,7 +449,7 @@ public class WekaTest {
                 for (Arm arm : ARMS) {
                     Classifier classifier = (Classifier) classifierSupplier.get();
 
-                    List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(null, Arm.ARM_LEFT, tag, null);
+                    List<Recording> recordings = recordingService.findBySubjectNameAndArmAndTagAndGesture(null, arm, tag, null);
 
                     if (!recordings.isEmpty()) {
                         evaluateClassifier("Test-Per-Person", null, arm, null, classifier, recordings, detailWriter, 15, 17);
