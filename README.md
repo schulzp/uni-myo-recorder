@@ -1,7 +1,7 @@
 Crimp Bit Analysis Tool
 =======================
 
-A recorder and analyzer for [MYO Armands](https://www.myo.com/) created as part of a course at [University of Bremen](https://www.uni-bremen.de/).
+A recorder and analyzer for [MYO Armands](https://www.myo.com/) created as part of a course at [University of Bremen](https://www.uni-bremen.de/). Details can be found in the [final report](https://github.com/schulzp/uni-myo-recorder/raw/gh-pages/documents/Classification_of_Climbing_Grab_Movements_Measured_with_Myo_Armbands.pdf).
 
 ## Project Structure
 
