@@ -96,7 +96,7 @@ sourceSets {
 javafx {
     appID 'CrimpBitAnalysis'
     appName 'Crimp Bit Analysis'
-    mainClass 'edu.crimpbit.anaylsis.main.ApplicationLauncher'
+    mainClass 'edu.crimpbit.anaylsis.AnalysisApplication'
 }
 
 ext {
